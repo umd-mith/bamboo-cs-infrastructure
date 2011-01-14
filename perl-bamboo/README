@@ -1,0 +1,24 @@
+                            --------------
+                             Bamboo 0.0.1
+                            --------------
+
+The modules are divided into four main areas:
+
+ Client - allows querying of the Bamboo Corpora Space environment
+
+ Agent  - allows responding to queries in the Bamboo CS environment
+
+ Server - acts as the switchboard between Clients and Agents
+
+ Engine - provides some portable computational power across Agents, 
+          Clients, and Servers
+
+The scripts in ./examples demonstrate how the Client, Agent, and Server
+can work.
+
+To install the modules:
+
+  perl Build.PL
+  ./Build
+  ./Build test
+  ./Build install

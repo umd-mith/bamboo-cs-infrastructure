@@ -1,0 +1,5 @@
+If you are wanting to do any development work on the Engine expression 
+parser, then you will need to install Parse::Eyapp.  This module is not
+required at build or run time.
+
+To rebuild the parser, run './Build parser'.

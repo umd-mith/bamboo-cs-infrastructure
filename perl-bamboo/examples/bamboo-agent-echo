@@ -1,0 +1,19 @@
+#! /usr/bin/perl -w
+
+use lib './blib/lib';
+use Bamboo::Agent;
+use POE (Filter::Stream);
+
+my $agent;
+$agent = Bamboo::Agent -> new(
+  url => 'http://localhost:3000/demo',
+  events => {
+    'echo' => sub {
+      my($class, $data, $uuid) = @_;
+      $agent -> response($class, $data, $uuid);
+    }
+  }
+);
+
+$agent -> run;
+

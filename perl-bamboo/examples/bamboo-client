@@ -1,0 +1,25 @@
+#! /usr/bin/perl -w
+
+use lib './blib/lib';
+use Bamboo::Client;
+use POE (Filter::Stream);
+
+my $client = Bamboo::Client -> new(
+  url => 'http://localhost:3000/demo'
+);
+
+POE::Session -> create(
+  inline_states => {
+    _start  => sub {
+      $_[KERNEL] -> yield('send_request');
+    },
+    send_request => sub {
+      printf STDERR "Sending an echo request\n";
+      $client -> request('echo', { foo => 'bar' });
+      printf STDERR "echo request sent\n";
+    }
+  }
+);
+
+$client -> run;
+
