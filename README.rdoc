@@ -1,0 +1,9 @@
+= bamboo-cs-infrastructure
+
+== DESCRIPTION:
+
+This repository has proofs of concept for the various components in the
+proposed Bamboo Copora Space infrastructure.  Each set of libraries is
+prefixed by the implementation language.
+
+See the READMEs in each component for more information.
