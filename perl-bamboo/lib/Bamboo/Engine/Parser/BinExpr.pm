@@ -1,6 +1,8 @@
 package Bamboo::Engine::Parser::BinExpr;
   use Moose;
 
+  use Bamboo::Engine::SetIterator;
+
   use Bamboo::Engine::Types qw(Expression);
 
   has 'left' => ( isa => Expression, is => 'rw' );
@@ -11,7 +13,7 @@ package Bamboo::Engine::Parser::BinExpr;
 
     #we want to produce an iterator that returns each one in turn
 
-    return Bamboo::Engine::Iterator -> new(
+    return Bamboo::Engine::SetIterator -> new(
       sets => [ 
         $self -> left -> run($context, $av), 
         $self -> right -> run($context, $av) 

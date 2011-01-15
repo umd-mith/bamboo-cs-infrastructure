@@ -3,20 +3,20 @@
 use Test::More tests => 95;
 use Data::Dumper;
 
-use Bamboo::Engine::Iterator;
+use Bamboo::Engine::SetIterator;
 use Bamboo::Engine::ConstantIterator;
 use Bamboo::Engine::RangeIterator;
 use Bamboo::Engine::Parser::Literal;
 
-can_ok('Bamboo::Engine::Iterator', qw( new ));
+can_ok('Bamboo::Engine::SetIterator', qw( new ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( new ));
 can_ok('Bamboo::Engine::RangeIterator', qw( new ));
 can_ok('Bamboo::Engine::ConstantRangeIterator', qw( new ));
 
-can_ok('Bamboo::Engine::Iterator', qw( start ));
+can_ok('Bamboo::Engine::SetIterator', qw( start ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( start ));
 
-can_ok('Bamboo::Engine::Iterator::Visitor', qw( next at_end position ));
+can_ok('Bamboo::Engine::SetIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::ConstantIterator::Visitor', qw( next at_end position ));
 
 my $iterator = new_ok( 'Bamboo::Engine::ConstantIterator', [
@@ -62,7 +62,7 @@ is($lit_it_vis -> next, 'a');
 is($lit_it_vis -> position, 1);
 ok($lit_it_vis -> at_end);
 
-my $combo = new_ok( 'Bamboo::Engine::Iterator', [
+my $combo = new_ok( 'Bamboo::Engine::SetIterator', [
   sets => [ Bamboo::Engine::ConstantIterator -> new( values => [ 1, 2, 3 ] ),
             Bamboo::Engine::ConstantIterator -> new( values => [ 2, 4, 6 ] )
           ],

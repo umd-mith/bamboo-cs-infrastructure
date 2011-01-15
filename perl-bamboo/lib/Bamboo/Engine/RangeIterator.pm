@@ -32,7 +32,7 @@ package Bamboo::Engine::RangeIterator::Visitor;
   sub start {
     my($self) = @_;
     $self -> bounds_iterator(
-      Bamboo::Engine::Iterator -> new(
+      Bamboo::Engine::SetIterator -> new(
         sets => [ $self -> iterator -> begin, $self -> iterator -> end ],
         combinator => sub {
           my($left, $right) = @_;
