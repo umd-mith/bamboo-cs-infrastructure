@@ -3459,9 +3459,9 @@ sub new {
   [ 'axis_83' => 'axis', [ 'node_test' ], 0 ],
   [ 'axis_84' => 'axis', [ 'NCNAME', '::', 'node_test' ], 0 ],
   [ 'axis_85' => 'axis', [ '@', 'node_test' ], 0 ],
-  [ '_PLUS_LIST' => 'PLUS-7', [ 'PLUS-7', 'predicate' ], 0 ],
-  [ '_PLUS_LIST' => 'PLUS-7', [ 'predicate' ], 0 ],
-  [ 'predicates_88' => 'predicates', [ 'PLUS-7' ], 0 ],
+  [ '_STAR_LIST' => 'STAR-7', [ 'STAR-7', 'predicate' ], 0 ],
+  [ '_STAR_LIST' => 'STAR-7', [  ], 0 ],
+  [ 'predicates_88' => 'predicates', [ 'STAR-7' ], 0 ],
   [ 'num_expr_89' => 'num_expr', [ 'additive_expr' ], 0 ],
   [ 'num_expr_90' => 'num_expr', [ 'range_expr' ], 0 ],
   [ '_PLUS_LIST' => 'PLUS-8', [ 'PLUS-8', ',', 'num_expr' ], 0 ],
@@ -3482,9 +3482,8 @@ sub new {
   [ 'primary_expr_106' => 'primary_expr', [ 'NUMBER' ], 0 ],
   [ 'primary_expr_107' => 'primary_expr', [ 'FUNCTION_NAME', 'opt_plist' ], 0 ],
   [ 'node_test_108' => 'node_test', [ 'QNAME' ], 0 ],
-  [ 'node_test_109' => 'node_test', [ 'NUMBER' ], 0 ],
-  [ 'node_test_110' => 'node_test', [ '{', 'expr', '}' ], 0 ],
-  [ 'node_test_111' => 'node_test', [ '*' ], 0 ],
+  [ 'node_test_109' => 'node_test', [ '{', 'expr', '}' ], 0 ],
+  [ 'node_test_110' => 'node_test', [ '*' ], 0 ],
 ],
     yyLABELS  =>
 {
@@ -3574,8 +3573,8 @@ sub new {
   'axis_83' => 83,
   'axis_84' => 84,
   'axis_85' => 85,
-  '_PLUS_LIST' => 86,
-  '_PLUS_LIST' => 87,
+  '_STAR_LIST' => 86,
+  '_STAR_LIST' => 87,
   'predicates_88' => 88,
   'num_expr_89' => 89,
   'num_expr_90' => 90,
@@ -3599,7 +3598,6 @@ sub new {
   'node_test_108' => 108,
   'node_test_109' => 109,
   'node_test_110' => 110,
-  'node_test_111' => 111,
 },
     yyTERMS  =>
 { '' => { ISSEMANTIC => 0 },
@@ -3763,8 +3761,7 @@ sub new {
 		ACTIONS => {
 			'QNAME' => 49,
 			"*" => 12,
-			"{" => 44,
-			'NUMBER' => 58
+			"{" => 44
 		},
 		GOTOS => {
 			'node_test' => 57
@@ -3783,24 +3780,21 @@ sub new {
 		DEFAULT => -62
 	},
 	{#State 7
-		ACTIONS => {
-			"[" => 59
-		},
+		DEFAULT => -87,
 		GOTOS => {
-			'PLUS-7' => 60,
-			'predicates' => 62,
-			'predicate' => 61
+			'STAR-7' => 58,
+			'predicates' => 59
 		}
 	},
 	{#State 8
 		ACTIONS => {
-			"|" => 63
+			"|" => 60
 		},
 		DEFAULT => -63
 	},
 	{#State 9
 		ACTIONS => {
-			";" => 64
+			";" => 61
 		},
 		DEFAULT => -3
 	},
@@ -3811,7 +3805,7 @@ sub new {
 		DEFAULT => -9
 	},
 	{#State 12
-		DEFAULT => -111
+		DEFAULT => -110
 	},
 	{#State 13
 		DEFAULT => -2
@@ -3852,12 +3846,12 @@ sub new {
 			'PLUS-6' => 8,
 			'step' => 10,
 			'range_expr' => 11,
-			'expr' => 66,
+			'expr' => 63,
 			'location_path' => 14,
 			'axis_name' => 16,
-			'list' => 65,
+			'list' => 62,
 			'plist' => 18,
-			'PLUS-5' => 67,
+			'PLUS-5' => 64,
 			'and_expr' => 20,
 			'or_expr' => 22,
 			'if_expr' => 46,
@@ -3878,24 +3872,23 @@ sub new {
 	},
 	{#State 16
 		ACTIONS => {
-			"/" => 69,
-			"//" => 68
+			"/" => 66,
+			"//" => 65
 		}
 	},
 	{#State 17
 		ACTIONS => {
 			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
 			"\@" => 2,
 			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
+			'NCNAME' => 68,
+			"." => 32
 		},
 		GOTOS => {
 			'step' => 10,
-			'relative_location_path' => 70,
+			'relative_location_path' => 67,
 			'node_test' => 31,
 			'axis' => 7
 		}
@@ -3909,16 +3902,16 @@ sub new {
 		},
 		DEFAULT => -99,
 		GOTOS => {
-			'opt_plist' => 72,
-			'OPTIONAL-10' => 74,
-			'PAREN-9' => 75,
-			'plist' => 73
+			'opt_plist' => 69,
+			'OPTIONAL-10' => 71,
+			'PAREN-9' => 72,
+			'plist' => 70
 		}
 	},
 	{#State 20
 		ACTIONS => {
-			"except" => 77,
-			"and" => 76
+			"except" => 74,
+			"and" => 73
 		},
 		DEFAULT => -33
 	},
@@ -3930,12 +3923,12 @@ sub new {
 	},
 	{#State 23
 		ACTIONS => {
-			'DOLLAR_QNAME' => 78
+			'DOLLAR_QNAME' => 75
 		},
 		GOTOS => {
-			'for_var' => 81,
-			'PLUS-3' => 80,
-			'for_vars' => 79
+			'for_var' => 78,
+			'PLUS-3' => 77,
+			'for_vars' => 76
 		}
 	},
 	{#State 24
@@ -3974,12 +3967,12 @@ sub new {
 			'PLUS-6' => 8,
 			'step' => 10,
 			'range_expr' => 11,
-			'expr' => 66,
+			'expr' => 63,
 			'location_path' => 14,
 			'axis_name' => 16,
-			'list' => 82,
+			'list' => 79,
 			'plist' => 18,
-			'PLUS-5' => 67,
+			'PLUS-5' => 64,
 			'and_expr' => 20,
 			'or_expr' => 22,
 			'if_expr' => 46,
@@ -4000,22 +3993,22 @@ sub new {
 	},
 	{#State 26
 		ACTIONS => {
-			'XMLNS' => 84,
-			'DOLLAR_QNAME' => 83
+			'XMLNS' => 81,
+			'DOLLAR_QNAME' => 80
 		}
 	},
 	{#State 27
 		ACTIONS => {
-			".." => 91,
-			"-" => 85,
-			"to" => 86,
-			"<" => 87,
-			"+" => 92,
-			">=" => 88,
-			"!=" => 93,
-			"=" => 94,
-			"<=" => 89,
-			">" => 90
+			".." => 88,
+			"-" => 82,
+			"to" => 83,
+			"<" => 84,
+			"+" => 89,
+			">=" => 85,
+			"!=" => 90,
+			"=" => 91,
+			"<=" => 86,
+			">" => 87
 		},
 		DEFAULT => -45
 	},
@@ -4045,23 +4038,23 @@ sub new {
 	},
 	{#State 36
 		ACTIONS => {
-			'' => 95
+			'' => 92
 		}
 	},
 	{#State 37
 		ACTIONS => {
-			'DOLLAR_QNAME' => 78
+			'DOLLAR_QNAME' => 75
 		},
 		GOTOS => {
-			'for_var' => 81,
-			'PLUS-3' => 80,
-			'for_vars' => 96
+			'for_var' => 78,
+			'PLUS-3' => 77,
+			'for_vars' => 93
 		}
 	},
 	{#State 38
 		ACTIONS => {
-			"//" => 97,
-			"/" => 98
+			"//" => 94,
+			"/" => 95
 		},
 		DEFAULT => -69
 	},
@@ -4070,18 +4063,18 @@ sub new {
 	},
 	{#State 40
 		ACTIONS => {
-			"::" => 99
+			"::" => 96
 		}
 	},
 	{#State 41
 		ACTIONS => {
-			"(" => 100
+			"(" => 97
 		}
 	},
 	{#State 42
 		ACTIONS => {
-			"with" => 101,
-			"err" => 102
+			"with" => 98,
+			"err" => 99
 		},
 		DEFAULT => -5
 	},
@@ -4121,7 +4114,7 @@ sub new {
 			'PLUS-6' => 8,
 			'step' => 10,
 			'range_expr' => 11,
-			'expr' => 103,
+			'expr' => 100,
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
@@ -4149,15 +4142,14 @@ sub new {
 			"*" => 12,
 			"." => 32,
 			".." => 35,
-			'NCNAME' => 71,
-			'NUMBER' => 58,
+			'NCNAME' => 68,
 			"{" => 44,
 			'QNAME' => 49
 		},
 		DEFAULT => -71,
 		GOTOS => {
 			'step' => 10,
-			'relative_location_path' => 104,
+			'relative_location_path' => 101,
 			'node_test' => 31,
 			'axis' => 7
 		}
@@ -4175,23 +4167,20 @@ sub new {
 		DEFAULT => -108
 	},
 	{#State 50
-		ACTIONS => {
-			"[" => 59
-		},
+		DEFAULT => -87,
 		GOTOS => {
-			'PLUS-7' => 60,
-			'predicates' => 105,
-			'predicate' => 61
+			'STAR-7' => 58,
+			'predicates' => 102
 		}
 	},
 	{#State 51
 		ACTIONS => {
-			'DOLLAR_QNAME' => 78
+			'DOLLAR_QNAME' => 75
 		},
 		GOTOS => {
-			'for_var' => 81,
-			'PLUS-3' => 80,
-			'for_vars' => 106
+			'for_var' => 78,
+			'PLUS-3' => 77,
+			'for_vars' => 103
 		}
 	},
 	{#State 52
@@ -4202,15 +4191,15 @@ sub new {
 	},
 	{#State 54
 		ACTIONS => {
-			"or" => 107
+			"or" => 104
 		},
 		DEFAULT => -34
 	},
 	{#State 55
 		ACTIONS => {
-			"mod" => 108,
-			"div" => 109,
-			'MPY' => 110
+			"mod" => 105,
+			"div" => 106,
+			'MPY' => 107
 		},
 		DEFAULT => -52
 	},
@@ -4221,82 +4210,18 @@ sub new {
 		DEFAULT => -85
 	},
 	{#State 58
-		DEFAULT => -109
-	},
-	{#State 59
 		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"every" => 37,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"if" => 41,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			"for" => 23,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"some" => 51,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'equality_expr' => 4,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'range_expr' => 111,
-			'expr' => 113,
-			'location_path' => 14,
-			'PLUS-8' => 114,
-			'axis_name' => 16,
-			'plist' => 18,
-			'num_expr' => 115,
-			'and_expr' => 20,
-			'or_expr' => 22,
-			'if_expr' => 46,
-			'num_list' => 116,
-			'err_expr' => 47,
-			'for_expr' => 24,
-			'additive_expr' => 112,
-			'primary_expr' => 50,
-			'unary_expr' => 28,
-			'union_expr' => 52,
-			'with_expr' => 29,
-			'tuple' => 53,
-			'quant_expr' => 30,
-			'node_test' => 31,
-			'PLUS-4' => 54,
-			'multiplicative_expr' => 55,
-			'relational_expr' => 34
-		}
-	},
-	{#State 60
-		ACTIONS => {
-			"[" => 59
+			"[" => 108
 		},
 		DEFAULT => -88,
 		GOTOS => {
-			'predicate' => 117
+			'predicate' => 109
 		}
 	},
-	{#State 61
-		DEFAULT => -87
-	},
-	{#State 62
+	{#State 59
 		DEFAULT => -80
 	},
-	{#State 63
+	{#State 60
 		ACTIONS => {
 			".." => 35,
 			"\@" => 2,
@@ -4318,7 +4243,7 @@ sub new {
 		GOTOS => {
 			'absolute_location_path' => 3,
 			'relative_location_path' => 38,
-			'path_expr' => 118,
+			'path_expr' => 110,
 			'axis' => 7,
 			'step' => 10,
 			'primary_expr' => 50,
@@ -4329,7 +4254,7 @@ sub new {
 			'plist' => 18
 		}
 	},
-	{#State 64
+	{#State 61
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
@@ -4366,7 +4291,7 @@ sub new {
 			'step' => 10,
 			'range_expr' => 11,
 			'expr' => 42,
-			'statement' => 119,
+			'statement' => 111,
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
@@ -4389,85 +4314,83 @@ sub new {
 			'relational_expr' => 34
 		}
 	},
+	{#State 62
+		ACTIONS => {
+			"]" => 112
+		}
+	},
+	{#State 63
+		ACTIONS => {
+			"with" => 98,
+			"err" => 99
+		},
+		DEFAULT => -43
+	},
+	{#State 64
+		ACTIONS => {
+			"," => 113
+		},
+		DEFAULT => -44
+	},
 	{#State 65
 		ACTIONS => {
-			"]" => 120
+			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
+			"\@" => 2,
+			"{" => 44,
+			'NCNAME' => 68,
+			"." => 32
+		},
+		GOTOS => {
+			'step' => 10,
+			'relative_location_path' => 114,
+			'node_test' => 31,
+			'axis' => 7
 		}
 	},
 	{#State 66
 		ACTIONS => {
-			"with" => 101,
-			"err" => 102
+			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
+			"\@" => 2,
+			"{" => 44,
+			'NCNAME' => 68,
+			"." => 32
 		},
-		DEFAULT => -43
+		GOTOS => {
+			'step' => 10,
+			'relative_location_path' => 115,
+			'node_test' => 31,
+			'axis' => 7
+		}
 	},
 	{#State 67
 		ACTIONS => {
-			"," => 121
-		},
-		DEFAULT => -44
-	},
-	{#State 68
-		ACTIONS => {
-			".." => 35,
-			"\@" => 2,
-			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
-		},
-		GOTOS => {
-			'step' => 10,
-			'relative_location_path' => 122,
-			'node_test' => 31,
-			'axis' => 7
-		}
-	},
-	{#State 69
-		ACTIONS => {
-			".." => 35,
-			"\@" => 2,
-			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
-		},
-		GOTOS => {
-			'step' => 10,
-			'relative_location_path' => 123,
-			'node_test' => 31,
-			'axis' => 7
-		}
-	},
-	{#State 70
-		ACTIONS => {
-			"//" => 97,
-			"/" => 98
+			"//" => 94,
+			"/" => 95
 		},
 		DEFAULT => -73
 	},
-	{#State 71
+	{#State 68
 		ACTIONS => {
-			"::" => 124
+			"::" => 116
 		}
 	},
-	{#State 72
+	{#State 69
 		DEFAULT => -107
 	},
-	{#State 73
+	{#State 70
 		DEFAULT => -97
 	},
-	{#State 74
+	{#State 71
 		DEFAULT => -100
 	},
-	{#State 75
+	{#State 72
 		DEFAULT => -98
 	},
-	{#State 76
+	{#State 73
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
@@ -4490,7 +4413,7 @@ sub new {
 		GOTOS => {
 			'absolute_location_path' => 3,
 			'relative_location_path' => 38,
-			'equality_expr' => 125,
+			'equality_expr' => 117,
 			'path_expr' => 6,
 			'axis' => 7,
 			'PLUS-6' => 8,
@@ -4498,7 +4421,7 @@ sub new {
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'additive_expr' => 126,
+			'additive_expr' => 118,
 			'unary_expr' => 28,
 			'primary_expr' => 50,
 			'union_expr' => 52,
@@ -4506,10 +4429,85 @@ sub new {
 			'node_test' => 31,
 			'relational_expr' => 34,
 			'multiplicative_expr' => 55
+		}
+	},
+	{#State 74
+		ACTIONS => {
+			".." => 35,
+			"-" => 1,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
+			"{" => 44,
+			"/" => 45,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"." => 32
+		},
+		GOTOS => {
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
+			'equality_expr' => 119,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'location_path' => 14,
+			'axis_name' => 16,
+			'plist' => 18,
+			'additive_expr' => 118,
+			'unary_expr' => 28,
+			'primary_expr' => 50,
+			'union_expr' => 52,
+			'tuple' => 53,
+			'node_test' => 31,
+			'relational_expr' => 34,
+			'multiplicative_expr' => 55
+		}
+	},
+	{#State 75
+		ACTIONS => {
+			"in" => 120
+		}
+	},
+	{#State 76
+		ACTIONS => {
+			"return" => 121
 		}
 	},
 	{#State 77
 		ACTIONS => {
+			"," => 122
+		},
+		DEFAULT => -28
+	},
+	{#State 78
+		DEFAULT => -27
+	},
+	{#State 79
+		ACTIONS => {
+			")" => 123
+		}
+	},
+	{#State 80
+		ACTIONS => {
+			":=" => 124
+		}
+	},
+	{#State 81
+		ACTIONS => {
+			":=" => 125
+		}
+	},
+	{#State 82
+		ACTIONS => {
 			".." => 35,
 			"-" => 1,
 			"\@" => 2,
@@ -4531,7 +4529,44 @@ sub new {
 		GOTOS => {
 			'absolute_location_path' => 3,
 			'relative_location_path' => 38,
-			'equality_expr' => 127,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'primary_expr' => 50,
+			'unary_expr' => 28,
+			'location_path' => 14,
+			'union_expr' => 52,
+			'tuple' => 53,
+			'node_test' => 31,
+			'axis_name' => 16,
+			'multiplicative_expr' => 126,
+			'plist' => 18
+		}
+	},
+	{#State 83
+		ACTIONS => {
+			".." => 35,
+			"-" => 1,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
+			"{" => 44,
+			"/" => 45,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"." => 32
+		},
+		GOTOS => {
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
 			'path_expr' => 6,
 			'axis' => 7,
 			'PLUS-6' => 8,
@@ -4539,48 +4574,52 @@ sub new {
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'additive_expr' => 126,
+			'additive_expr' => 127,
 			'unary_expr' => 28,
 			'primary_expr' => 50,
 			'union_expr' => 52,
 			'tuple' => 53,
 			'node_test' => 31,
-			'relational_expr' => 34,
 			'multiplicative_expr' => 55
-		}
-	},
-	{#State 78
-		ACTIONS => {
-			"in" => 128
-		}
-	},
-	{#State 79
-		ACTIONS => {
-			"return" => 129
-		}
-	},
-	{#State 80
-		ACTIONS => {
-			"," => 130
-		},
-		DEFAULT => -28
-	},
-	{#State 81
-		DEFAULT => -27
-	},
-	{#State 82
-		ACTIONS => {
-			")" => 131
-		}
-	},
-	{#State 83
-		ACTIONS => {
-			":=" => 132
 		}
 	},
 	{#State 84
 		ACTIONS => {
-			":=" => 133
+			".." => 35,
+			"-" => 1,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
+			"{" => 44,
+			"/" => 45,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"." => 32
+		},
+		GOTOS => {
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'location_path' => 14,
+			'axis_name' => 16,
+			'plist' => 18,
+			'additive_expr' => 128,
+			'unary_expr' => 28,
+			'primary_expr' => 50,
+			'union_expr' => 52,
+			'tuple' => 53,
+			'node_test' => 31,
+			'multiplicative_expr' => 55
 		}
 	},
 	{#State 85
@@ -4610,15 +4649,16 @@ sub new {
 			'axis' => 7,
 			'PLUS-6' => 8,
 			'step' => 10,
-			'primary_expr' => 50,
-			'unary_expr' => 28,
 			'location_path' => 14,
+			'axis_name' => 16,
+			'plist' => 18,
+			'additive_expr' => 129,
+			'unary_expr' => 28,
+			'primary_expr' => 50,
 			'union_expr' => 52,
 			'tuple' => 53,
 			'node_test' => 31,
-			'axis_name' => 16,
-			'multiplicative_expr' => 134,
-			'plist' => 18
+			'multiplicative_expr' => 55
 		}
 	},
 	{#State 86
@@ -4651,7 +4691,7 @@ sub new {
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'additive_expr' => 135,
+			'additive_expr' => 130,
 			'unary_expr' => 28,
 			'primary_expr' => 50,
 			'union_expr' => 52,
@@ -4690,7 +4730,7 @@ sub new {
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'additive_expr' => 136,
+			'additive_expr' => 131,
 			'unary_expr' => 28,
 			'primary_expr' => 50,
 			'union_expr' => 52,
@@ -4729,7 +4769,7 @@ sub new {
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'additive_expr' => 137,
+			'additive_expr' => 132,
 			'unary_expr' => 28,
 			'primary_expr' => 50,
 			'union_expr' => 52,
@@ -4765,16 +4805,15 @@ sub new {
 			'axis' => 7,
 			'PLUS-6' => 8,
 			'step' => 10,
-			'location_path' => 14,
-			'axis_name' => 16,
-			'plist' => 18,
-			'additive_expr' => 138,
-			'unary_expr' => 28,
 			'primary_expr' => 50,
+			'unary_expr' => 28,
+			'location_path' => 14,
 			'union_expr' => 52,
 			'tuple' => 53,
 			'node_test' => 31,
-			'multiplicative_expr' => 55
+			'axis_name' => 16,
+			'multiplicative_expr' => 133,
+			'plist' => 18
 		}
 	},
 	{#State 90
@@ -4807,7 +4846,7 @@ sub new {
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'additive_expr' => 139,
+			'additive_expr' => 134,
 			'unary_expr' => 28,
 			'primary_expr' => 50,
 			'union_expr' => 52,
@@ -4846,7 +4885,7 @@ sub new {
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'additive_expr' => 140,
+			'additive_expr' => 135,
 			'unary_expr' => 28,
 			'primary_expr' => 50,
 			'union_expr' => 52,
@@ -4856,89 +4895,65 @@ sub new {
 		}
 	},
 	{#State 92
-		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'primary_expr' => 50,
-			'unary_expr' => 28,
-			'location_path' => 14,
-			'union_expr' => 52,
-			'tuple' => 53,
-			'node_test' => 31,
-			'axis_name' => 16,
-			'multiplicative_expr' => 141,
-			'plist' => 18
-		}
+		DEFAULT => 0
 	},
 	{#State 93
 		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'location_path' => 14,
-			'axis_name' => 16,
-			'plist' => 18,
-			'additive_expr' => 142,
-			'unary_expr' => 28,
-			'primary_expr' => 50,
-			'union_expr' => 52,
-			'tuple' => 53,
-			'node_test' => 31,
-			'multiplicative_expr' => 55
+			"satisfies" => 136
 		}
 	},
 	{#State 94
 		ACTIONS => {
 			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
+			"\@" => 2,
+			"{" => 44,
+			'NCNAME' => 68,
+			"." => 32
+		},
+		GOTOS => {
+			'step' => 137,
+			'node_test' => 31,
+			'axis' => 7
+		}
+	},
+	{#State 95
+		ACTIONS => {
+			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
+			"\@" => 2,
+			"{" => 44,
+			'NCNAME' => 68,
+			"." => 32
+		},
+		GOTOS => {
+			'step' => 138,
+			'node_test' => 31,
+			'axis' => 7
+		}
+	},
+	{#State 96
+		ACTIONS => {
+			'QNAME' => 49,
+			"*" => 12,
+			"{" => 44
+		},
+		DEFAULT => -76,
+		GOTOS => {
+			'node_test' => 139
+		}
+	},
+	{#State 97
+		ACTIONS => {
+			".." => 35,
 			"-" => 1,
+			"every" => 37,
 			"\@" => 2,
 			'NCNAME' => 40,
 			'LITERAL' => 39,
+			"if" => 41,
 			"*" => 12,
 			"[" => 15,
 			'NUMBER' => 43,
@@ -4947,169 +4962,155 @@ sub new {
 			'DOLLAR_QNAME' => 21,
 			"{" => 44,
 			"/" => 45,
+			"for" => 23,
 			'DOLLAR_INT' => 48,
 			"(" => 25,
 			'QNAME' => 49,
+			"some" => 51,
 			"." => 32
 		},
 		GOTOS => {
 			'absolute_location_path' => 3,
 			'relative_location_path' => 38,
+			'equality_expr' => 4,
 			'path_expr' => 6,
 			'axis' => 7,
 			'PLUS-6' => 8,
 			'step' => 10,
+			'range_expr' => 11,
+			'expr' => 140,
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'additive_expr' => 143,
-			'unary_expr' => 28,
+			'and_expr' => 20,
+			'or_expr' => 22,
+			'if_expr' => 46,
+			'err_expr' => 47,
+			'for_expr' => 24,
+			'additive_expr' => 27,
 			'primary_expr' => 50,
+			'unary_expr' => 28,
 			'union_expr' => 52,
+			'with_expr' => 29,
 			'tuple' => 53,
+			'quant_expr' => 30,
 			'node_test' => 31,
-			'multiplicative_expr' => 55
-		}
-	},
-	{#State 95
-		DEFAULT => 0
-	},
-	{#State 96
-		ACTIONS => {
-			"satisfies" => 144
-		}
-	},
-	{#State 97
-		ACTIONS => {
-			".." => 35,
-			"\@" => 2,
-			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
-		},
-		GOTOS => {
-			'step' => 145,
-			'node_test' => 31,
-			'axis' => 7
+			'PLUS-4' => 54,
+			'multiplicative_expr' => 55,
+			'relational_expr' => 34
 		}
 	},
 	{#State 98
 		ACTIONS => {
 			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
 			"\@" => 2,
 			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
+			'NCNAME' => 68,
+			"." => 32
 		},
 		GOTOS => {
-			'step' => 146,
+			'step' => 10,
+			'PLUS-2' => 143,
+			'relative_location_path' => 142,
+			'expr_set_list' => 144,
+			'expr_set' => 141,
 			'node_test' => 31,
 			'axis' => 7
 		}
 	},
 	{#State 99
 		ACTIONS => {
-			'QNAME' => 49,
+			".." => 35,
+			"-" => 1,
+			"every" => 37,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"if" => 41,
 			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
 			"{" => 44,
-			'NUMBER' => 58
+			"/" => 45,
+			"for" => 23,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"some" => 51,
+			"." => 32
 		},
-		DEFAULT => -76,
 		GOTOS => {
-			'node_test' => 147
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
+			'equality_expr' => 4,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'range_expr' => 11,
+			'expr' => 145,
+			'location_path' => 14,
+			'axis_name' => 16,
+			'plist' => 18,
+			'and_expr' => 20,
+			'or_expr' => 22,
+			'if_expr' => 46,
+			'err_expr' => 47,
+			'for_expr' => 24,
+			'additive_expr' => 27,
+			'primary_expr' => 50,
+			'unary_expr' => 28,
+			'union_expr' => 52,
+			'with_expr' => 29,
+			'tuple' => 53,
+			'quant_expr' => 30,
+			'node_test' => 31,
+			'PLUS-4' => 54,
+			'multiplicative_expr' => 55,
+			'relational_expr' => 34
 		}
 	},
 	{#State 100
 		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"every" => 37,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"if" => 41,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			"for" => 23,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"some" => 51,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'equality_expr' => 4,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'range_expr' => 11,
-			'expr' => 148,
-			'location_path' => 14,
-			'axis_name' => 16,
-			'plist' => 18,
-			'and_expr' => 20,
-			'or_expr' => 22,
-			'if_expr' => 46,
-			'err_expr' => 47,
-			'for_expr' => 24,
-			'additive_expr' => 27,
-			'primary_expr' => 50,
-			'unary_expr' => 28,
-			'union_expr' => 52,
-			'with_expr' => 29,
-			'tuple' => 53,
-			'quant_expr' => 30,
-			'node_test' => 31,
-			'PLUS-4' => 54,
-			'multiplicative_expr' => 55,
-			'relational_expr' => 34
+			"}" => 146,
+			"with" => 98,
+			"err" => 99
 		}
 	},
 	{#State 101
 		ACTIONS => {
-			".." => 35,
-			"\@" => 2,
-			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
+			"//" => 94,
+			"/" => 95
 		},
-		GOTOS => {
-			'step' => 10,
-			'PLUS-2' => 151,
-			'relative_location_path' => 150,
-			'expr_set_list' => 152,
-			'expr_set' => 149,
-			'node_test' => 31,
-			'axis' => 7
-		}
+		DEFAULT => -72
 	},
 	{#State 102
 		ACTIONS => {
+			"//" => 148,
+			"/" => 149
+		},
+		DEFAULT => -66,
+		GOTOS => {
+			'segment' => 147
+		}
+	},
+	{#State 103
+		ACTIONS => {
+			"satisfies" => 150
+		}
+	},
+	{#State 104
+		ACTIONS => {
 			".." => 35,
 			"-" => 1,
-			"every" => 37,
 			"\@" => 2,
 			'NCNAME' => 40,
 			'LITERAL' => 39,
-			"if" => 41,
 			"*" => 12,
 			"[" => 15,
 			'NUMBER' => 43,
@@ -5118,11 +5119,9 @@ sub new {
 			'DOLLAR_QNAME' => 21,
 			"{" => 44,
 			"/" => 45,
-			"for" => 23,
 			'DOLLAR_INT' => 48,
 			"(" => 25,
 			'QNAME' => 49,
-			"some" => 51,
 			"." => 32
 		},
 		GOTOS => {
@@ -5133,56 +5132,92 @@ sub new {
 			'axis' => 7,
 			'PLUS-6' => 8,
 			'step' => 10,
-			'range_expr' => 11,
-			'expr' => 153,
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'and_expr' => 20,
-			'or_expr' => 22,
-			'if_expr' => 46,
-			'err_expr' => 47,
-			'for_expr' => 24,
-			'additive_expr' => 27,
-			'primary_expr' => 50,
+			'and_expr' => 151,
+			'additive_expr' => 118,
 			'unary_expr' => 28,
+			'primary_expr' => 50,
 			'union_expr' => 52,
-			'with_expr' => 29,
 			'tuple' => 53,
-			'quant_expr' => 30,
 			'node_test' => 31,
-			'PLUS-4' => 54,
 			'multiplicative_expr' => 55,
 			'relational_expr' => 34
 		}
 	},
-	{#State 103
-		ACTIONS => {
-			"}" => 154,
-			"with" => 101,
-			"err" => 102
-		}
-	},
-	{#State 104
-		ACTIONS => {
-			"//" => 97,
-			"/" => 98
-		},
-		DEFAULT => -72
-	},
 	{#State 105
 		ACTIONS => {
-			"//" => 156,
-			"/" => 157
+			".." => 35,
+			"-" => 1,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
+			"{" => 44,
+			"/" => 45,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"." => 32
 		},
-		DEFAULT => -66,
 		GOTOS => {
-			'segment' => 155
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'primary_expr' => 50,
+			'unary_expr' => 152,
+			'location_path' => 14,
+			'union_expr' => 52,
+			'tuple' => 53,
+			'node_test' => 31,
+			'axis_name' => 16,
+			'plist' => 18
 		}
 	},
 	{#State 106
 		ACTIONS => {
-			"satisfies" => 158
+			".." => 35,
+			"-" => 1,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
+			"{" => 44,
+			"/" => 45,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"." => 32
+		},
+		GOTOS => {
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'primary_expr' => 50,
+			'unary_expr' => 153,
+			'location_path' => 14,
+			'union_expr' => 52,
+			'tuple' => 53,
+			'node_test' => 31,
+			'axis_name' => 16,
+			'plist' => 18
 		}
 	},
 	{#State 107
@@ -5208,32 +5243,29 @@ sub new {
 		GOTOS => {
 			'absolute_location_path' => 3,
 			'relative_location_path' => 38,
-			'equality_expr' => 4,
 			'path_expr' => 6,
 			'axis' => 7,
 			'PLUS-6' => 8,
 			'step' => 10,
-			'location_path' => 14,
-			'axis_name' => 16,
-			'plist' => 18,
-			'and_expr' => 159,
-			'additive_expr' => 126,
-			'unary_expr' => 28,
 			'primary_expr' => 50,
+			'unary_expr' => 154,
+			'location_path' => 14,
 			'union_expr' => 52,
 			'tuple' => 53,
 			'node_test' => 31,
-			'multiplicative_expr' => 55,
-			'relational_expr' => 34
+			'axis_name' => 16,
+			'plist' => 18
 		}
 	},
 	{#State 108
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
+			"every" => 37,
 			"\@" => 2,
 			'NCNAME' => 40,
 			'LITERAL' => 39,
+			"if" => 41,
 			"*" => 12,
 			"[" => 15,
 			'NUMBER' => 43,
@@ -5242,156 +5274,211 @@ sub new {
 			'DOLLAR_QNAME' => 21,
 			"{" => 44,
 			"/" => 45,
+			"for" => 23,
 			'DOLLAR_INT' => 48,
 			"(" => 25,
 			'QNAME' => 49,
+			"some" => 51,
 			"." => 32
 		},
 		GOTOS => {
 			'absolute_location_path' => 3,
 			'relative_location_path' => 38,
+			'equality_expr' => 4,
 			'path_expr' => 6,
 			'axis' => 7,
 			'PLUS-6' => 8,
 			'step' => 10,
-			'primary_expr' => 50,
-			'unary_expr' => 160,
+			'range_expr' => 155,
+			'expr' => 157,
 			'location_path' => 14,
-			'union_expr' => 52,
-			'tuple' => 53,
-			'node_test' => 31,
+			'PLUS-8' => 158,
 			'axis_name' => 16,
-			'plist' => 18
+			'plist' => 18,
+			'num_expr' => 159,
+			'and_expr' => 20,
+			'or_expr' => 22,
+			'if_expr' => 46,
+			'num_list' => 160,
+			'err_expr' => 47,
+			'for_expr' => 24,
+			'additive_expr' => 156,
+			'primary_expr' => 50,
+			'unary_expr' => 28,
+			'union_expr' => 52,
+			'with_expr' => 29,
+			'tuple' => 53,
+			'quant_expr' => 30,
+			'node_test' => 31,
+			'PLUS-4' => 54,
+			'multiplicative_expr' => 55,
+			'relational_expr' => 34
 		}
 	},
 	{#State 109
-		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'primary_expr' => 50,
-			'unary_expr' => 161,
-			'location_path' => 14,
-			'union_expr' => 52,
-			'tuple' => 53,
-			'node_test' => 31,
-			'axis_name' => 16,
-			'plist' => 18
-		}
+		DEFAULT => -86
 	},
 	{#State 110
-		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'primary_expr' => 50,
-			'unary_expr' => 162,
-			'location_path' => 14,
-			'union_expr' => 52,
-			'tuple' => 53,
-			'node_test' => 31,
-			'axis_name' => 16,
-			'plist' => 18
-		}
+		DEFAULT => -61
 	},
 	{#State 111
-		ACTIONS => {
-			"," => -90
-		},
-		DEFAULT => -9
+		DEFAULT => -1
 	},
 	{#State 112
-		ACTIONS => {
-			".." => 91,
-			"-" => 85,
-			"to" => 86,
-			"<" => 87,
-			"+" => 92,
-			"," => -89,
-			">=" => 88,
-			"!=" => 93,
-			"=" => 94,
-			"<=" => 89,
-			">" => 90
-		},
-		DEFAULT => -45
+		DEFAULT => -41
 	},
 	{#State 113
 		ACTIONS => {
-			"with" => 101,
-			"err" => 102,
-			"]" => 163
+			".." => 35,
+			"-" => 1,
+			"every" => 37,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"if" => 41,
+			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
+			"{" => 44,
+			"/" => 45,
+			"for" => 23,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"some" => 51,
+			"." => 32
+		},
+		GOTOS => {
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
+			'equality_expr' => 4,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'range_expr' => 11,
+			'expr' => 161,
+			'location_path' => 14,
+			'axis_name' => 16,
+			'plist' => 18,
+			'and_expr' => 20,
+			'or_expr' => 22,
+			'if_expr' => 46,
+			'err_expr' => 47,
+			'for_expr' => 24,
+			'additive_expr' => 27,
+			'primary_expr' => 50,
+			'unary_expr' => 28,
+			'union_expr' => 52,
+			'with_expr' => 29,
+			'tuple' => 53,
+			'quant_expr' => 30,
+			'node_test' => 31,
+			'PLUS-4' => 54,
+			'multiplicative_expr' => 55,
+			'relational_expr' => 34
 		}
 	},
 	{#State 114
 		ACTIONS => {
-			"," => 164
+			"//" => 94,
+			"/" => 95
 		},
-		DEFAULT => -93
+		DEFAULT => -75
 	},
 	{#State 115
-		DEFAULT => -92
+		ACTIONS => {
+			"//" => 94,
+			"/" => 95
+		},
+		DEFAULT => -74
 	},
 	{#State 116
 		ACTIONS => {
-			"]" => 165
+			'QNAME' => 49,
+			"*" => 12,
+			"{" => 44
+		},
+		GOTOS => {
+			'node_test' => 139
 		}
 	},
 	{#State 117
-		DEFAULT => -86
+		DEFAULT => -36
 	},
 	{#State 118
-		DEFAULT => -61
+		ACTIONS => {
+			"-" => 82,
+			"<" => 84,
+			"+" => 89,
+			">=" => 85,
+			"!=" => 90,
+			"=" => 91,
+			"<=" => 86,
+			">" => 87
+		},
+		DEFAULT => -45
 	},
 	{#State 119
-		DEFAULT => -1
+		DEFAULT => -37
 	},
 	{#State 120
-		DEFAULT => -41
+		ACTIONS => {
+			".." => 35,
+			"-" => 1,
+			"every" => 37,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"if" => 41,
+			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
+			"{" => 44,
+			"/" => 45,
+			"for" => 23,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"some" => 51,
+			"." => 32
+		},
+		GOTOS => {
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
+			'equality_expr' => 4,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'range_expr' => 11,
+			'expr' => 162,
+			'location_path' => 14,
+			'axis_name' => 16,
+			'plist' => 18,
+			'and_expr' => 20,
+			'or_expr' => 22,
+			'if_expr' => 46,
+			'err_expr' => 47,
+			'for_expr' => 24,
+			'additive_expr' => 27,
+			'primary_expr' => 50,
+			'unary_expr' => 28,
+			'union_expr' => 52,
+			'with_expr' => 29,
+			'tuple' => 53,
+			'quant_expr' => 30,
+			'node_test' => 31,
+			'PLUS-4' => 54,
+			'multiplicative_expr' => 55,
+			'relational_expr' => 34
+		}
 	},
 	{#State 121
 		ACTIONS => {
@@ -5426,7 +5513,7 @@ sub new {
 			'PLUS-6' => 8,
 			'step' => 10,
 			'range_expr' => 11,
-			'expr' => 166,
+			'expr' => 163,
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
@@ -5450,49 +5537,148 @@ sub new {
 	},
 	{#State 122
 		ACTIONS => {
-			"//" => 97,
-			"/" => 98
+			'DOLLAR_QNAME' => 75
 		},
-		DEFAULT => -75
+		GOTOS => {
+			'for_var' => 164
+		}
 	},
 	{#State 123
-		ACTIONS => {
-			"//" => 97,
-			"/" => 98
-		},
-		DEFAULT => -74
+		DEFAULT => -96
 	},
 	{#State 124
 		ACTIONS => {
-			'QNAME' => 49,
+			".." => 35,
+			"-" => 1,
+			"every" => 37,
+			"\@" => 2,
+			'NCNAME' => 40,
+			'LITERAL' => 39,
+			"if" => 41,
 			"*" => 12,
+			"[" => 15,
+			'NUMBER' => 43,
+			"//" => 17,
+			'FUNCTION_NAME' => 19,
+			'DOLLAR_QNAME' => 21,
 			"{" => 44,
-			'NUMBER' => 58
+			"/" => 45,
+			"for" => 23,
+			'DOLLAR_INT' => 48,
+			"(" => 25,
+			'QNAME' => 49,
+			"some" => 51,
+			"." => 32
 		},
 		GOTOS => {
-			'node_test' => 147
+			'absolute_location_path' => 3,
+			'relative_location_path' => 38,
+			'equality_expr' => 4,
+			'path_expr' => 6,
+			'axis' => 7,
+			'PLUS-6' => 8,
+			'step' => 10,
+			'range_expr' => 11,
+			'expr' => 165,
+			'location_path' => 14,
+			'axis_name' => 16,
+			'plist' => 18,
+			'and_expr' => 20,
+			'or_expr' => 22,
+			'if_expr' => 46,
+			'err_expr' => 47,
+			'for_expr' => 24,
+			'additive_expr' => 27,
+			'primary_expr' => 50,
+			'unary_expr' => 28,
+			'union_expr' => 52,
+			'with_expr' => 29,
+			'tuple' => 53,
+			'quant_expr' => 30,
+			'node_test' => 31,
+			'PLUS-4' => 54,
+			'multiplicative_expr' => 55,
+			'relational_expr' => 34
 		}
 	},
 	{#State 125
-		DEFAULT => -36
+		ACTIONS => {
+			'LITERAL' => 166
+		}
 	},
 	{#State 126
 		ACTIONS => {
-			"-" => 85,
-			"<" => 87,
-			"+" => 92,
-			">=" => 88,
-			"!=" => 93,
-			"=" => 94,
-			"<=" => 89,
-			">" => 90
+			"mod" => 105,
+			"div" => 106,
+			'MPY' => 107
 		},
-		DEFAULT => -45
+		DEFAULT => -54
 	},
 	{#State 127
-		DEFAULT => -37
+		ACTIONS => {
+			"-" => 82,
+			"+" => 89
+		},
+		DEFAULT => -51
 	},
 	{#State 128
+		ACTIONS => {
+			"-" => 82,
+			"+" => 89
+		},
+		DEFAULT => -46
+	},
+	{#State 129
+		ACTIONS => {
+			"-" => 82,
+			"+" => 89
+		},
+		DEFAULT => -49
+	},
+	{#State 130
+		ACTIONS => {
+			"-" => 82,
+			"+" => 89
+		},
+		DEFAULT => -48
+	},
+	{#State 131
+		ACTIONS => {
+			"-" => 82,
+			"+" => 89
+		},
+		DEFAULT => -47
+	},
+	{#State 132
+		ACTIONS => {
+			"-" => 82,
+			"+" => 89
+		},
+		DEFAULT => -50
+	},
+	{#State 133
+		ACTIONS => {
+			"mod" => 105,
+			"div" => 106,
+			'MPY' => 107
+		},
+		DEFAULT => -53
+	},
+	{#State 134
+		ACTIONS => {
+			"-" => 82,
+			"+" => 89
+		},
+		DEFAULT => -40
+	},
+	{#State 135
+		ACTIONS => {
+			"-" => 82,
+			"+" => 89
+		},
+		DEFAULT => -39
+	},
+	{#State 136
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
@@ -5547,205 +5733,88 @@ sub new {
 			'relational_expr' => 34
 		}
 	},
-	{#State 129
-		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"every" => 37,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"if" => 41,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			"for" => 23,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"some" => 51,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'equality_expr' => 4,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'range_expr' => 11,
-			'expr' => 168,
-			'location_path' => 14,
-			'axis_name' => 16,
-			'plist' => 18,
-			'and_expr' => 20,
-			'or_expr' => 22,
-			'if_expr' => 46,
-			'err_expr' => 47,
-			'for_expr' => 24,
-			'additive_expr' => 27,
-			'primary_expr' => 50,
-			'unary_expr' => 28,
-			'union_expr' => 52,
-			'with_expr' => 29,
-			'tuple' => 53,
-			'quant_expr' => 30,
-			'node_test' => 31,
-			'PLUS-4' => 54,
-			'multiplicative_expr' => 55,
-			'relational_expr' => 34
-		}
-	},
-	{#State 130
-		ACTIONS => {
-			'DOLLAR_QNAME' => 78
-		},
-		GOTOS => {
-			'for_var' => 169
-		}
-	},
-	{#State 131
-		DEFAULT => -96
-	},
-	{#State 132
-		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"every" => 37,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"if" => 41,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			"for" => 23,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"some" => 51,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'equality_expr' => 4,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'range_expr' => 11,
-			'expr' => 170,
-			'location_path' => 14,
-			'axis_name' => 16,
-			'plist' => 18,
-			'and_expr' => 20,
-			'or_expr' => 22,
-			'if_expr' => 46,
-			'err_expr' => 47,
-			'for_expr' => 24,
-			'additive_expr' => 27,
-			'primary_expr' => 50,
-			'unary_expr' => 28,
-			'union_expr' => 52,
-			'with_expr' => 29,
-			'tuple' => 53,
-			'quant_expr' => 30,
-			'node_test' => 31,
-			'PLUS-4' => 54,
-			'multiplicative_expr' => 55,
-			'relational_expr' => 34
-		}
-	},
-	{#State 133
-		ACTIONS => {
-			'LITERAL' => 171
-		}
-	},
-	{#State 134
-		ACTIONS => {
-			"mod" => 108,
-			"div" => 109,
-			'MPY' => 110
-		},
-		DEFAULT => -54
-	},
-	{#State 135
-		ACTIONS => {
-			"-" => 85,
-			"+" => 92
-		},
-		DEFAULT => -51
-	},
-	{#State 136
-		ACTIONS => {
-			"-" => 85,
-			"+" => 92
-		},
-		DEFAULT => -46
-	},
 	{#State 137
-		ACTIONS => {
-			"-" => 85,
-			"+" => 92
-		},
-		DEFAULT => -49
+		DEFAULT => -79
 	},
 	{#State 138
-		ACTIONS => {
-			"-" => 85,
-			"+" => 92
-		},
-		DEFAULT => -48
+		DEFAULT => -78
 	},
 	{#State 139
-		ACTIONS => {
-			"-" => 85,
-			"+" => 92
-		},
-		DEFAULT => -47
+		DEFAULT => -84
 	},
 	{#State 140
 		ACTIONS => {
-			"-" => 85,
-			"+" => 92
-		},
-		DEFAULT => -50
+			"with" => 98,
+			"err" => 99,
+			")" => 168
+		}
 	},
 	{#State 141
-		ACTIONS => {
-			"mod" => 108,
-			"div" => 109,
-			'MPY' => 110
-		},
-		DEFAULT => -53
+		DEFAULT => -18
 	},
 	{#State 142
 		ACTIONS => {
-			"-" => 85,
-			"+" => 92
-		},
-		DEFAULT => -40
+			":=" => 169,
+			"/" => 95,
+			"//" => 94
+		}
 	},
 	{#State 143
 		ACTIONS => {
-			"-" => 85,
-			"+" => 92
+			"," => 170
 		},
-		DEFAULT => -39
+		DEFAULT => -19
 	},
 	{#State 144
+		DEFAULT => -16
+	},
+	{#State 145
+		ACTIONS => {
+			"with" => 98
+		},
+		DEFAULT => -15
+	},
+	{#State 146
+		DEFAULT => -109
+	},
+	{#State 147
+		DEFAULT => -65
+	},
+	{#State 148
+		ACTIONS => {
+			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
+			"\@" => 2,
+			"{" => 44,
+			'NCNAME' => 68,
+			"." => 32
+		},
+		GOTOS => {
+			'step' => 10,
+			'relative_location_path' => 171,
+			'node_test' => 31,
+			'axis' => 7
+		}
+	},
+	{#State 149
+		ACTIONS => {
+			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
+			"\@" => 2,
+			"{" => 44,
+			'NCNAME' => 68,
+			"." => 32
+		},
+		GOTOS => {
+			'step' => 10,
+			'relative_location_path' => 172,
+			'node_test' => 31,
+			'axis' => 7
+		}
+	},
+	{#State 150
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
@@ -5778,7 +5847,7 @@ sub new {
 			'PLUS-6' => 8,
 			'step' => 10,
 			'range_expr' => 11,
-			'expr' => 172,
+			'expr' => 173,
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
@@ -5798,93 +5867,114 @@ sub new {
 			'PLUS-4' => 54,
 			'multiplicative_expr' => 55,
 			'relational_expr' => 34
-		}
-	},
-	{#State 145
-		DEFAULT => -79
-	},
-	{#State 146
-		DEFAULT => -78
-	},
-	{#State 147
-		DEFAULT => -84
-	},
-	{#State 148
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102,
-			")" => 173
-		}
-	},
-	{#State 149
-		DEFAULT => -18
-	},
-	{#State 150
-		ACTIONS => {
-			":=" => 174,
-			"/" => 98,
-			"//" => 97
 		}
 	},
 	{#State 151
 		ACTIONS => {
-			"," => 175
+			"except" => 74,
+			"and" => 73
 		},
-		DEFAULT => -19
+		DEFAULT => -32
 	},
 	{#State 152
-		DEFAULT => -16
+		DEFAULT => -58
 	},
 	{#State 153
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102
-		},
-		DEFAULT => -15
+		DEFAULT => -57
 	},
 	{#State 154
-		DEFAULT => -110
+		DEFAULT => -56
 	},
 	{#State 155
-		DEFAULT => -65
+		ACTIONS => {
+			"," => -90
+		},
+		DEFAULT => -9
 	},
 	{#State 156
 		ACTIONS => {
-			".." => 35,
-			"\@" => 2,
-			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
+			".." => 88,
+			"-" => 82,
+			"to" => 83,
+			"<" => 84,
+			"+" => 89,
+			"," => -89,
+			">=" => 85,
+			"!=" => 90,
+			"=" => 91,
+			"<=" => 86,
+			">" => 87
 		},
-		GOTOS => {
-			'step' => 10,
-			'relative_location_path' => 176,
-			'node_test' => 31,
-			'axis' => 7
-		}
+		DEFAULT => -45
 	},
 	{#State 157
 		ACTIONS => {
-			".." => 35,
-			"\@" => 2,
-			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
-		},
-		GOTOS => {
-			'step' => 10,
-			'relative_location_path' => 177,
-			'node_test' => 31,
-			'axis' => 7
+			"with" => 98,
+			"err" => 99,
+			"]" => 174
 		}
 	},
 	{#State 158
+		ACTIONS => {
+			"," => 175
+		},
+		DEFAULT => -93
+	},
+	{#State 159
+		DEFAULT => -92
+	},
+	{#State 160
+		ACTIONS => {
+			"]" => 176
+		}
+	},
+	{#State 161
+		ACTIONS => {
+			"with" => 98,
+			"err" => 99
+		},
+		DEFAULT => -42
+	},
+	{#State 162
+		ACTIONS => {
+			"with" => 98,
+			"err" => 99
+		},
+		DEFAULT => -29
+	},
+	{#State 163
+		ACTIONS => {
+			"with" => 98,
+			"err" => 99
+		},
+		DEFAULT => -25
+	},
+	{#State 164
+		DEFAULT => -26
+	},
+	{#State 165
+		ACTIONS => {
+			"with" => 98,
+			"err" => 99
+		},
+		DEFAULT => -21
+	},
+	{#State 166
+		DEFAULT => -22
+	},
+	{#State 167
+		ACTIONS => {
+			"with" => 98,
+			"err" => 99
+		},
+		DEFAULT => -31
+	},
+	{#State 168
+		ACTIONS => {
+			"then" => 177
+		}
+	},
+	{#State 169
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
@@ -5939,26 +6029,49 @@ sub new {
 			'relational_expr' => 34
 		}
 	},
-	{#State 159
+	{#State 170
 		ACTIONS => {
-			"except" => 77,
-			"and" => 76
+			".." => 35,
+			'QNAME' => 49,
+			"*" => 12,
+			"\@" => 2,
+			"{" => 44,
+			'NCNAME' => 68,
+			"." => 32
 		},
-		DEFAULT => -32
+		GOTOS => {
+			'step' => 10,
+			'relative_location_path' => 142,
+			'expr_set' => 179,
+			'node_test' => 31,
+			'axis' => 7
+		}
 	},
-	{#State 160
-		DEFAULT => -58
+	{#State 171
+		ACTIONS => {
+			"//" => 94,
+			"/" => 95
+		},
+		DEFAULT => -68
 	},
-	{#State 161
-		DEFAULT => -57
+	{#State 172
+		ACTIONS => {
+			"//" => 94,
+			"/" => 95
+		},
+		DEFAULT => -67
 	},
-	{#State 162
-		DEFAULT => -56
+	{#State 173
+		ACTIONS => {
+			"with" => 98,
+			"err" => 99
+		},
+		DEFAULT => -30
 	},
-	{#State 163
+	{#State 174
 		DEFAULT => -94
 	},
-	{#State 164
+	{#State 175
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
@@ -5984,13 +6097,13 @@ sub new {
 			'path_expr' => 6,
 			'axis' => 7,
 			'PLUS-6' => 8,
-			'range_expr' => 179,
+			'range_expr' => 180,
 			'step' => 10,
 			'location_path' => 14,
 			'axis_name' => 16,
 			'plist' => 18,
-			'num_expr' => 181,
-			'additive_expr' => 180,
+			'num_expr' => 182,
+			'additive_expr' => 181,
 			'unary_expr' => 28,
 			'primary_expr' => 50,
 			'union_expr' => 52,
@@ -5999,56 +6112,10 @@ sub new {
 			'multiplicative_expr' => 55
 		}
 	},
-	{#State 165
+	{#State 176
 		DEFAULT => -95
 	},
-	{#State 166
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102
-		},
-		DEFAULT => -42
-	},
-	{#State 167
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102
-		},
-		DEFAULT => -29
-	},
-	{#State 168
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102
-		},
-		DEFAULT => -25
-	},
-	{#State 169
-		DEFAULT => -26
-	},
-	{#State 170
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102
-		},
-		DEFAULT => -21
-	},
-	{#State 171
-		DEFAULT => -22
-	},
-	{#State 172
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102
-		},
-		DEFAULT => -31
-	},
-	{#State 173
-		ACTIONS => {
-			"then" => 182
-		}
-	},
-	{#State 174
+	{#State 177
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
@@ -6103,62 +6170,40 @@ sub new {
 			'relational_expr' => 34
 		}
 	},
-	{#State 175
-		ACTIONS => {
-			".." => 35,
-			"\@" => 2,
-			"{" => 44,
-			'NCNAME' => 71,
-			"*" => 12,
-			'QNAME' => 49,
-			"." => 32,
-			'NUMBER' => 58
-		},
-		GOTOS => {
-			'step' => 10,
-			'relative_location_path' => 150,
-			'expr_set' => 184,
-			'node_test' => 31,
-			'axis' => 7
-		}
-	},
-	{#State 176
-		ACTIONS => {
-			"//" => 97,
-			"/" => 98
-		},
-		DEFAULT => -68
-	},
-	{#State 177
-		ACTIONS => {
-			"//" => 97,
-			"/" => 98
-		},
-		DEFAULT => -67
-	},
 	{#State 178
 		ACTIONS => {
-			"with" => 101,
-			"err" => 102
+			"with" => 98,
+			"err" => 99
 		},
-		DEFAULT => -30
+		DEFAULT => -20
 	},
 	{#State 179
-		DEFAULT => -90
+		DEFAULT => -17
 	},
 	{#State 180
+		DEFAULT => -90
+	},
+	{#State 181
 		ACTIONS => {
-			".." => 91,
-			"-" => 85,
-			"to" => 86,
-			"+" => 92
+			".." => 88,
+			"-" => 82,
+			"to" => 83,
+			"+" => 89
 		},
 		DEFAULT => -89
 	},
-	{#State 181
+	{#State 182
 		DEFAULT => -91
 	},
-	{#State 182
+	{#State 183
+		ACTIONS => {
+			"with" => 98,
+			"else" => 184,
+			"err" => 99
+		},
+		DEFAULT => -24
+	},
+	{#State 184
 		ACTIONS => {
 			".." => 35,
 			"-" => 1,
@@ -6213,83 +6258,10 @@ sub new {
 			'relational_expr' => 34
 		}
 	},
-	{#State 183
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102
-		},
-		DEFAULT => -20
-	},
-	{#State 184
-		DEFAULT => -17
-	},
 	{#State 185
 		ACTIONS => {
-			"with" => 101,
-			"else" => 186,
-			"err" => 102
-		},
-		DEFAULT => -24
-	},
-	{#State 186
-		ACTIONS => {
-			".." => 35,
-			"-" => 1,
-			"every" => 37,
-			"\@" => 2,
-			'NCNAME' => 40,
-			'LITERAL' => 39,
-			"if" => 41,
-			"*" => 12,
-			"[" => 15,
-			'NUMBER' => 43,
-			"//" => 17,
-			'FUNCTION_NAME' => 19,
-			'DOLLAR_QNAME' => 21,
-			"{" => 44,
-			"/" => 45,
-			"for" => 23,
-			'DOLLAR_INT' => 48,
-			"(" => 25,
-			'QNAME' => 49,
-			"some" => 51,
-			"." => 32
-		},
-		GOTOS => {
-			'absolute_location_path' => 3,
-			'relative_location_path' => 38,
-			'equality_expr' => 4,
-			'path_expr' => 6,
-			'axis' => 7,
-			'PLUS-6' => 8,
-			'step' => 10,
-			'range_expr' => 11,
-			'expr' => 187,
-			'location_path' => 14,
-			'axis_name' => 16,
-			'plist' => 18,
-			'and_expr' => 20,
-			'or_expr' => 22,
-			'if_expr' => 46,
-			'err_expr' => 47,
-			'for_expr' => 24,
-			'additive_expr' => 27,
-			'primary_expr' => 50,
-			'unary_expr' => 28,
-			'union_expr' => 52,
-			'with_expr' => 29,
-			'tuple' => 53,
-			'quant_expr' => 30,
-			'node_test' => 31,
-			'PLUS-4' => 54,
-			'multiplicative_expr' => 55,
-			'relational_expr' => 34
-		}
-	},
-	{#State 187
-		ACTIONS => {
-			"with" => 101,
-			"err" => 102
+			"with" => 98,
+			"err" => 99
 		},
 		DEFAULT => -23
 	}
@@ -6298,712 +6270,666 @@ sub new {
 [
 	[#Rule _SUPERSTART
 		 '$start', 2, undef
-#line 6301 Parser.pm
+#line 6273 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-1', 3,
 sub {
-#line 25 "engine-parser.eyp"
+#line 35 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_TX1X2 }
-#line 6308 Parser.pm
+#line 6280 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-1', 1,
 sub {
-#line 25 "engine-parser.eyp"
+#line 35 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6315 Parser.pm
+#line 6287 Parser.pm
 	],
 	[#Rule statements_3
 		 'statements', 1,
 sub {
-#line 25 "engine-parser.eyp"
+#line 35 "engine-parser.eyp"
  Bamboo::Engine::Block -> new( statements => $_[1] ) }
-#line 6322 Parser.pm
+#line 6294 Parser.pm
 	],
 	[#Rule statement_4
 		 'statement', 0, undef
-#line 6326 Parser.pm
+#line 6298 Parser.pm
 	],
 	[#Rule statement_5
-		 'statement', 1,
-sub {
-#line 29 "engine-parser.eyp"
- $_[1] }
-#line 6333 Parser.pm
+		 'statement', 1, undef
+#line 6302 Parser.pm
 	],
 	[#Rule statement_6
-		 'statement', 1,
-sub {
-#line 30 "engine-parser.eyp"
- $_[1] }
-#line 6340 Parser.pm
+		 'statement', 1, undef
+#line 6306 Parser.pm
 	],
 	[#Rule statement_7
-		 'statement', 1,
-sub {
-#line 31 "engine-parser.eyp"
- $_[1] }
-#line 6347 Parser.pm
+		 'statement', 1, undef
+#line 6310 Parser.pm
 	],
 	[#Rule expr_8
-		 'expr', 1,
-sub {
-#line 34 "engine-parser.eyp"
- $_[1] }
-#line 6354 Parser.pm
+		 'expr', 1, undef
+#line 6314 Parser.pm
 	],
 	[#Rule expr_9
-		 'expr', 1,
-sub {
-#line 35 "engine-parser.eyp"
- $_[1] }
-#line 6361 Parser.pm
+		 'expr', 1, undef
+#line 6318 Parser.pm
 	],
 	[#Rule expr_10
-		 'expr', 1,
-sub {
-#line 36 "engine-parser.eyp"
- $_[1] }
-#line 6368 Parser.pm
+		 'expr', 1, undef
+#line 6322 Parser.pm
 	],
 	[#Rule expr_11
-		 'expr', 1,
-sub {
-#line 37 "engine-parser.eyp"
- $_[1] }
-#line 6375 Parser.pm
+		 'expr', 1, undef
+#line 6326 Parser.pm
 	],
 	[#Rule expr_12
-		 'expr', 1,
-sub {
-#line 38 "engine-parser.eyp"
- $_[1] }
-#line 6382 Parser.pm
+		 'expr', 1, undef
+#line 6330 Parser.pm
 	],
 	[#Rule expr_13
-		 'expr', 1,
-sub {
-#line 39 "engine-parser.eyp"
- $_[1] }
-#line 6389 Parser.pm
+		 'expr', 1, undef
+#line 6334 Parser.pm
 	],
 	[#Rule expr_14
-		 'expr', 1,
-sub {
-#line 40 "engine-parser.eyp"
- $_[1] }
-#line 6396 Parser.pm
+		 'expr', 1, undef
+#line 6338 Parser.pm
 	],
 	[#Rule err_expr_15
 		 'err_expr', 3,
 sub {
-#line 43 "engine-parser.eyp"
+#line 53 "engine-parser.eyp"
  Bamboo::Engine::Parser::ErrExpr -> new( expr => $_[1], default => $_[3] ) }
-#line 6403 Parser.pm
+#line 6345 Parser.pm
 	],
 	[#Rule with_expr_16
 		 'with_expr', 3,
 sub {
-#line 46 "engine-parser.eyp"
+#line 56 "engine-parser.eyp"
  Bamboo::Engine::Parser::WithExpr -> new( expr => $_[1], annotations => $_[3] ) }
-#line 6410 Parser.pm
+#line 6352 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-2', 3,
 sub {
-#line 49 "engine-parser.eyp"
+#line 59 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_TX1X2 }
-#line 6417 Parser.pm
+#line 6359 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-2', 1,
 sub {
-#line 49 "engine-parser.eyp"
+#line 59 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6424 Parser.pm
+#line 6366 Parser.pm
 	],
 	[#Rule expr_set_list_19
-		 'expr_set_list', 1,
-sub {
-#line 49 "engine-parser.eyp"
- $_[1] }
-#line 6431 Parser.pm
+		 'expr_set_list', 1, undef
+#line 6370 Parser.pm
 	],
 	[#Rule expr_set_20
 		 'expr_set', 3,
 sub {
-#line 52 "engine-parser.eyp"
+#line 62 "engine-parser.eyp"
  Bamboo::Engine::Parser::MemSet -> new( path => $_[1], expr => $_[3] ) }
-#line 6438 Parser.pm
+#line 6377 Parser.pm
 	],
 	[#Rule let_expr_21
 		 'let_expr', 4,
 sub {
-#line 55 "engine-parser.eyp"
+#line 65 "engine-parser.eyp"
 my $expr = $_[4]; my $name = $_[2];  Bamboo::Engine::Parser::VarSet -> new( name => $name, expr => $expr ) }
-#line 6445 Parser.pm
+#line 6384 Parser.pm
 	],
 	[#Rule ns_expr_22
 		 'ns_expr', 4,
 sub {
-#line 58 "engine-parser.eyp"
+#line 68 "engine-parser.eyp"
 my $uri = $_[4]; my $prefix = $_[2];  $_[0] -> AddNS( prefix => $prefix, uri => $uri ) }
-#line 6452 Parser.pm
+#line 6391 Parser.pm
 	],
 	[#Rule if_expr_23
 		 'if_expr', 8,
 sub {
-#line 61 "engine-parser.eyp"
+#line 71 "engine-parser.eyp"
 my $test = $_[3]; my $then = $_[6]; my $else = $_[8];  Bamboo::Engine::Parser::IfExpr -> new( test => $test, then => $then, else => $else ) }
-#line 6459 Parser.pm
+#line 6398 Parser.pm
 	],
 	[#Rule if_expr_24
 		 'if_expr', 6,
 sub {
-#line 62 "engine-parser.eyp"
+#line 72 "engine-parser.eyp"
 my $test = $_[3]; my $then = $_[6];  Bamboo::Engine::Parser::IfExpr -> new( test => $test, then => $then ) }
-#line 6466 Parser.pm
+#line 6405 Parser.pm
 	],
 	[#Rule for_expr_25
 		 'for_expr', 4,
 sub {
-#line 65 "engine-parser.eyp"
+#line 75 "engine-parser.eyp"
 my $expr = $_[4]; my $vars = $_[2];  Bamboo::Engine::Parser::ForExpr -> new( vars => $vars, expr => $expr ) }
-#line 6473 Parser.pm
+#line 6412 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-3', 3,
 sub {
-#line 68 "engine-parser.eyp"
+#line 78 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_TX1X2 }
-#line 6480 Parser.pm
+#line 6419 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-3', 1,
 sub {
-#line 68 "engine-parser.eyp"
+#line 78 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6487 Parser.pm
+#line 6426 Parser.pm
 	],
 	[#Rule for_vars_28
-		 'for_vars', 1,
-sub {
-#line 68 "engine-parser.eyp"
- 'for_vars' }
-#line 6494 Parser.pm
+		 'for_vars', 1, undef
+#line 6430 Parser.pm
 	],
 	[#Rule for_var_29
-		 'for_var', 3, undef
-#line 6498 Parser.pm
+		 'for_var', 3,
+sub {
+#line 81 "engine-parser.eyp"
+ [ $_[1], $_[3] ] }
+#line 6437 Parser.pm
 	],
 	[#Rule quant_expr_30
-		 'quant_expr', 4, undef
-#line 6502 Parser.pm
+		 'quant_expr', 4,
+sub {
+#line 84 "engine-parser.eyp"
+ Bamboo::Engine::Parser::SomeExpr -> new( vars => $_[2], expr => $_[4] ) }
+#line 6444 Parser.pm
 	],
 	[#Rule quant_expr_31
-		 'quant_expr', 4, undef
-#line 6506 Parser.pm
+		 'quant_expr', 4,
+sub {
+#line 85 "engine-parser.eyp"
+ Bamboo::Engine::Parser::EveryExpr -> new( vars => $_[2], expr => $_[4] ) }
+#line 6451 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-4', 3,
 sub {
-#line 78 "engine-parser.eyp"
+#line 88 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_TX1X2 }
-#line 6513 Parser.pm
+#line 6458 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-4', 1,
 sub {
-#line 78 "engine-parser.eyp"
+#line 88 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6520 Parser.pm
+#line 6465 Parser.pm
 	],
 	[#Rule or_expr_34
 		 'or_expr', 1,
 sub {
-#line 78 "engine-parser.eyp"
- printf STDERR Data::Dumper -> Dump(@_); }
-#line 6527 Parser.pm
+#line 88 "engine-parser.eyp"
+ @{$_[1]} > 1 ? Bamboo::Engine::Parser::OrExpr -> new( exprs => $_[1] ) : $_[1] -> [0] -> simplify }
+#line 6472 Parser.pm
 	],
 	[#Rule and_expr_35
 		 'and_expr', 1,
 sub {
-#line 81 "engine-parser.eyp"
- Bamboo::Engine::Parser::AndExpr -> new( set => [ $_[1] ] ) }
-#line 6534 Parser.pm
+#line 91 "engine-parser.eyp"
+ Bamboo::Engine::Parser::AndExpr -> new( expr => $_[1] ) }
+#line 6479 Parser.pm
 	],
 	[#Rule and_expr_36
 		 'and_expr', 3,
 sub {
-#line 82 "engine-parser.eyp"
- $_[1] -> addAnd( $_[3] ) }
-#line 6541 Parser.pm
+#line 92 "engine-parser.eyp"
+ $_[1] -> add_and( $_[3] ) }
+#line 6486 Parser.pm
 	],
 	[#Rule and_expr_37
 		 'and_expr', 3,
 sub {
-#line 83 "engine-parser.eyp"
- $_[1] -> addExcept( $_[3] ) }
-#line 6548 Parser.pm
+#line 93 "engine-parser.eyp"
+ $_[1] -> add_except( $_[3] ) }
+#line 6493 Parser.pm
 	],
 	[#Rule equality_expr_38
-		 'equality_expr', 1,
-sub {
-#line 86 "engine-parser.eyp"
- $_[1] }
-#line 6555 Parser.pm
+		 'equality_expr', 1, undef
+#line 6497 Parser.pm
 	],
 	[#Rule equality_expr_39
 		 'equality_expr', 3,
 sub {
-#line 87 "engine-parser.eyp"
+#line 97 "engine-parser.eyp"
 my $left = $_[1]; my $right = $_[3];  Bamboo::Engine::Parser::EqExpr -> new( left => $left, right => $right ) }
-#line 6562 Parser.pm
+#line 6504 Parser.pm
 	],
 	[#Rule equality_expr_40
 		 'equality_expr', 3,
 sub {
-#line 88 "engine-parser.eyp"
+#line 98 "engine-parser.eyp"
 my $left = $_[1]; my $right = $_[3];  Bamboo::Engine::Parser::NeqExpr -> new( left => $left, right => $right ) }
-#line 6569 Parser.pm
+#line 6511 Parser.pm
 	],
 	[#Rule tuple_41
 		 'tuple', 3,
 sub {
-#line 91 "engine-parser.eyp"
+#line 101 "engine-parser.eyp"
  Bamboo::Engine::Parser::Tuple -> new( values => $_[2] ) }
-#line 6576 Parser.pm
+#line 6518 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-5', 3,
 sub {
-#line 94 "engine-parser.eyp"
+#line 104 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_TX1X2 }
-#line 6583 Parser.pm
+#line 6525 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-5', 1,
 sub {
-#line 94 "engine-parser.eyp"
+#line 104 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6590 Parser.pm
+#line 6532 Parser.pm
 	],
 	[#Rule list_44
 		 'list', 1,
 sub {
-#line 94 "engine-parser.eyp"
+#line 104 "engine-parser.eyp"
  Bamboo::Engine::Parser::ListExpr -> new( expr => $_[1] ) }
-#line 6597 Parser.pm
+#line 6539 Parser.pm
 	],
 	[#Rule relational_expr_45
-		 'relational_expr', 1,
-sub {
-#line 97 "engine-parser.eyp"
- $_[1] }
-#line 6604 Parser.pm
+		 'relational_expr', 1, undef
+#line 6543 Parser.pm
 	],
 	[#Rule relational_expr_46
-		 'relational_expr', 3, undef
-#line 6608 Parser.pm
+		 'relational_expr', 3,
+sub {
+#line 108 "engine-parser.eyp"
+ Bamboo::Engine::Parser::LtExpr -> new( left => $_[1], right => $_[3] ) }
+#line 6550 Parser.pm
 	],
 	[#Rule relational_expr_47
-		 'relational_expr', 3, undef
-#line 6612 Parser.pm
+		 'relational_expr', 3,
+sub {
+#line 109 "engine-parser.eyp"
+ Bamboo::Engine::Parser::LtExpr -> new( right => $_[1], left => $_[3] ) }
+#line 6557 Parser.pm
 	],
 	[#Rule relational_expr_48
-		 'relational_expr', 3, undef
-#line 6616 Parser.pm
+		 'relational_expr', 3,
+sub {
+#line 110 "engine-parser.eyp"
+ Bamboo::Engine::Parser::LteExpr -> new( left => $_[1], right => $_[3] ) }
+#line 6564 Parser.pm
 	],
 	[#Rule relational_expr_49
-		 'relational_expr', 3, undef
-#line 6620 Parser.pm
+		 'relational_expr', 3,
+sub {
+#line 111 "engine-parser.eyp"
+ Bamboo::Engine::Parser::LteExpr -> new( right => $_[1], left => $_[3] ) }
+#line 6571 Parser.pm
 	],
 	[#Rule range_expr_50
 		 'range_expr', 3,
 sub {
-#line 104 "engine-parser.eyp"
- Bamboo::Engine::Parser::Range -> new( start => $_[1], end => $_[3] ) }
-#line 6627 Parser.pm
+#line 114 "engine-parser.eyp"
+ Bamboo::Engine::Parser::RangeExpr -> new( begin => $_[1], end => $_[3] ) }
+#line 6578 Parser.pm
 	],
 	[#Rule range_expr_51
 		 'range_expr', 3,
 sub {
-#line 105 "engine-parser.eyp"
- Bamboo::Engine::Parser::Range -> new( start => $_[1], end => $_[3] ) }
-#line 6634 Parser.pm
+#line 115 "engine-parser.eyp"
+ Bamboo::Engine::Parser::RangeExpr -> new( begin => $_[1], end => $_[3] ) }
+#line 6585 Parser.pm
 	],
 	[#Rule additive_expr_52
-		 'additive_expr', 1,
-sub {
-#line 108 "engine-parser.eyp"
- $_[1] }
-#line 6641 Parser.pm
+		 'additive_expr', 1, undef
+#line 6589 Parser.pm
 	],
 	[#Rule additive_expr_53
 		 'additive_expr', 3,
 sub {
-#line 109 "engine-parser.eyp"
- printf STDERR "additive expr\n\n"; Bamboo::Engine::Parser::AddExpr -> new( left => $_[1], right => $_[3] ) }
-#line 6648 Parser.pm
+#line 119 "engine-parser.eyp"
+ Bamboo::Engine::Parser::AddExpr -> new( left => $_[1], right => $_[3] ) }
+#line 6596 Parser.pm
 	],
 	[#Rule additive_expr_54
 		 'additive_expr', 3,
 sub {
-#line 110 "engine-parser.eyp"
+#line 120 "engine-parser.eyp"
  Bamboo::Engine::Parser::SubExpr -> new( left => $_[1], right => $_[3] ) }
-#line 6655 Parser.pm
+#line 6603 Parser.pm
 	],
 	[#Rule multiplicative_expr_55
-		 'multiplicative_expr', 1,
-sub {
-#line 113 "engine-parser.eyp"
- $_[1] }
-#line 6662 Parser.pm
+		 'multiplicative_expr', 1, undef
+#line 6607 Parser.pm
 	],
 	[#Rule multiplicative_expr_56
 		 'multiplicative_expr', 3, undef
-#line 6666 Parser.pm
+#line 6611 Parser.pm
 	],
 	[#Rule multiplicative_expr_57
 		 'multiplicative_expr', 3, undef
-#line 6670 Parser.pm
+#line 6615 Parser.pm
 	],
 	[#Rule multiplicative_expr_58
 		 'multiplicative_expr', 3, undef
-#line 6674 Parser.pm
+#line 6619 Parser.pm
 	],
 	[#Rule unary_expr_59
-		 'unary_expr', 1,
-sub {
-#line 119 "engine-parser.eyp"
- $_[1] }
-#line 6681 Parser.pm
+		 'unary_expr', 1, undef
+#line 6623 Parser.pm
 	],
 	[#Rule unary_expr_60
 		 'unary_expr', 2,
 sub {
-#line 120 "engine-parser.eyp"
+#line 130 "engine-parser.eyp"
  Bamboo::Engine::Parser::NegateExpr -> new( expr => $_[2] ) }
-#line 6688 Parser.pm
+#line 6630 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-6', 3,
 sub {
-#line 123 "engine-parser.eyp"
+#line 133 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_TX1X2 }
-#line 6695 Parser.pm
+#line 6637 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-6', 1,
 sub {
-#line 123 "engine-parser.eyp"
+#line 133 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6702 Parser.pm
+#line 6644 Parser.pm
 	],
 	[#Rule union_expr_63
-		 'union_expr', 1, undef
-#line 6706 Parser.pm
+		 'union_expr', 1,
+sub {
+#line 133 "engine-parser.eyp"
+ @{$_[1]} > 1 ? Bamboo::Engine::Parser::UnionExpr -> new( set => $_[1] ) : $_[1] -> [0] }
+#line 6651 Parser.pm
 	],
 	[#Rule path_expr_64
-		 'path_expr', 1,
-sub {
-#line 126 "engine-parser.eyp"
- $_[1] }
-#line 6713 Parser.pm
+		 'path_expr', 1, undef
+#line 6655 Parser.pm
 	],
 	[#Rule path_expr_65
 		 'path_expr', 3,
 sub {
-#line 127 "engine-parser.eyp"
+#line 137 "engine-parser.eyp"
  (defined($_[2]) || defined($_[3])) ? Bamboo::Engine::Parser::PathExpr -> new( primary => $_[1], predicates => $_[2], segment => $_[3] ) : $_[1] }
-#line 6720 Parser.pm
+#line 6662 Parser.pm
 	],
 	[#Rule segment_66
 		 'segment', 0, undef
-#line 6724 Parser.pm
+#line 6666 Parser.pm
 	],
 	[#Rule segment_67
 		 'segment', 2,
 sub {
-#line 131 "engine-parser.eyp"
+#line 141 "engine-parser.eyp"
  Bamboo::Engine::Parser::ChildSegment -> new( path => $_[2] ) }
-#line 6731 Parser.pm
+#line 6673 Parser.pm
 	],
 	[#Rule segment_68
 		 'segment', 2,
 sub {
-#line 132 "engine-parser.eyp"
+#line 142 "engine-parser.eyp"
  Bamboo::Engine::Parser::DescendentSegment -> new( path => $_[2] ) }
-#line 6738 Parser.pm
+#line 6680 Parser.pm
 	],
 	[#Rule location_path_69
-		 'location_path', 1,
-sub {
-#line 135 "engine-parser.eyp"
- $_[1] }
-#line 6745 Parser.pm
+		 'location_path', 1, undef
+#line 6684 Parser.pm
 	],
 	[#Rule location_path_70
-		 'location_path', 1,
-sub {
-#line 136 "engine-parser.eyp"
- $_[1] }
-#line 6752 Parser.pm
+		 'location_path', 1, undef
+#line 6688 Parser.pm
 	],
 	[#Rule absolute_location_path_71
 		 'absolute_location_path', 1,
 sub {
-#line 139 "engine-parser.eyp"
+#line 149 "engine-parser.eyp"
  Bamboo::Engine::Parser::Root -> new() }
-#line 6759 Parser.pm
+#line 6695 Parser.pm
 	],
 	[#Rule absolute_location_path_72
 		 'absolute_location_path', 2,
 sub {
-#line 140 "engine-parser.eyp"
+#line 150 "engine-parser.eyp"
  Bamboo::Engine::Parser::ChildSegment -> new( path => $_[2], root => 'data' ) }
-#line 6766 Parser.pm
+#line 6702 Parser.pm
 	],
 	[#Rule absolute_location_path_73
 		 'absolute_location_path', 2,
 sub {
-#line 141 "engine-parser.eyp"
+#line 151 "engine-parser.eyp"
  Bamboo::Engine::Parser::DescendentSegment -> new( path => $_[2], root => 'data' ) }
-#line 6773 Parser.pm
+#line 6709 Parser.pm
 	],
 	[#Rule absolute_location_path_74
 		 'absolute_location_path', 3,
 sub {
-#line 142 "engine-parser.eyp"
+#line 152 "engine-parser.eyp"
  Bamboo::Engine::Parser::ChildSegment -> new( path => $_[3], root => $_[1] ) }
-#line 6780 Parser.pm
+#line 6716 Parser.pm
 	],
 	[#Rule absolute_location_path_75
 		 'absolute_location_path', 3,
 sub {
-#line 143 "engine-parser.eyp"
+#line 153 "engine-parser.eyp"
  Bamboo::Engine::Parser::DescendentSegment -> new( path => $_[3], root => $_[1] ) }
-#line 6787 Parser.pm
+#line 6723 Parser.pm
 	],
 	[#Rule axis_name_76
 		 'axis_name', 2,
 sub {
-#line 146 "engine-parser.eyp"
+#line 156 "engine-parser.eyp"
  $_[1] }
-#line 6794 Parser.pm
+#line 6730 Parser.pm
 	],
 	[#Rule relative_location_path_77
-		 'relative_location_path', 1,
-sub {
-#line 149 "engine-parser.eyp"
- $_[1] }
-#line 6801 Parser.pm
+		 'relative_location_path', 1, undef
+#line 6734 Parser.pm
 	],
 	[#Rule relative_location_path_78
 		 'relative_location_path', 3,
 sub {
-#line 150 "engine-parser.eyp"
+#line 160 "engine-parser.eyp"
  Bamboo::Engine::Parser::ChildStep -> new( path => $_[1], step => $_[3] ) }
-#line 6808 Parser.pm
+#line 6741 Parser.pm
 	],
 	[#Rule relative_location_path_79
 		 'relative_location_path', 3,
 sub {
-#line 151 "engine-parser.eyp"
+#line 161 "engine-parser.eyp"
  Bamboo::Engine::Parser::DescendentStep -> new( path => $_[1], step => $_[3] ) }
-#line 6815 Parser.pm
+#line 6748 Parser.pm
 	],
 	[#Rule step_80
 		 'step', 2,
 sub {
-#line 154 "engine-parser.eyp"
+#line 164 "engine-parser.eyp"
  Bamboo::Engine::Parser::Step -> new( step => $_[1], predicates => $_[2] ) }
-#line 6822 Parser.pm
+#line 6755 Parser.pm
 	],
 	[#Rule step_81
 		 'step', 1,
 sub {
-#line 155 "engine-parser.eyp"
+#line 165 "engine-parser.eyp"
  Bamboo::Engine::Parser::CurrentContext -> new() }
-#line 6829 Parser.pm
+#line 6762 Parser.pm
 	],
 	[#Rule step_82
 		 'step', 1,
 sub {
-#line 156 "engine-parser.eyp"
+#line 166 "engine-parser.eyp"
  Bamboo::Engine::Parser::ParentofContext -> new() }
-#line 6836 Parser.pm
+#line 6769 Parser.pm
 	],
 	[#Rule axis_83
 		 'axis', 1,
 sub {
-#line 159 "engine-parser.eyp"
+#line 169 "engine-parser.eyp"
  Bamboo::Engine::Parser::NodeTest -> new( name => $_[1] ) }
-#line 6843 Parser.pm
+#line 6776 Parser.pm
 	],
 	[#Rule axis_84
 		 'axis', 3, undef
-#line 6847 Parser.pm
+#line 6780 Parser.pm
 	],
 	[#Rule axis_85
 		 'axis', 2,
 sub {
-#line 161 "engine-parser.eyp"
+#line 171 "engine-parser.eyp"
  Bamboo::Engine::Parser::AttributeTest -> new( name => $_[2] ) }
-#line 6854 Parser.pm
+#line 6787 Parser.pm
 	],
-	[#Rule _PLUS_LIST
-		 'PLUS-7', 2,
+	[#Rule _STAR_LIST
+		 'STAR-7', 2,
 sub {
-#line 164 "engine-parser.eyp"
+#line 174 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_TX1X2 }
-#line 6861 Parser.pm
+#line 6794 Parser.pm
 	],
-	[#Rule _PLUS_LIST
-		 'PLUS-7', 1,
+	[#Rule _STAR_LIST
+		 'STAR-7', 0,
 sub {
-#line 164 "engine-parser.eyp"
- goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6868 Parser.pm
+#line 174 "engine-parser.eyp"
+ goto &Parse::Eyapp::Driver::YYActionforT_empty }
+#line 6801 Parser.pm
 	],
 	[#Rule predicates_88
 		 'predicates', 1,
 sub {
-#line 164 "engine-parser.eyp"
- Bamboo::Engine::Parser::Predicates -> new( predicates => $_[1] ) }
-#line 6875 Parser.pm
+#line 174 "engine-parser.eyp"
+ @{$_[1]} ? Bamboo::Engine::Parser::Predicates -> new( predicates => $_[1] ) : undef }
+#line 6808 Parser.pm
 	],
 	[#Rule num_expr_89
-		 'num_expr', 1,
-sub {
-#line 167 "engine-parser.eyp"
- $_[1] }
-#line 6882 Parser.pm
+		 'num_expr', 1, undef
+#line 6812 Parser.pm
 	],
 	[#Rule num_expr_90
-		 'num_expr', 1,
-sub {
-#line 168 "engine-parser.eyp"
- $_[1] }
-#line 6889 Parser.pm
+		 'num_expr', 1, undef
+#line 6816 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-8', 3,
 sub {
-#line 171 "engine-parser.eyp"
+#line 181 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_TX1X2 }
-#line 6896 Parser.pm
+#line 6823 Parser.pm
 	],
 	[#Rule _PLUS_LIST
 		 'PLUS-8', 1,
 sub {
-#line 171 "engine-parser.eyp"
+#line 181 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6903 Parser.pm
+#line 6830 Parser.pm
 	],
 	[#Rule num_list_93
 		 'num_list', 1,
 sub {
-#line 171 "engine-parser.eyp"
+#line 181 "engine-parser.eyp"
  Bamboo::Engine::Parser::NumericSet -> new( values => $_[1] ) }
-#line 6910 Parser.pm
+#line 6837 Parser.pm
 	],
 	[#Rule predicate_94
 		 'predicate', 3,
 sub {
-#line 174 "engine-parser.eyp"
+#line 184 "engine-parser.eyp"
  Bamboo::Engine::Parser::FunctionalPredicate -> new( expr => $_[2] ) }
-#line 6917 Parser.pm
+#line 6844 Parser.pm
 	],
 	[#Rule predicate_95
 		 'predicate', 3,
 sub {
-#line 175 "engine-parser.eyp"
+#line 185 "engine-parser.eyp"
  Bamboo::Engine::Parser::IndexPredicate -> new( list => $_[2] ) }
-#line 6924 Parser.pm
+#line 6851 Parser.pm
 	],
 	[#Rule plist_96
 		 'plist', 3,
 sub {
-#line 178 "engine-parser.eyp"
+#line 188 "engine-parser.eyp"
  $_[2] }
-#line 6931 Parser.pm
+#line 6858 Parser.pm
 	],
 	[#Rule _PAREN
 		 'PAREN-9', 1,
 sub {
-#line 181 "engine-parser.eyp"
+#line 191 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforParenthesis}
-#line 6938 Parser.pm
+#line 6865 Parser.pm
 	],
 	[#Rule _OPTIONAL
 		 'OPTIONAL-10', 1,
 sub {
-#line 181 "engine-parser.eyp"
+#line 191 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_single }
-#line 6945 Parser.pm
+#line 6872 Parser.pm
 	],
 	[#Rule _OPTIONAL
 		 'OPTIONAL-10', 0,
 sub {
-#line 181 "engine-parser.eyp"
+#line 191 "engine-parser.eyp"
  goto &Parse::Eyapp::Driver::YYActionforT_empty }
-#line 6952 Parser.pm
+#line 6879 Parser.pm
 	],
 	[#Rule opt_plist_100
-		 'opt_plist', 1,
-sub {
-#line 181 "engine-parser.eyp"
- $_[1] }
-#line 6959 Parser.pm
+		 'opt_plist', 1, undef
+#line 6883 Parser.pm
 	],
 	[#Rule primary_expr_101
 		 'primary_expr', 1, undef
-#line 6963 Parser.pm
+#line 6887 Parser.pm
 	],
 	[#Rule primary_expr_102
 		 'primary_expr', 1, undef
-#line 6967 Parser.pm
+#line 6891 Parser.pm
 	],
 	[#Rule primary_expr_103
 		 'primary_expr', 1, undef
-#line 6971 Parser.pm
+#line 6895 Parser.pm
 	],
 	[#Rule primary_expr_104
 		 'primary_expr', 1, undef
-#line 6975 Parser.pm
+#line 6899 Parser.pm
 	],
 	[#Rule primary_expr_105
-		 'primary_expr', 1, undef
-#line 6979 Parser.pm
+		 'primary_expr', 1,
+sub {
+#line 198 "engine-parser.eyp"
+ Bamboo::Engine::Parser::Literal -> new( value => $_[1] ) }
+#line 6906 Parser.pm
 	],
 	[#Rule primary_expr_106
-		 'primary_expr', 1, undef
-#line 6983 Parser.pm
+		 'primary_expr', 1,
+sub {
+#line 199 "engine-parser.eyp"
+ Bamboo::Engine::Parser::Literal -> new( value => $_[1] ) }
+#line 6913 Parser.pm
 	],
 	[#Rule primary_expr_107
 		 'primary_expr', 2, undef
-#line 6987 Parser.pm
+#line 6917 Parser.pm
 	],
 	[#Rule node_test_108
 		 'node_test', 1, undef
-#line 6991 Parser.pm
+#line 6921 Parser.pm
 	],
 	[#Rule node_test_109
-		 'node_test', 1, undef
-#line 6995 Parser.pm
+		 'node_test', 3, undef
+#line 6925 Parser.pm
 	],
 	[#Rule node_test_110
-		 'node_test', 3, undef
-#line 6999 Parser.pm
-	],
-	[#Rule node_test_111
 		 'node_test', 1, undef
-#line 7003 Parser.pm
+#line 6929 Parser.pm
 	]
 ],
-#line 7006 Parser.pm
+#line 6932 Parser.pm
     yybypass       => 0,
     yybuildingtree => 0,
     yyprefix       => 'Bamboo::Engine::Parser::',
@@ -7102,8 +7028,8 @@ sub {
          'axis_83', 
          'axis_84', 
          'axis_85', 
-         '_PLUS_LIST', 
-         '_PLUS_LIST', 
+         '_STAR_LIST', 
+         '_STAR_LIST', 
          'predicates_88', 
          'num_expr_89', 
          'num_expr_90', 
@@ -7126,26 +7052,33 @@ sub {
          'primary_expr_107', 
          'node_test_108', 
          'node_test_109', 
-         'node_test_110', 
-         'node_test_111', );
+         'node_test_110', );
   $self;
 }
 
-#line 199 "engine-parser.eyp"
+#line 208 "engine-parser.eyp"
 
 
+  #| NUMBER
+use lib './blib/lib';
 use Bamboo::Engine::Block;
 use Bamboo::Engine::Parser::BinExpr;
+use Bamboo::Engine::Parser::Literal;
+use Bamboo::Engine::Parser::RangeExpr;
+use Bamboo::Engine::Parser::IfExpr;
+use Bamboo::Engine::Parser::AndExpr;
 use Data::Dumper;
 
-sub _Error {
-}
+#sub _Error {
+#  my($self, @stuff) = @_;
+#
+#  warn "Error: " . join(" : ", @stuff) . "\n";
+#}
 
 my $SIMPLE_TOKENS = qr{\.\.|::|!=|>=|<=|\/\/|:=|\.|@|\*|\(|\)|\[|\]|\{|\}|\/|\||\+|-|=|>|<|&|,|;};
 my $NCNAME = qr/[a-zA-Z_][-a-zA-Z0-9_.]*/;
 my $QNAME = qr/(?:${NCNAME}:)?${NCNAME}/;
 my $XMLNS = qr/xmlns:${NCNAME}/;
-my $DOLLAR_QNAME = qr/\$${QNAME}/;
 
 my %reserved_words = map { $_ => $_ } qw(
   for   
@@ -7167,7 +7100,6 @@ my %reserved_words = map { $_ => $_ } qw(
   mod  
   div  
 );
-
 
 sub _Lexer {
   my($parser, $last) = @_;
@@ -7220,15 +7152,20 @@ sub _Lexer {
       }
     }
 
-    $_ eq '' and return ('', undef);
+    return ( '', undef ) if $_ =~ /^\s*$/;
+    #$_ eq '' and return ('', undef);
 
     if( $white_space ) {
       s/^\*// and return ('MPY', '*');
-      s/^(${NCNAME})(?![\[\/])// and return ($reserved_words{$_} || 'QNAME', $_);
+    }
+    if(/^(${NCNAME})(?![\[\/])/ && $reserved_words{$1}) {
+      my $rw = $1;
+      s/^$rw//;
+      return ($rw, $rw);
     }
     s/^(-?\d+(?:\.\d+)?|\.\d+)// and return ('NUMBER', $1);
     s/^($SIMPLE_TOKENS)// and return ($1, $1);
-    s/^($DOLLAR_QNAME)// and return ('DOLLAR_QNAME', $1);
+    s/^\$($QNAME)// and return ('DOLLAR_QNAME', $1);
     s/^(\$\d+)// and return ('DOLLAR_INT', $1);
     s/^(${QNAME}\??\*?\s*(?=\([^:]))// and return ('FUNCTION_NAME', $1);
     s/^(${XMLNS})// and return ('XMLNS', $1);
@@ -7237,19 +7174,25 @@ sub _Lexer {
   }
 }
 
+sub line { $_[0] -> { _line } }
+
 sub parse {
   my($self, $src, $debug) = @_;
   my $last = [ ];
 
   $self -> { _line } = 1;
   $self -> { _col } = 1;
-  $self -> { _src } = $src;
+  $self -> { _src } = " " . $src;
 
   return $self -> YYParse(
-    yylex => sub { $last = [_Lexer(shift, $last)]; $last },
-    yyerror => \&_Error,
+    yylex => sub { $last = [_Lexer(shift, $last)]; @$last; },
+#    yyerror => \&_Error,
     yydebug => $debug,
   );
+}
+
+sub Run { my $parser = shift;
+  $parser -> parse(${$parser -> {INPUT}});
 }
 
 
@@ -7258,7 +7201,7 @@ sub parse {
 =cut
 
 
-#line 7261 Parser.pm
+#line 7204 Parser.pm
 
 
 

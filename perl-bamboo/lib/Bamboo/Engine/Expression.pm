@@ -5,4 +5,6 @@ package Bamboo::Engine::Expression;
     die "The 'run' method has not been implemented";
   }
 
+  sub simplfy { $_[0] }
+
 1;

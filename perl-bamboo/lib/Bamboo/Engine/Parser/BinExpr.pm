@@ -1,5 +1,6 @@
 package Bamboo::Engine::Parser::BinExpr;
   use Moose;
+  extends 'Bamboo::Engine::Expression';
 
   use Bamboo::Engine::SetIterator;
 

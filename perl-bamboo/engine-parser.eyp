@@ -2,13 +2,23 @@
 %prefix Bamboo::Engine::Parser::
 #%tree
 
-%token NUMBER = /-?\d+(?:\.\d+)?|\.\d+/
-%token DOLLAR_QNAME = /\$[a-zA-Z_][-a-zA-Z0-9_.]*/
-%token DOLLAR_INT = /\$\d+/
-%token FUNCTION_NAME = /(?:[a-zA-Z_][-a-zA-Z0-9_.]*:)?[a-zA-Z_][-a-zA-Z0-9_.]*\??\*?\s*(?=\([^:])/
-%token XMLNS  = /xmlns:[a-zA-Z_][-a-zA-Z0-9_.]*/
-%token QNAME  = /(?:[a-zA-Z_][-a-zA-Z0-9_.]*:)?[a-zA-Z_][-a-zA-Z0-9_.]*/
-%token NCNAME = /[a-zA-Z_][-a-zA-Z0-9_.]*/
+%token NUMBER 
+%token DOLLAR_QNAME
+%token DOLLAR_INT
+%token FUNCTION_NAME
+%token XMLNS
+%token QNAME
+%token NCNAME
+%left 'err'
+%left 'with'
+%left '+'
+%left '-'
+%nonassoc '<'
+%nonassoc '>'
+%nonassoc '<='
+%nonassoc '>='
+%nonassoc '='
+%nonassoc '!='
 
 # '*' is MPY if it is not preceeded or succeeded by a '/'
 
@@ -26,18 +36,18 @@ statements: statement <+ ';'> { Bamboo::Engine::Block -> new( statements => $_[1
   ;
 
 statement: 
-  | expr { $_[1] }
-  | let_expr { $_[1] }
-  | ns_expr { $_[1] }
+  | expr
+  | let_expr
+  | ns_expr
   ;
 
-expr: or_expr { $_[1] }
-  | range_expr { $_[1] }
-  | if_expr { $_[1] }
-  | for_expr { $_[1] }
-  | quant_expr { $_[1] }
-  | with_expr { $_[1] }
-  | err_expr { $_[1] }
+expr: or_expr
+  | range_expr
+  | if_expr
+  | for_expr
+  | quant_expr
+  | with_expr
+  | err_expr
   ;
 
 err_expr: expr 'err' expr { Bamboo::Engine::Parser::ErrExpr -> new( expr => $_[1], default => $_[3] ) }
@@ -46,7 +56,7 @@ err_expr: expr 'err' expr { Bamboo::Engine::Parser::ErrExpr -> new( expr => $_[1
 with_expr: expr 'with' expr_set_list { Bamboo::Engine::Parser::WithExpr -> new( expr => $_[1], annotations => $_[3] ) }
   ;
 
-expr_set_list: expr_set <+ ','> { $_[1] }
+expr_set_list: expr_set <+ ','> 
   ;
 
 expr_set: relative_location_path ':=' expr { Bamboo::Engine::Parser::MemSet -> new( path => $_[1], expr => $_[3] ) }
@@ -65,25 +75,25 @@ if_expr: 'if' '(' expr.test ')' 'then' expr.then 'else' expr.else { Bamboo::Engi
 for_expr: 'for' for_vars.vars 'return' expr.expr { Bamboo::Engine::Parser::ForExpr -> new( vars => $vars, expr => $expr ) }
   ;
 
-for_vars: for_var <+ ','> { 'for_vars' }
+for_vars: for_var <+ ','> 
   ;
 
-for_var: DOLLAR_QNAME 'in' expr
+for_var: DOLLAR_QNAME 'in' expr { [ $_[1], $_[3] ] }
   ;
 
-quant_expr: 'some' for_vars 'satisfies' expr
-  | 'every' for_vars 'satisfies' expr
+quant_expr: 'some' for_vars 'satisfies' expr { Bamboo::Engine::Parser::SomeExpr -> new( vars => $_[2], expr => $_[4] ) }
+  | 'every' for_vars 'satisfies' expr { Bamboo::Engine::Parser::EveryExpr -> new( vars => $_[2], expr => $_[4] ) }
   ;
 
-or_expr: and_expr <+ 'or'> { printf STDERR Data::Dumper -> Dump(@_); }
+or_expr: and_expr <+ 'or'> { @{$_[1]} > 1 ? Bamboo::Engine::Parser::OrExpr -> new( exprs => $_[1] ) : $_[1] -> [0] -> simplify }
   ;
 
-and_expr: equality_expr { Bamboo::Engine::Parser::AndExpr -> new( set => [ $_[1] ] ) }
-  | and_expr 'and' equality_expr { $_[1] -> addAnd( $_[3] ) }
-  | and_expr 'except' equality_expr { $_[1] -> addExcept( $_[3] ) }
+and_expr: equality_expr { Bamboo::Engine::Parser::AndExpr -> new( expr => $_[1] ) }
+  | and_expr 'and' equality_expr { $_[1] -> add_and( $_[3] ) }
+  | and_expr 'except' equality_expr { $_[1] -> add_except( $_[3] ) }
   ;
 
-equality_expr: relational_expr { $_[1] }
+equality_expr: relational_expr 
   | additive_expr.left '=' additive_expr.right { Bamboo::Engine::Parser::EqExpr -> new( left => $left, right => $right ) }
   | additive_expr.left '!=' additive_expr.right { Bamboo::Engine::Parser::NeqExpr -> new( left => $left, right => $right ) }
   ;
@@ -94,36 +104,36 @@ tuple: '[' list ']' { Bamboo::Engine::Parser::Tuple -> new( values => $_[2] ) }
 list: expr <+ ','> { Bamboo::Engine::Parser::ListExpr -> new( expr => $_[1] ) }
   ;
 
-relational_expr: additive_expr { $_[1] }
-  | additive_expr '<' additive_expr
-  | additive_expr '>' additive_expr
-  | additive_expr '<=' additive_expr
-  | additive_expr '>=' additive_expr
+relational_expr: additive_expr 
+  | additive_expr '<' additive_expr { Bamboo::Engine::Parser::LtExpr -> new( left => $_[1], right => $_[3] ) }
+  | additive_expr '>' additive_expr { Bamboo::Engine::Parser::LtExpr -> new( right => $_[1], left => $_[3] ) }
+  | additive_expr '<=' additive_expr { Bamboo::Engine::Parser::LteExpr -> new( left => $_[1], right => $_[3] ) }
+  | additive_expr '>=' additive_expr { Bamboo::Engine::Parser::LteExpr -> new( right => $_[1], left => $_[3] ) }
   ;
 
-range_expr: additive_expr '..' additive_expr { Bamboo::Engine::Parser::Range -> new( start => $_[1], end => $_[3] ) }
-  | additive_expr 'to' additive_expr { Bamboo::Engine::Parser::Range -> new( start => $_[1], end => $_[3] ) }
+range_expr: additive_expr '..' additive_expr { Bamboo::Engine::Parser::RangeExpr -> new( begin => $_[1], end => $_[3] ) }
+  | additive_expr 'to' additive_expr { Bamboo::Engine::Parser::RangeExpr -> new( begin => $_[1], end => $_[3] ) }
   ;
 
-additive_expr: multiplicative_expr { $_[1] }
-  | additive_expr '+' multiplicative_expr { printf STDERR "additive expr\n\n"; Bamboo::Engine::Parser::AddExpr -> new( left => $_[1], right => $_[3] ) }
+additive_expr: multiplicative_expr 
+  | additive_expr '+' multiplicative_expr { Bamboo::Engine::Parser::AddExpr -> new( left => $_[1], right => $_[3] ) }
   | additive_expr '-' multiplicative_expr { Bamboo::Engine::Parser::SubExpr -> new( left => $_[1], right => $_[3] ) }
   ;
 
-multiplicative_expr: unary_expr { $_[1] }
+multiplicative_expr: unary_expr 
   | multiplicative_expr MPY unary_expr
   | multiplicative_expr 'div' unary_expr
   | multiplicative_expr 'mod' unary_expr
   ;
 
-unary_expr: union_expr { $_[1] }
+unary_expr: union_expr 
   | '-' unary_expr { Bamboo::Engine::Parser::NegateExpr -> new( expr => $_[2] ) }
   ;
 
-union_expr: path_expr <+ '|'>
+union_expr: path_expr <+ '|'> { @{$_[1]} > 1 ? Bamboo::Engine::Parser::UnionExpr -> new( set => $_[1] ) : $_[1] -> [0] }
   ;
 
-path_expr: location_path { $_[1] }
+path_expr: location_path 
   | primary_expr predicates segment { (defined($_[2]) || defined($_[3])) ? Bamboo::Engine::Parser::PathExpr -> new( primary => $_[1], predicates => $_[2], segment => $_[3] ) : $_[1] }
   ;
 
@@ -132,8 +142,8 @@ segment:
   | '//' relative_location_path { Bamboo::Engine::Parser::DescendentSegment -> new( path => $_[2] ) }
   ;
 
-location_path: relative_location_path { $_[1] }
-  | absolute_location_path { $_[1] }
+location_path: relative_location_path
+  | absolute_location_path
   ;
 
 absolute_location_path: '/' { Bamboo::Engine::Parser::Root -> new() }
@@ -146,7 +156,7 @@ absolute_location_path: '/' { Bamboo::Engine::Parser::Root -> new() }
 axis_name: NCNAME '::' { $_[1] }
   ;
 
-relative_location_path: step { $_[1] }
+relative_location_path: step
   | relative_location_path '/' step { Bamboo::Engine::Parser::ChildStep -> new( path => $_[1], step => $_[3] ) }
   | relative_location_path '//' step { Bamboo::Engine::Parser::DescendentStep -> new( path => $_[1], step => $_[3] ) }
   ;
@@ -161,11 +171,11 @@ axis: node_test { Bamboo::Engine::Parser::NodeTest -> new( name => $_[1] ) }
   | '@' node_test { Bamboo::Engine::Parser::AttributeTest -> new( name => $_[2] ) }
   ;
 
-predicates: predicate+ { Bamboo::Engine::Parser::Predicates -> new( predicates => $_[1] ) }
+predicates: predicate* { @{$_[1]} ? Bamboo::Engine::Parser::Predicates -> new( predicates => $_[1] ) : undef }
   ;
 
-num_expr: additive_expr { $_[1] }
-  | range_expr { $_[1] }
+num_expr: additive_expr
+  | range_expr
   ;
 
 num_list: num_expr <+ ','> { Bamboo::Engine::Parser::NumericSet -> new( values => $_[1] ) }
@@ -178,38 +188,45 @@ predicate: '[' expr ']' { Bamboo::Engine::Parser::FunctionalPredicate -> new( ex
 plist: '(' list ')' { $_[2] }
   ;
 
-opt_plist: (plist)? { $_[1] }
+opt_plist: (plist)? 
   ;
 
 primary_expr: DOLLAR_QNAME
   | DOLLAR_INT
   | plist
   | tuple
-  | LITERAL
-  | NUMBER
+  | LITERAL { Bamboo::Engine::Parser::Literal -> new( value => $_[1] ) }
+  | NUMBER { Bamboo::Engine::Parser::Literal -> new( value => $_[1] ) }
   | FUNCTION_NAME opt_plist
   ;
 
 node_test: QNAME
-  | NUMBER
   | '{' expr '}'
   | '*'
   ;
 
 %%
 
+  #| NUMBER
+use lib './blib/lib';
 use Bamboo::Engine::Block;
 use Bamboo::Engine::Parser::BinExpr;
+use Bamboo::Engine::Parser::Literal;
+use Bamboo::Engine::Parser::RangeExpr;
+use Bamboo::Engine::Parser::IfExpr;
+use Bamboo::Engine::Parser::AndExpr;
 use Data::Dumper;
 
-sub _Error {
-}
+#sub _Error {
+#  my($self, @stuff) = @_;
+#
+#  warn "Error: " . join(" : ", @stuff) . "\n";
+#}
 
 my $SIMPLE_TOKENS = qr{\.\.|::|!=|>=|<=|\/\/|:=|\.|@|\*|\(|\)|\[|\]|\{|\}|\/|\||\+|-|=|>|<|&|,|;};
 my $NCNAME = qr/[a-zA-Z_][-a-zA-Z0-9_.]*/;
 my $QNAME = qr/(?:${NCNAME}:)?${NCNAME}/;
 my $XMLNS = qr/xmlns:${NCNAME}/;
-my $DOLLAR_QNAME = qr/\$${QNAME}/;
 
 my %reserved_words = map { $_ => $_ } qw(
   for   
@@ -231,7 +248,6 @@ my %reserved_words = map { $_ => $_ } qw(
   mod  
   div  
 );
-
 
 sub _Lexer {
   my($parser, $last) = @_;
@@ -284,15 +300,20 @@ sub _Lexer {
       }
     }
 
-    $_ eq '' and return ('', undef);
+    return ( '', undef ) if $_ =~ /^\s*$/;
+    #$_ eq '' and return ('', undef);
 
     if( $white_space ) {
       s/^\*// and return ('MPY', '*');
-      s/^(${NCNAME})(?![\[\/])// and return ($reserved_words{$_} || 'QNAME', $_);
+    }
+    if(/^(${NCNAME})(?![\[\/])/ && $reserved_words{$1}) {
+      my $rw = $1;
+      s/^$rw//;
+      return ($rw, $rw);
     }
     s/^(-?\d+(?:\.\d+)?|\.\d+)// and return ('NUMBER', $1);
     s/^($SIMPLE_TOKENS)// and return ($1, $1);
-    s/^($DOLLAR_QNAME)// and return ('DOLLAR_QNAME', $1);
+    s/^\$($QNAME)// and return ('DOLLAR_QNAME', $1);
     s/^(\$\d+)// and return ('DOLLAR_INT', $1);
     s/^(${QNAME}\??\*?\s*(?=\([^:]))// and return ('FUNCTION_NAME', $1);
     s/^(${XMLNS})// and return ('XMLNS', $1);
@@ -301,17 +322,23 @@ sub _Lexer {
   }
 }
 
+sub line { $_[0] -> { _line } }
+
 sub parse {
   my($self, $src, $debug) = @_;
   my $last = [ ];
 
   $self -> { _line } = 1;
   $self -> { _col } = 1;
-  $self -> { _src } = $src;
+  $self -> { _src } = " " . $src;
 
   return $self -> YYParse(
-    yylex => sub { $last = [_Lexer(shift, $last)]; $last },
-    yyerror => \&_Error,
+    yylex => sub { $last = [_Lexer(shift, $last)]; @$last; },
+#    yyerror => \&_Error,
     yydebug => $debug,
   );
+}
+
+sub Run { my $parser = shift;
+  $parser -> parse(${$parser -> {INPUT}});
 }
