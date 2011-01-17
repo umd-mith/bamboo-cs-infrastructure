@@ -1,6 +1,6 @@
 #!perl -T
 
-use Test::More tests => 7;
+use Test::More tests => 6;
 
 use Bamboo::Engine::Memory::Node;
 
@@ -21,8 +21,8 @@ my @stype = (
       name      => 'string'
 );
 
-is( Bamboo::Engine::Type->new(@stype), Bamboo::Engine::Type->new(@stype) );
-
 is( $node -> type, Bamboo::Engine::Type->new(@stype) );
+
+
 
 1;

@@ -1,4 +1,4 @@
-package Bamboo::Engine::Type ;
+package Bamboo::Engine::Type;
   use Moose;
   use MooseX::Types::Moose qw(Str);
 
