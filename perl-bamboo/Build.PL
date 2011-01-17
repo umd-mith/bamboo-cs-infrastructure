@@ -9,7 +9,8 @@ my $class = Module::Build->subclass(
 sub ACTION_parser {
   my $self = shift;
   # build parser and move it to lib/Bamboo/Engine/Parser.pm
-  system(qw(/usr/local/bin/eyapp -s -l -m Bamboo::Engine::Parser engine-parser.eyp));
+  # -v is for development - outputs a engine-parser.output file
+  system(qw(/usr/local/bin/eyapp -s -v -l -m Bamboo::Engine::Parser engine-parser.eyp));
   system(qw(/bin/mv Parser.pm lib/Bamboo/Engine/Parser.pm));
 }
 
