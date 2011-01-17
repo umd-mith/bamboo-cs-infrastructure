@@ -16,6 +16,7 @@ package Bamboo::Engine::Block;
     my $last;
 
     foreach my $s (@{$self -> statements}) {
+      next unless ref $s;
       $last = $s -> run( $context, $av );
     }
 
