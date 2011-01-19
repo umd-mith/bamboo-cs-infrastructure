@@ -4,6 +4,7 @@ package Bamboo::Engine::RangeIterator;
 
   has begin => ( is => 'ro' );
   has end   => ( is => 'ro' );
+  has incr  => ( is => 'ro', predicate => 'has_incr' );
 
   sub start {
     my($self) = @_;
@@ -31,14 +32,17 @@ package Bamboo::Engine::RangeIterator::Visitor;
 
   sub start {
     my($self) = @_;
+    my @sets = ( $self -> iterator -> begin, $self -> iterator -> end );
+    push @sets, $self -> iterator -> incr if $self -> iterator -> has_incr;
     $self -> bounds_iterator(
       Bamboo::Engine::SetIterator -> new(
-        sets => [ $self -> iterator -> begin, $self -> iterator -> end ],
+        sets => \@sets,
         combinator => sub {
-          my($left, $right) = @_;
+          my($left, $right, $incr) = (@_, 1);
           Bamboo::Engine::ConstantRangeIterator -> new(
             begin => $left,
-            end   => $right
+            end   => $right,
+            incr  => $incr,
           ) -> start;
         }
       ) -> start

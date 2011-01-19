@@ -9,6 +9,7 @@ package Bamboo::Engine::NullIterator::Visitor;
   use Moose;
   extends 'Bamboo::Engine::Iterator::Visitor';
 
+  sub position { 0 };
   sub next { undef };
   sub at_end { 1 };
   sub past_end { 1 };

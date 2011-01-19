@@ -1,23 +1,31 @@
 #!perl -T
 
-use Test::More tests => 95;
+use Test::More tests => 114;
 use Data::Dumper;
 
 use Bamboo::Engine::SetIterator;
 use Bamboo::Engine::ConstantIterator;
 use Bamboo::Engine::RangeIterator;
+use Bamboo::Engine::UnionIterator;
 use Bamboo::Engine::Parser::Literal;
+use Bamboo::Engine::NullIterator;
 
 can_ok('Bamboo::Engine::SetIterator', qw( new ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( new ));
 can_ok('Bamboo::Engine::RangeIterator', qw( new ));
 can_ok('Bamboo::Engine::ConstantRangeIterator', qw( new ));
+can_ok('Bamboo::Engine::UnionIterator', qw( new ));
+can_ok('Bamboo::Engine::NullIterator', qw( new ));
 
 can_ok('Bamboo::Engine::SetIterator', qw( start ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( start ));
+can_ok('Bamboo::Engine::UnionIterator', qw( start ));
+can_ok('Bamboo::Engine::NullIterator', qw( start ));
 
 can_ok('Bamboo::Engine::SetIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::ConstantIterator::Visitor', qw( next at_end position ));
+can_ok('Bamboo::Engine::UnionIterator::Visitor', qw( next at_end position ));
+can_ok('Bamboo::Engine::NullIterator::Visitor', qw( next at_end position ));
 
 my $iterator = new_ok( 'Bamboo::Engine::ConstantIterator', [
   values => [ qw(a b c) ] 
@@ -166,3 +174,37 @@ is($rv -> next, 4);
 is($rv -> next, 5);
 is($rv -> position, 21);
 ok($rv -> at_end);
+
+my $union_it = Bamboo::Engine::UnionIterator -> new(
+  iterators => [
+    Bamboo::Engine::ConstantRangeIterator -> new(
+      begin => 1,
+      end => 3,
+    ),
+    Bamboo::Engine::ConstantRangeIterator -> new(
+      begin => 7,
+      end => 9,
+    ),
+  ]
+);
+
+my $uv = $union_it -> start;
+
+is($uv -> next, 1);
+is($uv -> next, 2);
+is($uv -> next, 3);
+is($uv -> next, 7);
+is($uv -> next, 8);
+is($uv -> next, 9);
+is($uv -> position, 6);
+ok($uv -> at_end);
+
+my $null_it = new_ok( 'Bamboo::Engine::NullIterator' );
+
+my $null_visitor = $null_it -> start;
+
+ok($null_visitor);
+
+is($null_visitor -> position, 0);
+ok($null_visitor -> at_end);
+ok($null_visitor -> past_end);

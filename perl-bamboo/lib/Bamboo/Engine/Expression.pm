@@ -1,8 +1,10 @@
 package Bamboo::Engine::Expression;
   use Moose;
 
+  use Bamboo::Engine::NullIterator;
+
   sub run {
-    die "The 'run' method has not been implemented";
+    return Bamboo::Engine::NullIterator -> new;
   }
 
   sub simplfy { $_[0] }

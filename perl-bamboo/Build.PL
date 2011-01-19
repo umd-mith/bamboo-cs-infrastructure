@@ -27,12 +27,17 @@ my $builder = $class -> new(
     'Test::More'     => '',
     'Module::Build'  => '',
   },
+  test_requires      => {
+    'Expect'         => '',
+  },
   author_requires    => {
     'Parse::Eyapp'   => '1.178',
   },
   requires           => {
     'Moose'          => '1.21',
     'MooseX::Types'  => '0.25',
+    'MooseX::Singleton' => '0',
+    'Math::BigRat'   => '0.26',
     'Protocol::WebSocket' => '0.0004',
     'JSON::XS'       => '2.3',
     'Data::UUID'     => '1.217',

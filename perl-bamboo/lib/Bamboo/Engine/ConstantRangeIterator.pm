@@ -4,13 +4,14 @@ package Bamboo::Engine::ConstantRangeIterator;
 
   has begin => ( is => 'ro' );
   has end   => ( is => 'ro' );
+  has incr  => ( is => 'ro', default => 1 );
 
   sub start {
     my($self) = @_;
 
     my $i = Bamboo::Engine::ConstantRangeIterator::Visitor -> new( 
       iterator => $self,
-      increment => ($self -> begin < $self -> end) ? 1 : -1,
+      increment => $self -> incr * (($self -> begin < $self -> end) ? 1 : -1),
     );
     $i -> start;
     return $i;
@@ -43,14 +44,15 @@ package Bamboo::Engine::ConstantRangeIterator::Visitor;
     elsif( !defined $self -> value ) {
       $self -> value( $self -> iterator -> begin );
       $self -> position(1);
+      $self -> at_end( $self -> iterator -> begin == $self -> iterator -> end );
     }
-    elsif( $self -> increment > 0 && $self -> value < $self -> iterator -> end 
-        || $self -> increment < 0 && $self -> value > $self -> iterator -> end
+    elsif( $self -> increment > 0 && $self -> value + $self -> increment <= $self -> iterator -> end 
+        || $self -> increment < 0 && $self -> value + $self -> increment >= $self -> iterator -> end
     ) {
       $self -> value( $self -> value + $self -> increment );
       $self -> at_end(
-        $self -> increment > 0 && $self -> value >= $self -> iterator -> end
-        || $self -> increment < 0 && $self -> value <= $self -> iterator -> end
+        $self -> increment > 0 && $self -> value + $self -> increment > $self -> iterator -> end
+        || $self -> increment < 0 && $self -> value + $self -> increment < $self -> iterator -> end
       );
       $self -> position( $self -> position + 1 );
     }

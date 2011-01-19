@@ -1,6 +1,7 @@
 package Bamboo::Engine::Block;
 
   use Moose;
+  extends 'Bamboo::Engine::Expression';
 
   use MooseX::Types::Moose qw(ArrayRef);
 
