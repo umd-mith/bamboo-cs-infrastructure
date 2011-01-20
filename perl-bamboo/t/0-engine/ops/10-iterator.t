@@ -1,6 +1,6 @@
 #!perl -T
 
-use Test::More tests => 114;
+use Test::More tests => 134;
 use Data::Dumper;
 
 use Bamboo::Engine::SetIterator;
@@ -9,6 +9,7 @@ use Bamboo::Engine::RangeIterator;
 use Bamboo::Engine::UnionIterator;
 use Bamboo::Engine::Parser::Literal;
 use Bamboo::Engine::NullIterator;
+use Bamboo::Engine::FilterIterator;
 
 can_ok('Bamboo::Engine::SetIterator', qw( new ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( new ));
@@ -16,16 +17,19 @@ can_ok('Bamboo::Engine::RangeIterator', qw( new ));
 can_ok('Bamboo::Engine::ConstantRangeIterator', qw( new ));
 can_ok('Bamboo::Engine::UnionIterator', qw( new ));
 can_ok('Bamboo::Engine::NullIterator', qw( new ));
+can_ok('Bamboo::Engine::FilterIterator', qw( new ));
 
 can_ok('Bamboo::Engine::SetIterator', qw( start ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( start ));
 can_ok('Bamboo::Engine::UnionIterator', qw( start ));
 can_ok('Bamboo::Engine::NullIterator', qw( start ));
+can_ok('Bamboo::Engine::FilterIterator', qw( start ));
 
 can_ok('Bamboo::Engine::SetIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::ConstantIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::UnionIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::NullIterator::Visitor', qw( next at_end position ));
+can_ok('Bamboo::Engine::FilterIterator::Visitor', qw( next at_end position ));
 
 my $iterator = new_ok( 'Bamboo::Engine::ConstantIterator', [
   values => [ qw(a b c) ] 
@@ -208,3 +212,30 @@ ok($null_visitor);
 is($null_visitor -> position, 0);
 ok($null_visitor -> at_end);
 ok($null_visitor -> past_end);
+
+my $filter_it = new_ok( 'Bamboo::Engine::FilterIterator', [
+  iterator => Bamboo::Engine::ConstantRangeIterator -> new(
+                begin => 1, end => 100
+              ),
+  filter => sub { $_[0] % 11 == 0 }
+]);
+
+my $filter_visitor = $filter_it -> start;
+
+ok($filter_visitor);
+
+is($filter_visitor -> position, 0);
+is($filter_visitor -> next, 11);
+is($filter_visitor -> position, 1);
+is($filter_visitor -> next, 22);
+is($filter_visitor -> position, 2);
+is($filter_visitor -> next, 33);
+is($filter_visitor -> position, 3);
+is($filter_visitor -> next, 44);
+is($filter_visitor -> next, 55);
+is($filter_visitor -> next, 66);
+is($filter_visitor -> next, 77);
+is($filter_visitor -> next, 88);
+is($filter_visitor -> next, 99);
+is($filter_visitor -> position, 9);
+ok($filter_visitor -> at_end);
