@@ -48,11 +48,15 @@ package Bamboo::Engine::MapIterator::Visitor;
   use Bamboo::Engine::Types qw(Iterator);
 
   has value => ( is => 'rw' );
+  has position => ( is => 'rw', default => 0 );
+  has at_end => (is => 'rw', default => 0);
+  has past_end => (is => 'rw', default => 0);
 
-  has _visitor => ( 
-    is => 'rw',
-    handles => [qw( position at_end past_end )],
-  );
+## TODO: allow the mapping to return an iterator, and have us walk that
+##       iterator instead of returning it
+
+  has _visitor => ( is => 'rw');
+  has _iterative_value => ( is => 'rw' );
 
 
   sub start {
@@ -67,11 +71,37 @@ package Bamboo::Engine::MapIterator::Visitor;
     if( $self -> at_end ) {
       $self -> value(undef);
       $self -> past_end(1);
+      return undef;
+    }
+
+    if( !$self -> _iterative_value || $self -> _iterative_value -> at_end ) {
+      my $v = $self -> _visitor -> next;
+      $v = $self -> iterator -> mapping -> ($v) if defined $v;
+      if( is_Iterator($v) ) {
+        $self -> _iterative_value($v -> start);
+        $self -> value( $self -> _iterative_value -> next );
+        $self -> position( $self -> position + 1 );
+        if( $self -> _iterative_value -> at_end && $self -> _visitor -> at_end ) {
+          $self -> at_end(1);
+        }
+      }
+      else {
+        $self -> value($v);
+        $self -> position( $self -> position + 1 );
+        if( $self -> _visitor -> at_end ) {
+          $self -> at_end(1);
+        }
+      }
     }
     else {
-      $self -> value( 
-        $self -> iterator -> mapping -> ( $self -> _visitor -> next ) 
-      );
+      $self -> value( $self -> _iterative_value -> next );
+      if( $self -> _iterative_value -> at_end ) {
+        $self -> _iterative_value(undef);
+      }
+      $self -> position( $self -> position + 1 );
+    }
+    if( $self -> _visitor -> at_end && (!defined($self -> _iterative_value) || $self -> _iterative_value -> at_end )) {
+      $self -> at_end(1);
     }
 
     return $self -> value;

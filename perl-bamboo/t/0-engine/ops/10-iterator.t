@@ -1,6 +1,6 @@
 #!perl -T
 
-use Test::More tests => 154;
+use Test::More tests => 169;
 use Data::Dumper;
 
 use Bamboo::Engine::SetIterator;
@@ -267,6 +267,32 @@ is($map_visitor -> position, 3);
 is($map_visitor -> next, 16);
 is($map_visitor -> next, 25);
 is($map_visitor -> position, 5);
+ok($map_visitor -> at_end);
+is($map_visitor -> next, undef);
+ok($map_visitor -> past_end);
+
+$map_it = Bamboo::Engine::MapIterator -> new(
+  iterator => Bamboo::Engine::ConstantRangeIterator -> new(
+                begin => 1, end => 5, incr => 2
+              ),
+  mapping => sub { Bamboo::Engine::ConstantRangeIterator -> new( begin => 1, end => $_[0] ) }
+);
+
+$map_visitor = $map_it -> start;
+
+ok($map_visitor);
+
+is($map_visitor -> position, 0);
+is($map_visitor -> next, 1);
+is($map_visitor -> next, 1);
+is($map_visitor -> next, 2);
+is($map_visitor -> next, 3);
+is($map_visitor -> next, 1);
+is($map_visitor -> next, 2);
+is($map_visitor -> next, 3);
+is($map_visitor -> next, 4);
+is($map_visitor -> next, 5);
+is($map_visitor -> position, 9);
 ok($map_visitor -> at_end);
 is($map_visitor -> next, undef);
 ok($map_visitor -> past_end);
