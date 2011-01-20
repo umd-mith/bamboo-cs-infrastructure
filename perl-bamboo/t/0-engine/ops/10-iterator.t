@@ -1,6 +1,6 @@
 #!perl -T
 
-use Test::More tests => 134;
+use Test::More tests => 154;
 use Data::Dumper;
 
 use Bamboo::Engine::SetIterator;
@@ -10,6 +10,7 @@ use Bamboo::Engine::UnionIterator;
 use Bamboo::Engine::Parser::Literal;
 use Bamboo::Engine::NullIterator;
 use Bamboo::Engine::FilterIterator;
+use Bamboo::Engine::MapIterator;
 
 can_ok('Bamboo::Engine::SetIterator', qw( new ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( new ));
@@ -18,18 +19,21 @@ can_ok('Bamboo::Engine::ConstantRangeIterator', qw( new ));
 can_ok('Bamboo::Engine::UnionIterator', qw( new ));
 can_ok('Bamboo::Engine::NullIterator', qw( new ));
 can_ok('Bamboo::Engine::FilterIterator', qw( new ));
+can_ok('Bamboo::Engine::MapIterator', qw( new ));
 
 can_ok('Bamboo::Engine::SetIterator', qw( start ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( start ));
 can_ok('Bamboo::Engine::UnionIterator', qw( start ));
 can_ok('Bamboo::Engine::NullIterator', qw( start ));
 can_ok('Bamboo::Engine::FilterIterator', qw( start ));
+can_ok('Bamboo::Engine::MapIterator', qw( start ));
 
 can_ok('Bamboo::Engine::SetIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::ConstantIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::UnionIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::NullIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::FilterIterator::Visitor', qw( next at_end position ));
+can_ok('Bamboo::Engine::MapIterator::Visitor', qw( next at_end position ));
 
 my $iterator = new_ok( 'Bamboo::Engine::ConstantIterator', [
   values => [ qw(a b c) ] 
@@ -239,3 +243,30 @@ is($filter_visitor -> next, 88);
 is($filter_visitor -> next, 99);
 is($filter_visitor -> position, 9);
 ok($filter_visitor -> at_end);
+is($filter_visitor -> next, undef);
+ok($filter_visitor -> past_end);
+
+my $map_it = new_ok( 'Bamboo::Engine::MapIterator', [
+  iterator => Bamboo::Engine::ConstantRangeIterator -> new(
+                begin => 1, end => 5
+              ),
+  mapping  => sub { $_[0] * $_[0] }
+]);
+
+my $map_visitor = $map_it -> start;
+
+ok($map_visitor);
+
+is($map_visitor -> position, 0);
+is($map_visitor -> next, 1);
+is($map_visitor -> position, 1);
+is($map_visitor -> next, 4);
+is($map_visitor -> position, 2);
+is($map_visitor -> next, 9);
+is($map_visitor -> position, 3);
+is($map_visitor -> next, 16);
+is($map_visitor -> next, 25);
+is($map_visitor -> position, 5);
+ok($map_visitor -> at_end);
+is($map_visitor -> next, undef);
+ok($map_visitor -> past_end);
