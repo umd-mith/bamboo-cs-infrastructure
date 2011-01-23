@@ -40,13 +40,39 @@ value at a time.
 
 =cut
 
-#  sub start {
-#    my($self) = @_;
-#    my $visitor = Bamboo::Engine::SetIterator::Visitor -> new( iterator => $self );
-#    $visitor -> start;
-#
-#    return $visitor;
-#  }
+  sub invert {
+    my($self, $callbacks) = @_;
+
+    # TODO: be smarter about starting over with iterators
+    $self -> _invert({
+      done => $callbacks -> {done},
+      next => sub {
+        $callbacks -> {next} -> ($self -> combinator -> (@_));
+      }
+    }, @{$self -> sets});
+  }
+
+  sub _invert {
+    my($self, $callbacks, $set, @sets) = @_;
+
+    if(@sets > 0) {
+      $set -> invert({
+        done => $callbacks -> {done},
+        next => sub {
+          my($v) = @_;
+          $_ -> () for $self -> _invert({
+            done => sub { },
+            next => sub {
+              $callbacks -> {next} -> ($v, @_);
+            }
+          }, @sets);
+        }
+      });
+    }
+    else {
+      $set -> invert($callbacks);
+    }
+  }
 
 package Bamboo::Engine::SetIterator::Visitor;
   use Moose;

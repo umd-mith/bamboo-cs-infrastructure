@@ -17,6 +17,20 @@ package Bamboo::Engine::ConstantRangeIterator;
     return $i;
   }
 
+  sub invert {
+    my($self, $callbacks) = @_;
+
+    my $visitor = $self -> start;
+
+    sub {
+      while(!$visitor -> at_end ) {
+        $callbacks -> {'next'} -> ($visitor -> next);
+      }
+      $callbacks -> {'done'} -> ();
+    }
+  }
+      
+
 package Bamboo::Engine::ConstantRangeIterator::Visitor;
   use Moose;
 

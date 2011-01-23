@@ -5,6 +5,12 @@ package Bamboo::Engine::NullIterator;
   sub any { 0 }
   sub all { 0 }
 
+  sub invert {
+    my($self, $callbacks) = @_;
+
+    sub { $callbacks -> {done} -> () }
+  }
+
 package Bamboo::Engine::NullIterator::Visitor;
   use Moose;
   extends 'Bamboo::Engine::Iterator::Visitor';

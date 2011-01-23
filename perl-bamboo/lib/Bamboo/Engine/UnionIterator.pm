@@ -38,13 +38,34 @@ value at a time.
 
 =cut
 
-#  sub start {
-#    my($self) = @_;
-#    my $visitor = Bamboo::Engine::SetIterator::Visitor -> new( iterator => $self );
-#    $visitor -> start;
-#
-#    return $visitor;
-#  }
+=head2 invert
+
+  @sources = $iterator -> invert($callbacks);
+
+This returns a set of code references that need to be run in order to prime
+the iterator.  The passed C<$callbacks> code reference will be called for
+each item produced by the iterator.
+
+Callbacks can be given for the 'next' item and the 'done' state.
+
+=cut
+
+  sub invert {
+    my($self, $callbacks) = @_;
+
+    my $done;
+    my $next_callbacks = {
+      'next' => $callbacks -> {'next'},
+      'done' => sub {
+                  $done += 1;
+                  if( $done >= @{$self -> iterators} ) {
+                    $callbacks -> {done} -> ();
+                  }
+                },
+    };
+
+    map { $_ -> invert($next_callbacks) } @{$self -> iterators};
+  }
 
 package Bamboo::Engine::UnionIterator::Visitor;
   use Moose;

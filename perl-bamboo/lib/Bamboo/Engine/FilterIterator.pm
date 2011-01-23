@@ -40,6 +40,19 @@ value at a time.
 
 =cut
 
+  sub invert {
+    my($self, $callbacks) = @_;
+
+    $self -> iterator -> invert({
+      'done' => $callbacks -> {done},
+      'next' => sub {
+        if( $self -> filter -> ( $_[0] ) ) {
+          $callbacks -> {'next'} -> ( $_[0] );
+        }
+      }
+    });
+  }
+
 package Bamboo::Engine::FilterIterator::Visitor;
   use Moose;
   extends 'Bamboo::Engine::Iterator::Visitor';

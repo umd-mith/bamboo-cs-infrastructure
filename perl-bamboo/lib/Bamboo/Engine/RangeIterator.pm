@@ -14,6 +14,35 @@ package Bamboo::Engine::RangeIterator;
     return $i;
   }
 
+  sub invert {
+    my($self, $callbacks) = @_;
+
+    my @sets = ( $self -> begin, $self -> end );
+    push @sets, $self -> incr if $self -> has_incr;
+
+    Bamboo::Engine::SetIterator -> new(
+      sets => \@sets,
+      combinator => sub {
+        my($left, $right, $incr) = (@_, 1);
+        Bamboo::Engine::ConstantRangeIterator -> new(
+          begin => $left,
+          end => $right,
+          incr => $incr
+        );
+      }
+    ) -> invert({
+      'done' => $callbacks -> {done},
+      'next' => sub {
+        my($iterator) = @_;
+        my @to_run = $iterator -> invert({
+          'next' => $callbacks -> {next},
+          'done' => sub { },
+        });
+        $_ -> () for @to_run;
+      }
+    });
+  }
+
 package Bamboo::Engine::RangeIterator::Visitor;
   use Moose;
 

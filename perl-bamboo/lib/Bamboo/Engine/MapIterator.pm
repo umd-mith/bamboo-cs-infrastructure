@@ -40,6 +40,26 @@ value at a time.
 
 =cut
 
+  sub invert {
+    my($self, $callbacks) = @_;
+
+    $self -> iterator -> invert({
+      done => $callbacks -> {done},
+      next => sub {
+        my $v = $self -> mapping -> ($_[0]);
+        if( is_Iterator($v) ) {
+          $_ -> () for @{$v -> invert({
+            done => sub { },
+            next => sub { $callbacks -> {next} -> ($@) }
+          })};
+        }
+        else {
+          $callbacks -> {next} -> ($v);
+        }
+      }
+    });
+  }
+
 package Bamboo::Engine::MapIterator::Visitor;
   use Moose;
   extends 'Bamboo::Engine::Iterator::Visitor';
@@ -81,26 +101,20 @@ package Bamboo::Engine::MapIterator::Visitor;
         $self -> _iterative_value($v -> start);
         $self -> value( $self -> _iterative_value -> next );
         $self -> position( $self -> position + 1 );
-        if( $self -> _iterative_value -> at_end && $self -> _visitor -> at_end ) {
-          $self -> at_end(1);
-        }
       }
       else {
         $self -> value($v);
         $self -> position( $self -> position + 1 );
-        if( $self -> _visitor -> at_end ) {
-          $self -> at_end(1);
-        }
       }
     }
     else {
       $self -> value( $self -> _iterative_value -> next );
-      if( $self -> _iterative_value -> at_end ) {
-        $self -> _iterative_value(undef);
-      }
       $self -> position( $self -> position + 1 );
     }
-    if( $self -> _visitor -> at_end && (!defined($self -> _iterative_value) || $self -> _iterative_value -> at_end )) {
+
+    if( $self -> _visitor -> at_end 
+        && (!defined($self -> _iterative_value) 
+             || $self -> _iterative_value -> at_end )) {
       $self -> at_end(1);
     }
 

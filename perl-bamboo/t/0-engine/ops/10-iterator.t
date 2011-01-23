@@ -1,16 +1,40 @@
 #!perl -T
 
-use Test::More tests => 169;
+use Test::More tests => 178;
 use Data::Dumper;
 
-use Bamboo::Engine::SetIterator;
-use Bamboo::Engine::ConstantIterator;
-use Bamboo::Engine::RangeIterator;
-use Bamboo::Engine::UnionIterator;
-use Bamboo::Engine::Parser::Literal;
+use Bamboo::Engine::Iterator;
 use Bamboo::Engine::NullIterator;
+use Bamboo::Engine::ConstantIterator;
+use Bamboo::Engine::ConstantRangeIterator;
+use Bamboo::Engine::RangeIterator;
+use Bamboo::Engine::SetIterator;
 use Bamboo::Engine::FilterIterator;
 use Bamboo::Engine::MapIterator;
+use Bamboo::Engine::UnionIterator;
+
+use Bamboo::Engine::Parser::Literal;
+use Bamboo::Engine::Memory::Context;
+
+sub test_iterator_inversion {
+  my($iterator, $results, $text) = @_;
+
+  my @results = ();
+  my @to_run = $iterator -> invert({
+    'next' => sub { push @results, $_[0] },
+    'done' => sub { is_deeply(\@results, $results, $text) }
+  });
+
+  $_ -> () for @to_run;
+}
+
+sub test_expression_inversion {
+  my($expression, $results, $text) = @_;
+
+  my $dummy_context = Bamboo::Engine::Memory::Context -> new();
+
+  test_iterator_inversion($expression -> run($dummy_context), $results, $text);
+}
 
 can_ok('Bamboo::Engine::SetIterator', qw( new ));
 can_ok('Bamboo::Engine::ConstantIterator', qw( new ));
@@ -21,15 +45,19 @@ can_ok('Bamboo::Engine::NullIterator', qw( new ));
 can_ok('Bamboo::Engine::FilterIterator', qw( new ));
 can_ok('Bamboo::Engine::MapIterator', qw( new ));
 
-can_ok('Bamboo::Engine::SetIterator', qw( start ));
-can_ok('Bamboo::Engine::ConstantIterator', qw( start ));
-can_ok('Bamboo::Engine::UnionIterator', qw( start ));
-can_ok('Bamboo::Engine::NullIterator', qw( start ));
-can_ok('Bamboo::Engine::FilterIterator', qw( start ));
-can_ok('Bamboo::Engine::MapIterator', qw( start ));
+can_ok('Bamboo::Engine::SetIterator', qw( start invert ));
+can_ok('Bamboo::Engine::ConstantIterator', qw( start invert ));
+can_ok('Bamboo::Engine::ConstantRangeIterator', qw( start invert ));
+can_ok('Bamboo::Engine::RangeIterator', qw( start invert ));
+can_ok('Bamboo::Engine::UnionIterator', qw( start invert ));
+can_ok('Bamboo::Engine::NullIterator', qw( start invert ));
+can_ok('Bamboo::Engine::FilterIterator', qw( start invert ));
+can_ok('Bamboo::Engine::MapIterator', qw( start invert ));
 
 can_ok('Bamboo::Engine::SetIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::ConstantIterator::Visitor', qw( next at_end position ));
+can_ok('Bamboo::Engine::ConstantRangeIterator::Visitor', qw( next at_end position ));
+can_ok('Bamboo::Engine::RangeIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::UnionIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::NullIterator::Visitor', qw( next at_end position ));
 can_ok('Bamboo::Engine::FilterIterator::Visitor', qw( next at_end position ));
@@ -58,6 +86,7 @@ ok(!defined($visitor -> next));
 is($visitor -> position, 3);
 ok($visitor -> at_end);
 
+test_iterator_inversion( $iterator, [ qw(a b c) ] );
 
 my $literal = new_ok( 'Bamboo::Engine::Parser::Literal', [
   value => 'a' 
@@ -77,6 +106,8 @@ is($lit_it_vis -> position, 0);
 is($lit_it_vis -> next, 'a');
 is($lit_it_vis -> position, 1);
 ok($lit_it_vis -> at_end);
+
+test_expression_inversion($literal, [ 'a' ]);
 
 my $combo = new_ok( 'Bamboo::Engine::SetIterator', [
   sets => [ Bamboo::Engine::ConstantIterator -> new( values => [ 1, 2, 3 ] ),
@@ -296,3 +327,45 @@ is($map_visitor -> position, 9);
 ok($map_visitor -> at_end);
 is($map_visitor -> next, undef);
 ok($map_visitor -> past_end);
+
+
+### now test inversion
+
+my $inv_it = Bamboo::Engine::ConstantRangeIterator -> new(
+  begin => 1,
+  end => 5
+);
+
+test_iterator_inversion($inv_it, [ 1, 2, 3, 4, 5 ]);
+
+
+$inv_it = Bamboo::Engine::RangeIterator -> new(
+  begin => Bamboo::Engine::ConstantRangeIterator -> new(
+    begin => 1, end => 3
+  ),
+  end => Bamboo::Engine::ConstantRangeIterator -> new(
+    begin => 5, end => 7
+  )
+);
+
+test_iterator_inversion($inv_it, [
+    1, 2, 3, 4, 5,
+    1, 2, 3, 4, 5, 6,
+    1, 2, 3, 4, 5, 6, 7,
+       2, 3, 4, 5,
+       2, 3, 4, 5, 6,
+       2, 3, 4, 5, 6, 7,
+          3, 4, 5,
+          3, 4, 5, 6,
+          3, 4, 5, 6, 7,
+  ]);
+
+
+$inv_it = Bamboo::Engine::MapIterator -> new(
+  iterator => Bamboo::Engine::ConstantRangeIterator -> new(
+                begin => 1, end => 5
+              ),
+  mapping  => sub { $_[0] * $_[0] }
+);
+
+test_iterator_inversion($inv_it, [1, 4, 9, 16,25]);

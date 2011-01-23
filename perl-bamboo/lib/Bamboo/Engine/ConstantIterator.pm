@@ -12,6 +12,15 @@ package Bamboo::Engine::ConstantIterator;
     return Bamboo::Engine::ConstantIterator::Visitor -> new( iterator => $self );
   }
 
+  sub invert {
+    my($self, $callbacks) = @_;
+
+    sub {
+      $callbacks -> {next} -> ($_) for @{$self -> values};
+      $callbacks -> {done} -> ();
+    }
+  }
+
 package Bamboo::Engine::ConstantIterator::Visitor;
   use Moose;
 
