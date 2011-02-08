@@ -2,32 +2,27 @@ package Bamboo::Engine::Types;
 
 use MooseX::Types
   -declare => [qw(
-    Boolean
     Node
     Type
     Iterator
     Expression
     Context
+    TagLib
   )];
 
 use MooseX::Types::Moose qw/Int HashRef Str ArrayRef/;
 
-subtype Boolean,
-     as Int;
-
-coerce Boolean,
-  from Int,
-   via { $_ != 0 };
-
 class_type Node, { class => 'Bamboo::Engine::Memory::Node' };
 
-class_type Context, { class => 'Bamboo::Engine::Memory::Context' };
+class_type Context, { class => 'Bamboo::Engine::Context' };
 
 class_type Type, { class => 'Bamboo::Engine::Type' };
 
 class_type Iterator, { class => 'Bamboo::Engine::Iterator' };
 
 class_type Expression, { class => 'Bamboo::Engine::Expression' };
+
+class_type TagLib, { class => 'Bamboo::Engine::TagLib::Base' };
 
 coerce Type,
   from ArrayRef,
@@ -43,6 +38,6 @@ Bamboo::Engine::Types - Various Moose types used in Bamboo::Engine
 
 =head1 SYNOPSIS
 
- use Bamboo::Engine::Types qw( Boolean Node Type );
+ use Bamboo::Engine::Types qw( Node Type );
 
 =head1 DESCRIPTION

@@ -1,15 +1,35 @@
 package Bamboo::Server;
   use Moose;
+  with 'MooseX::Getopt';
+  with 'MooseX::SimpleConfig';
 
   use Bamboo::Server::Connection;
 
   use POE qw(Component::Server::TCP);
 
+
+  has port => ( is => 'rw', default => 3000, isa => 'Int',
+        documentation => 'Port on which to listen for connections.' );
+  has namespace => ( is => 'rw', isa => 'HashRef', default => sub { +{ } } );
+  has '+configfile' => ( default => 'bamboo.conf', 
+        documentation => 'Configuration file.' );
+
+  has _agents => ( accessor => 'agents', is => 'rw', default => sub { [ ] } );
+  has _clients => ( accessor => 'clients', is => 'rw', default => sub { [ ] } );
+  has _queries => ( accessor => 'queries', is => 'rw', default => sub { +{ } } );
   has _was_setup => ( is => 'rw', default => 0 );
 
-  has port => ( is => 'rw', default => 3000 );
-  has agents => ( is => 'rw', default => sub { [ ] } );
-  has queries => ( is => 'rw', default => sub { +{ } } );
+  sub config_any_args {
+    +{
+      driver_args => {
+        General => {
+          -ApacheCompatible => 1,
+          -LowerCaseNames => 1,
+          -AutoTrue => 1,
+        }
+      },
+    }
+  }
 
   sub setup {
     my($self) = @_;
@@ -18,7 +38,7 @@ package Bamboo::Server;
       Port => $self -> port,
       ClientFilter => 'POE::Filter::Stream',
       ClientConnected => sub {
-        $_[HEAP]{websocket} = Bamboo::Server::Connection -> new( client => $_[HEAP]{client} );
+        $_[HEAP]{websocket} = Bamboo::Server::Connection -> new( client => $_[HEAP]{client}, server => $self );
       },
       ClientDisconnected => sub {
         if( $_[HEAP]{is_agent} ) {
@@ -36,51 +56,97 @@ package Bamboo::Server;
         }
 
       },
+
+## TODO: remap message ids between clients and agents so each client has its
+##       own msg id space.  This keeps clients from stomping on each other.
+
       InlineStates => {
         message => sub {
           my($msg) = $_[ARG0];
           if($_[HEAP]{is_agent}) {
-            if( $msg -> {id} ) {
-              # send response to client
-              my $client = $self -> id_to_client($msg -> {id});
-              if( $client ) {
-                $client -> send({ class => $msg->{class}, data => $msg->{data}, id => $msg->{id}});
-              }
-            }
+            $self -> agent_handler($_[HEAP]{websocket}, $msg);
           }
-          elsif( $msg -> {class} eq 'declaration.agent' ) {
+## we become an agent if we export a namespace of functionality
+          elsif( $msg -> {class} eq 'flow.namespaces.register' ) {
             # registering an agent
-            $self -> register_agent($_[HEAP]{websocket}, $msg -> {data});
+            my $agent = $_[HEAP]{websocket};
+
+            $self -> unregister_client($agent);
+            $self -> register_agent($agent, $msg -> {data});
             $_[HEAP]{is_agent} = 1;
+
+            $agent -> register_namespaces($msg->{data});
+
+            $self -> broadcast_clients({
+              class => 'flow.namespace.registered',
+              data => $self -> namespaces
+            });
           }
-          elsif( $msg -> {class} eq 'declaration.query.done' ) {
-            $self -> unregister_query($_[HEAP]{websocket}, $msg -> {id});
+          else {
+            $self -> client_handler($_[HEAP]{websocket}, $msg);
           }
-          else { # it's a client sending a request
-            $self -> register_query($_[HEAP]{websocket}, $msg -> {id});
-            $self -> broadcast( $msg );
-          }
-          print STDERR "class: " . $msg -> {class} . "\n";
-          print STDERR "id: " . $msg -> {id} . "\n";
+
         }
       },
     );
 
-printf STDERR "We're set up\n";
+use Data::Dumper;
     $self -> _was_setup(1);
-    #POE::Kernel -> run;
+  }
+
+  sub agent_handler {
+    my($self, $agent, $msg) = @_;
+
+    if( $msg -> {id} ) {
+      # send response to client
+      my $client = $self -> id_to_client($msg -> {id});
+      if( $client ) {
+        $client -> {client} -> send($msg);
+      }
+    }
+  }
+
+  sub client_handler {
+    my($self, $client, $msg) = @_;
+
+    if( $msg -> {class} eq 'declaration.query.done' ) {
+      $self -> unregister_query($client, $msg -> {id});
+    }
+    elsif( $msg -> {class} eq 'flow.create' ) {
+      # we can restrict agent broadcast to those which registered
+      #  the namespace
+      # We want to record which agents get the flow.create so we
+      #  can pass along other flow.* from clients with the same id
+      my $agents = $self -> broadcast( $msg );
+      $self -> register_query($client, $msg -> {id}, $agents);
+    }
+    elsif( $msg -> {class} eq 'flow.close' ) {
+      $self -> narrow_broadcast( $msg );
+      $self -> unregister_query($client, $msg -> {id});
+    }
+    elsif( $msg -> {class} =~ /^flow\.provided?/ ) {
+      $self -> narrow_broadcast( $msg );
+    }
+    else { # it's a client sending a request
+      $self -> register_query($client, $msg -> {id});
+      $self -> broadcast( $msg );
+    }
   }
 
   sub register_query {
-    my($self, $client, $id) = @_;
+    my($self, $client, $id, $agents) = @_;
 
-    $self -> queries -> {$id} = $client;
+    return unless $id;
+
+    $self -> queries -> {$id} = { client => $client, agents => $agents };
   }
 
   sub unregister_query {
     my($self, $client, $id) = @_;
 
-    if($self -> queries -> {$id} eq $client) {
+    return unless $id;
+
+    if($self -> queries -> {$id} -> {client} eq $client) {
       delete ${$self -> queries}{$id};
     }
   }
@@ -103,17 +169,61 @@ printf STDERR "We're set up\n";
     $self -> agents( [ grep { $_ ne $agent } @{$self -> agents} ] );
   }
 
+  sub register_client {
+    my($self, $client) = @_;
+
+    push @{$self -> clients}, $client;
+  }
+
   sub unregister_client {
     my($self, $client) = @_;
 
     delete @{$self -> queries}{grep { $self -> queries -> {$_} eq $client } keys %{$self -> queries}};
+    $self -> clients( [ grep { $_ ne $client } @{$self -> clients} ] );
+  }
+
+  sub namespaces {
+    my($self) = @_;
+
+    my %namespaces;
+
+    for my $a (@{$self -> agents}) {
+      for my $ns ( keys %{$a -> namespaces} ) {
+        next if defined $namespaces{$ns};
+        $namespaces{$ns} = $a -> namespaces -> {$ns};
+      }
+    }
+
+    \%namespaces;
   }
 
   sub broadcast {
     my($self, $msg) = @_;
 
+    my @agents;
     for my $agent (@{$self -> agents}) {
       $agent -> send($msg);
+      push @agents, $agent;
+    }
+    return \@agents;
+  }
+
+  sub narrow_broadcast {
+    my($self, $msg) = @_;
+
+    my $agents = $self -> queries -> {$msg -> {id}} -> {agents} || [];
+
+    for my $agent (@$agents) {
+      eval { $agent -> send($msg) }; # in case they've disconnected
+print STDERR "Un oh: $@\n" if $@;
+    }
+  }
+
+  sub broadcast_clients {
+    my($self, $msg) = @_;
+
+    for my $client (@{$self -> clients}) {
+      $client -> send($msg);
     }
   }
 

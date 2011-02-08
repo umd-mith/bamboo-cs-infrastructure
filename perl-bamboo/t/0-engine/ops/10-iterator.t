@@ -14,7 +14,7 @@ use Bamboo::Engine::MapIterator;
 use Bamboo::Engine::UnionIterator;
 
 use Bamboo::Engine::Parser::Literal;
-use Bamboo::Engine::Memory::Context;
+use Bamboo::Engine::Context;
 
 sub test_iterator_inversion {
   my($iterator, $results, $text) = @_;
@@ -31,7 +31,7 @@ sub test_iterator_inversion {
 sub test_expression_inversion {
   my($expression, $results, $text) = @_;
 
-  my $dummy_context = Bamboo::Engine::Memory::Context -> new();
+  my $dummy_context = Bamboo::Engine::Context -> new();
 
   test_iterator_inversion($expression -> run($dummy_context), $results, $text);
 }

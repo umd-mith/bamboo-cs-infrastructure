@@ -5,20 +5,27 @@ package Bamboo::Server::Connection;
   use Protocol::WebSocket::Frame;
   use JSON::XS;
 
-  has server => ( is => 'rw', default => sub { Protocol::WebSocket::Handshake::Server -> new } );
+  has handshake => ( is => 'rw', default => sub { Protocol::WebSocket::Handshake::Server -> new } );
+  has server => ( is => 'rw', isa => 'Bamboo::Server', required => 1 );
   has client => ( is => 'rw' );
   has frame  => ( is => 'rw', default => sub { Protocol::WebSocket::Frame -> new } );
+  has namespaces => ( is => 'rw', default => sub { +{ } }, isa => 'HashRef' );
 
   sub process_input {
     my($self, $chunk) = @_;
 
-    if( !$self -> server -> is_done ) {
-      $self -> server -> parse($chunk);
-      if( $self -> server -> error ) {
+print STDERR "input: [$chunk]\n";
+    if( !$self -> handshake -> is_done ) {
+      $self -> handshake -> parse($chunk);
+      if( $self -> handshake -> error ) {
       }
-      if( $self -> server -> is_done ) {
-        $self -> client -> put( $self -> server -> to_string );
+      if( $self -> handshake -> is_done ) {
+        $self -> client -> put( $self -> handshake -> to_string );
 
+        $self -> send({
+          class => 'flow.namespaces.registered',
+          data => $self -> server -> namespaces
+        });
 # here we can put initial client initialization stuff, like available
 # tag library services
       }
@@ -48,6 +55,14 @@ package Bamboo::Server::Connection;
     my($self, $request) = @_;
 
     $self -> client -> put($self -> encode($request));
+  }
+
+  sub register_namespaces {
+    my($self, $spaces) = @_;
+
+    for my $ns (keys %$spaces) {
+      $self -> namespaces -> {$ns} = $spaces -> {$ns};
+    }
   }
 
 1;

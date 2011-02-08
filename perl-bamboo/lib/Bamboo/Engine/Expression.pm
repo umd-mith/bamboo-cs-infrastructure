@@ -7,6 +7,12 @@ package Bamboo::Engine::Expression;
     return Bamboo::Engine::NullIterator -> new;
   }
 
+  sub invert {
+    my($self, $context, $av, $callbacks) = @_;
+
+    $self -> run( $context, $av ) -> invert($callbacks);
+  }
+
   sub simplfy { $_[0] }
 
 1;

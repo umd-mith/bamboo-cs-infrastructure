@@ -39,8 +39,8 @@ package Bamboo::Engine::ConstantIterator::Visitor;
       $self -> value(undef);
     }
     else {
+      $self->value($self -> iterator -> values -> [$self -> position]);
       $self -> position($self -> position + 1);
-      $self->value($self -> iterator -> values -> [$self -> position - 1]);
     }
     return $self -> value;
   }

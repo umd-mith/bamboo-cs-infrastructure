@@ -1,9 +1,10 @@
 package Bamboo::Agent;
   use Moose;
 
-  use MooseX::Types::Moose qw(HashRef CodeRef);
+  use MooseX::Types::Moose qw(HashRef CodeRef ArrayRef);
 
   use Bamboo::Agent::Connection;
+  use Bamboo::Agent::Flow;
   use URI;
   use JSON::XS;
 
@@ -15,6 +16,8 @@ package Bamboo::Agent;
   has alias => ( is => 'rw', default => 'agent' );
   has connection => ( is => 'rw' );
   has events => ( is => 'rw', isa => HashRef, default => sub { +{ } } );
+  has namespaces => ( is => 'rw', isa => ArrayRef, default => sub { [ ] } );
+  has _flows => (is => 'rw', isa => HashRef, default => sub { +{ } } );
 
   sub setup {
     my($self) = @_;
@@ -32,6 +35,7 @@ package Bamboo::Agent;
         $self -> connection(Bamboo::Agent::Connection -> new(
           server => $_[HEAP]{server},
           url => $ws_uri,
+          namespaces => $self -> namespaces,
         ));
         $self -> connection -> initiate_handshake;
       },
@@ -51,6 +55,42 @@ package Bamboo::Agent;
         }
       },
     );
+
+    $self -> events -> {'flow.create'} ||= sub {
+      my($class, $data, $id) = @_;
+      $self -> _flows -> {$id} = Bamboo::Agent::Flow -> new(
+        expression => $data -> {expression},
+        iterators =>  $data -> {iterators},
+        namespaces => $data -> {namespaces},
+        id => $id,
+        agent => $self,
+      );
+      $self -> _flows -> {$id} -> start;
+    };
+    $self -> events -> {'flow.provide'} ||= sub {
+      my($class, $data, $id) = @_;
+      if( $self -> _flows -> {$id} ) {
+        $self -> _flows -> {$id} -> provide($data -> {iterators});
+      }
+    };
+    $self -> events -> {'flow.provided'} ||= sub {
+      my($class, $data, $id) = @_;
+      if( $self -> _flows -> {$id} ) {
+        $self -> _flows -> {$id} -> provided($data -> {iterators});
+      }
+    };
+    $self -> events -> {'flow.close'} ||= sub {
+      my($class, $data, $id) = @_;
+      $self -> _flows -> {$id} -> finish();
+      delete ${$self -> _flows}{$id};
+    };
+    $self -> events -> {'flow.namespace.registered'} ||= sub {
+      my($class, $data, $id) = @_;
+      # we don't expect or care about $id
+      # we need to make sure we have hooks in the engine to transfer
+      # requests for these namespaces over to the cloud -- some namespaces
+      # could be local as well
+    };
 
     $self -> _was_setup(1);
   }

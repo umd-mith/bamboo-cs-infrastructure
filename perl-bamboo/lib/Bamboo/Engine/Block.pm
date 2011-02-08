@@ -24,6 +24,25 @@ package Bamboo::Engine::Block;
     return $last;
   }
 
+  sub invert {
+    my( $self, $context, $av, $callbacks) = @_;
+
+    return $callbacks->{done} if $self -> noop;
+
+    my @stmts = @{$self -> statements};
+    my $stmt = pop @stmts;
+    my @subs = $stmt -> invert($context, $av, $callbacks);
+    while( @stmts ) {
+      $stmt = pop @stmts;
+      my @old_subs = @subs;
+      @subs = $stmt -> invert($context, $av, {
+        next => sub { },
+        done => sub { $_->() for @old_subs }
+      });
+    }
+    @subs;
+  }
+
   sub noop { 
     @{$_[0] -> statements} == 0 &&
     @{$_[0] -> ensures} == 0

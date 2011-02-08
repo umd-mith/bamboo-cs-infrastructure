@@ -26,4 +26,26 @@ package Bamboo::Engine::Parser::IfExpr;
     }
   }
 
+  sub invert {
+    my($self, $context, $av, $callbacks) = @_;
+
+    my $then_run;
+    $self -> test -> run($context, $av) -> invert({
+      'done' => sub {
+        if(!$then_run && $self -> has_else) {
+          $_ -> () for $self -> else -> run($context, $av) -> invert($callbacks);
+        }
+        else {
+          $callbacks -> {done} -> ();
+        }
+      },
+      'next' => sub {
+        if(!$then_run && !!$_[0]) {
+          $then_run = 1;
+          $_ -> () for $self -> then -> run($context, $av) -> invert($callbacks);
+        }
+      }
+    });
+  }
+
 1;

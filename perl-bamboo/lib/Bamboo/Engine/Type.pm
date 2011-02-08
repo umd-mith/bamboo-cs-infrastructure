@@ -1,9 +1,12 @@
 package Bamboo::Engine::Type;
   use Moose;
-  use MooseX::Types::Moose qw(Str);
+  use MooseX::Types::Moose qw(Str HashRef);
 
   has 'namespace' => ( isa => Str, is => 'rw' );
-  has 'name'      => (isa => Str, is => 'rw' );
+  has 'name'      => ( isa => Str, is => 'rw' );
+  has 'goings'    => ( isa => HashRef, is => 'rw', default => sub { +{ } } );
+  has 'comings'   => ( isa => HashRef, is => 'rw', default => sub { +{ } } );
+  has 'methods'   => ( isa => HashRef, is => 'rw', default => sub { +{ } } );
 
   our %types;
 

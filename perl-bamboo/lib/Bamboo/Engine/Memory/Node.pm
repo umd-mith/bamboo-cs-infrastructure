@@ -1,8 +1,8 @@
 package Bamboo::Engine::Memory::Node;
   use Moose;
 
-  use Bamboo::Engine::Types qw( Type Node Boolean );
-  use MooseX::Types::Moose qw( Str HashRef ArrayRef );
+  use Bamboo::Engine::Types qw( Type Node );
+  use MooseX::Types::Moose qw( Str HashRef ArrayRef Bool );
 
   use Bamboo::Engine::Type;
 
@@ -11,9 +11,9 @@ package Bamboo::Engine::Memory::Node;
   has 'roots'        => (is => 'rw', isa => HashRef);
   has 'type'         => (is => 'rw', isa => Type, default => sub { to_Type([ "http://dh.tamu.edu/ns/fabulator/1.0#", "string" ]) } );
   has 'children'     => (is => 'rw', isa => HashRef);
-  has 'parent'       => (is => 'rw', isa => Node);
+  has 'parent'       => (is => 'rw', isa => Node, weak_ref => 1);
   has 'attributes'   => (is => 'ro', isa => HashRef);
-  has 'is_attribute' => (is => 'rw', isa => Boolean);
+  has 'is_attribute' => (is => 'rw', isa => Bool);
 
   sub axis {
     my($self) = @_;
@@ -67,16 +67,16 @@ package Bamboo::Engine::Memory::Node;
     my($self, $value, $type) = @_;
 
     if(is_ArrayRef($value)) {
-      return __PACKAGE__ -> new(
+      return $self -> new(
         children => [ map { $self -> anon_node($_, $type) } @$value ],
         roots => $self -> roots
       );
     }
     elsif(is_HashRef($value)) {
-      my $p = __PACKAGE__ -> new( );
+      my $p = $self -> new( );
       $p -> children = [
         map { 
-          __PACKAGE__ -> new(
+          $self -> new(
             name => $_,
             parent => $p,
             value => $value -> {$_},
@@ -91,6 +91,27 @@ package Bamboo::Engine::Memory::Node;
         type => $type
       );
     }
+  }
+
+  sub path {
+    my($self) = @_;
+
+    if( !$self -> parent || $self -> parent eq $self ) {
+      return '';
+    }
+    else {
+      return $self -> parent -> path . '/' . (
+        $self -> is_attribute ? '@' : ''
+      ) . $self -> name;
+    }
+  }
+
+  sub children_iterator {
+    my($self) = @_;
+
+    Bamboo::Engine::ConstantIterator -> new(
+      values => $self -> children,
+    );
   }
 
 1;

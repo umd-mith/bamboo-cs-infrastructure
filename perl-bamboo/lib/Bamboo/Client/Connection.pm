@@ -30,11 +30,17 @@ package Bamboo::Client::Connection;
     my($self, $input) = @_;
 
     if( !$self -> client -> is_done ) {
-      $self -> client -> parse($input);
+      if( $input =~ s/^(.*?)\xff/\xff/ ) {
+        $self -> client -> parse($1);
+      }
+      else {
+        $self -> client -> parse($input);
+      }
       if( $self -> client -> is_done ) {
+        POE::Kernel -> yield("client_ready");
         POE::Kernel -> yield("clear_queue");
       }
-      return;
+      return unless $input;
     }
 
     $self -> frame -> append( $input );

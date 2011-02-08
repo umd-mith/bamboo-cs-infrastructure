@@ -50,7 +50,7 @@ value at a time.
         if( is_Iterator($v) ) {
           $_ -> () for @{$v -> invert({
             done => sub { },
-            next => sub { $callbacks -> {next} -> ($@) }
+            next => $callbacks -> {next},
           })};
         }
         else {

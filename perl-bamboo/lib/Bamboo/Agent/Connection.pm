@@ -4,6 +4,7 @@ package Bamboo::Agent::Connection;
   use Protocol::WebSocket::Handshake::Client;
   use Protocol::WebSocket::Frame;
   use JSON::XS;
+  use Bamboo::Engine::TagLib::Registry;
 
   use MooseX::Types::Moose qw(CodeRef);
 
@@ -16,6 +17,7 @@ package Bamboo::Agent::Connection;
   } );
   has server => ( is => 'rw' );
   has frame => ( is => 'rw', default => sub { Protocol::WebSocket::Frame -> new } );
+  has namespaces => ( is => 'rw', default => sub { [ ] }, isa => 'ArrayRef' );
 
   sub initiate_handshake {
     my($self) = @_;
@@ -39,7 +41,12 @@ package Bamboo::Agent::Connection;
     if( !$self -> client -> is_done ) {
       $self -> client -> parse($input);
       if( $self -> client -> is_done ) {
-        $self -> response({ class => 'declaration.agent', id => 0 });
+        #$self -> response({ class => 'declaration.agent', id => 0 });
+        $self -> response({ class => 'flow.namespaces.register',
+          data => Bamboo::Engine::TagLib::Registry -> instance -> describe_namespaces(
+                    @{$self -> namespaces}
+                  )
+        });
       }
       return;
     }

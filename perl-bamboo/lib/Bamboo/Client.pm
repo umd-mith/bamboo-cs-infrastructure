@@ -2,8 +2,12 @@ package Bamboo::Client;
   use Moose;
 
   use Bamboo::Client::Connection;
+  use Bamboo::Engine::TagLib::Registry;
+  use Bamboo::Engine::TagLib::Remote;
   use URI;
   use Data::UUID;
+
+  use Data::Dumper;
 
   use POE qw(Component::Client::TCP);
 
@@ -14,6 +18,7 @@ package Bamboo::Client;
   has connection => ( is => 'rw' );
   has _queue => ( is => 'rw', default => sub { [ ] } );
   has _uuid_gen => ( is => 'ro', default => sub { Data::UUID -> new } );
+  has _flows => ( is => 'ro', default => sub { +{ } } );
 
   sub setup {
     my($self) = @_;
@@ -79,8 +84,39 @@ package Bamboo::Client;
 
   sub message {
     my($self, $msg) = @_;
-    print STDERR "   id: " . $msg -> {id} . "\n";
-    print STDERR "class: " . $msg -> {class} . "\n";
+    if($msg -> {class} eq 'flow.namespaces.registered') {
+      # we want to make stub classes if we don't have a handler for it already
+      my $info = $msg -> {data};
+      for my $ns (keys %$info) {
+        next if Bamboo::Engine::TagLib::Registry -> instance -> handler($ns);
+        my $h = Bamboo::Engine::TagLib::Remote -> new(
+          ns => $ns,
+          client => $self,
+          mappings => { map { $_ => 1 } @{$info -> {$ns} -> {mappings} || [] } },
+          consolidations => { map { $_ => 1 } @{$info -> {$ns} -> {consolidations} || [] } },
+          reductions => { map { $_ => 1 } @{$info -> {$ns} -> {reductions} || [] } },
+          functions => { map { $_ => 1 } @{$info -> {$ns} -> {functions} || [] } },
+        );
+        Bamboo::Engine::TagLib::Registry->instance->handler($ns, $h);
+      }
+    }
+    elsif($msg -> {class} =~ /^flow\./) {
+      if($self -> _flows -> {$msg->{id}}) {
+        $self -> _flows -> message($msg -> {class}, $msg -> {data});
+      }
+    }
+  }
+
+  sub register_flow {
+    my($self, $flow) = @_;
+
+    $self -> _flows -> {$flow -> id} = $flow;
+  }
+
+  sub deregister_flow {
+    my($self, $flow) = @_;
+
+    delete $self -> _flows -> {$flow -> id};
   }
 
   sub run {
