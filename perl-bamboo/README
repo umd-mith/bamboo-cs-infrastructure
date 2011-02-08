@@ -2,7 +2,7 @@
                              Bamboo 0.0.1
                             --------------
 
-The modules are divided into four main areas:
+The modules are divided into five main areas:
 
  Client - allows querying of the Bamboo Corpora Space environment
 
@@ -12,6 +12,8 @@ The modules are divided into four main areas:
 
  Engine - provides some portable computational power across Agents, 
           Clients, and Servers
+
+ Shell  - provides a command-line interface to the Bamboo CS environment
 
 The scripts in ./examples demonstrate how the Client, Agent, and Server
 can work.

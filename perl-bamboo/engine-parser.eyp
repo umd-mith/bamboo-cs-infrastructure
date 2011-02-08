@@ -1,6 +1,7 @@
 %strict
 %prefix Bamboo::Engine::Parser::
 
+%left ','
 %token NUMBER 
 %token DOLLAR_QNAME
 %token DOLLAR_INT
@@ -8,6 +9,7 @@
 %token XMLNS
 %token QNAME
 %token NCNAME
+%token AXIS_NAME
 %left 'if' 'then' 'else'
 %left 'err' 'with'
 %right ':='
@@ -41,19 +43,22 @@ statement:
   ;
 
 expr: or_expr
+  | range_expr
   | if_expr
   | for_expr
   | quant_expr
   | with_expr
   | err_expr
-  | union_expr
   ;
 
-union_expr: expr <+ '|'> { @{$_[1]} > 1 ? Bamboo::Engine::Parser::UnionExpr -> new( exprs => $_[1] ) : $_[1] -> [0] }
+  #| union_expr
+
+err_lhs: or_expr
+  | range_expr
+  | '(' expr ')'
   ;
 
-
-err_expr: expr <+ 'err'> { Bamboo::Engine::Parser::ErrExpr -> new( expr => $_[1]) }
+err_expr: err_lhs <+ 'err'> { (@{$_[1]} > 1) ? Bamboo::Engine::Parser::ErrExpr -> new( expr => $_[1]) : $_[1]->[0] }
   ;
 
 with_expr: expr 'with' expr_set_list { Bamboo::Engine::Parser::WithExpr -> new( expr => $_[1], annotations => $_[3] ) }
@@ -64,6 +69,15 @@ expr_set_list: expr_set <+ ','>
 
 expr_set: relative_location_path ':=' expr { Bamboo::Engine::Parser::MemSet -> new( path => $_[1], expr => $_[3] ) }
   ;
+
+num_expr: additive_expr
+  | range_expr
+  ;
+
+num_list: num_expr <+ ','>
+  ;
+
+
 
 let_expr: 'let' DOLLAR_QNAME.name ':=' expr.expr { Bamboo::Engine::Parser::VarSet -> new( name => $name, expr => $expr ) }
   ;
@@ -78,7 +92,8 @@ if_expr: 'if' '(' expr.test ')' 'then' additive_expr.then 'else' additive_expr.e
 for_expr: 'for' for_vars.vars 'return' expr.expr { Bamboo::Engine::Parser::ForExpr -> new( vars => $vars, expr => $expr ) }
   ;
 
-for_vars: for_var <+ ','> 
+for_vars: for_var
+  | '(' for_var <+ ','> ')'
   ;
 
 for_var: DOLLAR_QNAME 'in' expr { [ $_[1], $_[3] ] }
@@ -135,8 +150,11 @@ mpy_term: unary_expr
   | range_expr
   ;
 
-unary_expr: path_expr 
+unary_expr: union_expr 
   | '-' unary_expr { Bamboo::Engine::Parser::NegateExpr -> new( expr => $_[2] ) }
+  ;
+
+union_expr: path_expr <+ '|'> { @{$_[1]} > 1 ? Bamboo::Engine::Parser::UnionExpr -> new( exprs => $_[1] ) : $_[1] -> [0] }
   ;
 
 path_expr: location_path 
@@ -159,7 +177,7 @@ absolute_location_path: '/' { Bamboo::Engine::Parser::Root -> new() }
   | axis_name '//' relative_location_path { Bamboo::Engine::Parser::DescendentSegment -> new( path => $_[3], root => $_[1] ) }
   ;
 
-axis_name: NCNAME '::' { $_[1] }
+axis_name: AXIS_NAME '::' { $_[1] }
   ;
 
 relative_location_path: step
@@ -173,41 +191,43 @@ step: axis predicates { Bamboo::Engine::Parser::Step -> new( step => $_[1], pred
   ;
 
 axis: node_test { Bamboo::Engine::Parser::NodeTest -> new( name => $_[1] ) }
-  | NCNAME '::' node_test
+  | axis_name node_test
   | '@' node_test { Bamboo::Engine::Parser::AttributeTest -> new( name => $_[2] ) }
   ;
 
 predicates: predicate* { @{$_[1]} ? Bamboo::Engine::Parser::Predicates -> new( predicates => $_[1] ) : undef }
   ;
 
-num_expr: additive_expr
-  | range_expr
-  ;
-
-num_list: num_expr <+ ','> { Bamboo::Engine::Parser::NumericSet -> new( values => $_[1] ) }
-  ;
+#num_expr: additive_expr
+#  | range_expr
+#  ;
+#
+#num_list: num_expr <+ ','> { Bamboo::Engine::Parser::NumericSet -> new( values => $_[1] ) }
+#  ;
 
 predicate: '[' expr ']' { Bamboo::Engine::Parser::FunctionalPredicate -> new( expr => $_[2] ) }
   | '[' num_list ']' { Bamboo::Engine::Parser::IndexPredicate -> new( list => $_[2] ) }
   ;
 
-plist: '(' list ')' { $_[2] }
+plist: '(' opt_list ')' { $_[2] }
   ;
 
-opt_plist: (plist)? 
+opt_list: (list)? 
   ;
 
-primary_expr: $DOLLAR_QNAME { Bamboo::Engine::Parser::VariabelRef -> new( name => $DOLLAR_QNAME ) }
-  | $DOLLAR_INT { Bamboo::Engine::Parser::VariabelRef -> new( name => $DOLLAR_INT ) }
+primary_expr: $DOLLAR_QNAME { Bamboo::Engine::Parser::VariableRef -> new( name => $DOLLAR_QNAME ) }
+  | $DOLLAR_INT { Bamboo::Engine::Parser::VariableRef -> new( name => $DOLLAR_INT ) }
   | '(' expr ')' { $_[2] }
-  | plist
   | tuple
+  | plist
   | $LITERAL { Bamboo::Engine::Parser::Literal -> new( value => $LITERAL ) }
   | $NUMBER { Bamboo::Engine::Parser::Literal -> new( value => $NUMBER ) }
-  | FUNCTION_NAME opt_plist { Bamboo::Engine::Parser::FunctionCall -> new( function => $_[1], args => $_[2], context => $_[0] -> context ) }
+  | FUNCTION_NAME plist { Bamboo::Engine::Parser::FunctionCall -> new( function => $_[1], args => $_[2][0][0], context => $_[0] -> context ) }
   ;
 
+
 node_test: QNAME
+  | NUMBER
   | '{' expr '}'
   | '*'
   ;
@@ -217,7 +237,7 @@ node_test: QNAME
   #| NUMBER
 use lib './blib/lib';
 use Bamboo::Engine::Block;
-use Bamboo::Engine::Memory::Context;
+use Bamboo::Engine::Context;
 use Bamboo::Engine::Parser::BinExpr;
 use Bamboo::Engine::Parser::Literal;
 use Bamboo::Engine::Parser::RangeExpr;
@@ -225,6 +245,8 @@ use Bamboo::Engine::Parser::IfExpr;
 use Bamboo::Engine::Parser::AndExpr;
 use Bamboo::Engine::Parser::UnionExpr;
 use Bamboo::Engine::Parser::VarSet;
+use Bamboo::Engine::Parser::VariableRef;
+use Bamboo::Engine::Parser::FunctionCall;
 use Math::BigRat;
 use Data::Dumper;
 use Scalar::Util qw(blessed);

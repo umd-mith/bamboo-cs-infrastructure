@@ -2,11 +2,11 @@
 
 use Test::More tests => 5;
 
-use Bamboo::Engine::Memory::Context;
+use Bamboo::Engine::Context;
 
-can_ok('Bamboo::Engine::Memory::Context', qw( new ));
+can_ok('Bamboo::Engine::Context', qw( new ));
 
-can_ok('Bamboo::Engine::Memory::Context', qw( with_node ));
+can_ok('Bamboo::Engine::Context', qw( with_node ));
 
 my $node1 = Bamboo::Engine::Memory::Node -> new(
   value => 'foo',
@@ -18,7 +18,7 @@ my $node2 = Bamboo::Engine::Memory::Node -> new(
   name => 'baz'
 );
 
-my $context = new_ok( 'Bamboo::Engine::Memory::Context', [
+my $context = new_ok( 'Bamboo::Engine::Context', [
   node => $node1
 ] );
 

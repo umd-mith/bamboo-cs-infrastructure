@@ -9,7 +9,7 @@ sub test_expr {
 
   my $parser = Bamboo::Engine::Parser -> new;
 
-  my $context = Bamboo::Engine::Memory::Context -> new;
+  my $context = Bamboo::Engine::Context -> new;
 
   my $it = eval { $parser -> parse($context, $expr) -> run($context); };
 
