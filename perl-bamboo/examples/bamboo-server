@@ -2,7 +2,22 @@
 
 use lib './blib/lib';
 use Bamboo::Server;
+use Data::Dumper;
+
+ use Config::General;
+ $conf = new Config::General(
+   -ApacheCompatible => 1,
+   -LowerCaseNames => 1,
+   -AutoTrue => 1,
+   -DefaultConfig => {
+     port => 3000
+   },
+   -ConfigFile => 'bamboo.conf'
+ );
+ my %config = $conf -> getall;
+
+print STDERR Data::Dumper -> Dump([ \%config ]), "\n";
 
 Bamboo::Server -> new(
-  port => 3000
+  %config
 ) -> run;

@@ -2,22 +2,48 @@
 
 use lib './blib/lib';
 use Bamboo::Client;
+use Bamboo::Engine;
+
 use POE (Filter::Stream);
 
 my $client = Bamboo::Client -> new(
   url => 'http://localhost:3000/demo'
 );
 
+$client -> setup;
+
 POE::Session -> create(
   inline_states => {
     _start  => sub {
-      $_[KERNEL] -> yield('send_request');
+      $_[KERNEL] -> yield('send_doubling_request');
+      #$_[KERNEL] -> yield('send_request');
     },
     send_request => sub {
-      printf STDERR "Sending an echo request\n";
+      print STDERR "Sending an echo request\n";
       $client -> request('echo', { foo => 'bar' });
-      printf STDERR "echo request sent\n";
-    }
+      print STDERR "echo request sent\n";
+    },
+    send_doubling_request => sub {
+      print STDERR "Sending a doubling request\n";
+      my $ns = "http://www.example.com/echo/1.0#";
+      my $handler = Bamboo::Engine::TagLibRegistry -> instance -> handler($ns);
+      if( $handler ) {
+        my $it = $handler -> function_to_iterator('double', [
+          Bamboo::Engine::ConstantRangeIterator -> new(
+            begin => 1, end => 10
+          )
+        ] );
+
+        $_ -> () for $it -> invert({
+          next => sub { print STDERR "  returned [$_[0]]\n"; },
+          done => sub { print STDERR "  we're done with the doubling\n"; },
+        });
+      }
+      else {
+        print STDERR "Waiting a bit...\n";
+        $_[KERNEL] -> delay(send_doubling_request => 1);
+      }
+    },
   }
 );
 
