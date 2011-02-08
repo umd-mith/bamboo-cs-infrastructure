@@ -1,0 +1,69 @@
+module Bamboo
+  module Engine
+    class Iterator
+
+require 'bamboo/engine/map_iterator'
+
+      def start
+      end
+
+      def to_a
+        @results = [ ]
+        it = self.start
+        until it.at_end?
+          @results.push it.next
+        end
+        @result
+      end
+
+      def each(&block)
+        it = self.start
+        until it.at_end?
+          yield it.next
+        end
+      end
+
+      def collect(&block)
+        Bamboo::Engine::MapIterator.new(self, block)
+      end
+
+      def any(&block)
+        visitor = self.start
+        until visitor.at_end?
+          return true if yield visitor.next
+        end
+        return false
+      end
+
+      def all(&block)
+        visitor = self.start
+        until visitor.at_end?
+          return false unless yield visitor.next
+        end
+        return true
+      end
+
+      class Visitor
+        def initialize(i)
+          @iterator = i
+        end
+
+        def start
+        end
+
+        def position
+          @position
+        end
+
+        def past_end?
+          @past_end
+        end
+
+        def at_end?
+          @at_end
+        end
+      end
+
+    end
+  end
+end
