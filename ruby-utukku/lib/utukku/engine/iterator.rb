@@ -2,7 +2,7 @@ module Utukku
   module Engine
     class Iterator
 
-require 'utukku/engine/map_iterator'
+      require 'utukku/engine/map_iterator'
 
       def start
       end
@@ -41,6 +41,10 @@ require 'utukku/engine/map_iterator'
           return false unless yield visitor.next
         end
         return true
+      end
+
+      def async(callbacks)
+        self.build_async(callbacks).call()
       end
 
       class Visitor

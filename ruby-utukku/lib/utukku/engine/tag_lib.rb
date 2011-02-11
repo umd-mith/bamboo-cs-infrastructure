@@ -212,6 +212,7 @@ class Utukku::Engine::TagLib
     ret = Utukku::Engine::NullIterator.new
     case self.function_run_type(nom)
     when :mapping
+      args = args.collect{ |a| a.run(context) }
       ret = Utukku::Engine::MapIterator.new(
         (args.size > 1 ? Utukku::Engine::UnionIterator.new(args) :
         args.size == 1 ? args.first :
@@ -219,6 +220,7 @@ class Utukku::Engine::TagLib
         proc { |a| send "fctn:#{nom}", context, a }
       )
     when :reduction
+      args = args.collect{ |a| a.run(context) }
       acc = [ ]
       ret = Utukku::Engine::ReductionIterator.new(
         (args.size > 1 ? Utukku::Engine::UnionIterator.new(args) :
@@ -229,6 +231,7 @@ class Utukku::Engine::TagLib
         }
       )
     when :consolidation
+      args = args.collect{ |a| a.run(context) }
       acc = [ ]
       fctn = nil
       if respond_to?("fctn:#{nom}")

@@ -23,6 +23,7 @@ class Utukku::Client
     if block
       self.setup
       yield self
+      self.manage_flow_lock
       self.close
     end
   end
@@ -98,6 +99,17 @@ class Utukku::Client
   def clear_queue
     if !@connection.nil?
       @queue.each { |q| self.request(q['class'], q['data'], q['id']) }
+    end
+  end
+
+  ## convenience method for calling functions
+  def function(ns, nom, args, callbacks)
+    handler = Utukku::Engine::TagLib::Registry.instance.handler(ns)
+    if handler.nil?
+      callbacks[:done].call()
+    else
+      iterator = handler.function_to_iterator(nom, args)
+      iterator.async(callbacks)
     end
   end
 end

@@ -17,7 +17,7 @@ module Utukku
         ConstantIterator::Visitor.new(self)
       end
 
-      def async(callbacks)
+      def build_async(callbacks)
         proc {
           @values.each do |v|
             callbacks[:next].call(v)

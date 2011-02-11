@@ -14,7 +14,7 @@ module Utukku
         ConstantRangeIterator::Visitor.new(self)
       end
 
-      def async(callbacks)
+      def build_async(callbacks)
         visitor = self.start
         proc {
           until visitor.at_end?

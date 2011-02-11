@@ -9,7 +9,7 @@ class Utukku::Engine::ContextIterator < Utukku::Engine::Iterator
     self.class.new(@context, @iterator, block)
   end
 
-  def async(callbacks)
+  def build_async(callbacks)
     Utukku::Engine::MapIterator.new(
       @iterator,
       proc { |r|

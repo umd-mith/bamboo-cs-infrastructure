@@ -1,18 +1,27 @@
 class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
 
   def initialize(it, mapping)
-    @iterator = it
+    if it.kind_of?(Array) 
+      it = it.flatten
+      if it.empty?
+        @iterator = Utukku::Engine::NullIterator.new
+      elsif it.length == 1
+        @iterator = it.first
+      else
+        @iterator = Utukku::Engine::UnionIterator.new(it)
+      end
+    else
+      @iterator = it
+    end
     @mapping = mapping
-puts "iterator: #{@iterator}     mapping: #{@mapping}"
   end
 
-  def async(callbacks)
+  def build_async(callbacks)
     @iterator.async({
       :next => proc { |v|
-puts "Calling with #{v}"
         ret = @mapping.call(v)
         if ret.kind_of?(Utukku::Engine::Iterator)
-          ret.async({ :next => callbacks[:next], :done => proc { } }).each { |s| s.call() }
+          ret.async({ :next => callbacks[:next], :done => proc { } })
         else
           callbacks[:next].call(ret)
         end

@@ -7,7 +7,7 @@ class Utukku::Engine::NullIterator < Utukku::Engine::Iterator
   def start
   end
 
-  def async(callbacks)
+  def build_async(callbacks)
     callbacks[:done]
   end
 end

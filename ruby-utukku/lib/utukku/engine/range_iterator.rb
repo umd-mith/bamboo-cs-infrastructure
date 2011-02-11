@@ -16,16 +16,16 @@ module Utukku
         RangeIterator::Visitor.new(self)
       end
 
-      def invert(callbacks)
+      def build_async(callbacks)
         Utukku::Engine::SetIterator.new([@first, @last, @incr], proc { |first, last, incr|
           Utukku::Engine::ConstantRangeIterator.new(first, last, incr)
-        }).invert({
+        }).build_async({
           :done => callbacks[:done],
           :next => proc { |i|
-            i.invert({
+            i.async({
               :next => calbacks[:next],
               :done => proc { }
-            }).call()
+            })
           }
         })
       end

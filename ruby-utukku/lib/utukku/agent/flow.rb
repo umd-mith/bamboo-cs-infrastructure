@@ -28,9 +28,8 @@ class Utukku::Agent::Flow
   end
 
   def start
-    subs = @parsed_expr.async(@context, false, {
+    @parsed_expr.async(@context, false, {
       :next => proc { |v|
-puts "returning #{v}"
         @agent.response('flow.produce', {
           'items' => [ v ]
         }, @msg_id)
@@ -39,11 +38,6 @@ puts "returning #{v}"
         @agent.response('flow.produced', {}, @msg_id)
       }
     })
-    if subs.is_a?(Array)
-      subs.each { |s| s.call() }
-    else
-      subs.call()
-    end
   end
 
   def provide(iterators)

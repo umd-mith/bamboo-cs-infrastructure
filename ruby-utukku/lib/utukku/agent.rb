@@ -6,12 +6,18 @@ module Utukku
 class Agent
   attr_accessor :url
 
-  def initialize(url = nil)
+  def initialize(url = nil, &block)
     @url = url
     @flows = { }
     @events = { }
     @setup = false
     @exported_namespaces = [ ]
+
+    if block
+      yield self
+      self.run
+      self.close
+    end
   end
 
   def close
@@ -62,7 +68,7 @@ class Agent
 
   def response(klass, data, id)
     if @connection
-      @connection.response({ 'class' => klass, 'data' => data, 'id' => id })
+      @connection.send({ 'class' => klass, 'data' => data, 'id' => id })
     else
       @queue.push({ 'class' => klass, 'data' => data, 'id' => id })
     end

@@ -1,6 +1,7 @@
 require 'utukku/engine/constant_iterator'
+require 'utukku/engine/expression'
 
-class Utukku::Engine::Parser::Function
+class Utukku::Engine::Parser::Function < Utukku::Engine::Expression
   def initialize(ctx, nom, args)
     nom.gsub(/\s+/, '')
     bits = nom.split(/:/, 2)
@@ -32,7 +33,7 @@ class Utukku::Engine::Parser::Function
     ret
   end
 
-  def async(context, av, callbacks)
+  def build_async(context, av, callbacks)
     klass = Utukku::Engine::TagLib.namespaces[@ns]
     return [] if klass.nil?
     ctx = @ctx.merge(context)
@@ -44,7 +45,7 @@ class Utukku::Engine::Parser::Function
         ret, proc { |v| v.to([Utukku::Engine::NS::FAB, 'boolean']) }
       )
     end
-    ret.async(callbacks)
+    ret.build_async(callbacks)
   end
 end
 
@@ -57,7 +58,7 @@ class Utukku::Engine::Parser::List
     @args.collect{ |arg| arg.run(context, autovivify).flatten }
   end
 
-  def async(context, av, callbacks)
+  def build_async(context, av, callbacks)
     accs = [ ]
     subs = [ ]
     dones = 0

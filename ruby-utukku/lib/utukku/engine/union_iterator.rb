@@ -9,7 +9,7 @@ class Utukku::Engine::UnionIterator < Utukku::Engine::Iterator
     UnionIterator::Visitor.new(@iterators)
   end
 
-  def invert(callbacks)
+  def build_async(callbacks)
     done = 0
     next_callbacks = {
       :next => callbacks[:next],
@@ -21,7 +21,7 @@ class Utukku::Engine::UnionIterator < Utukku::Engine::Iterator
       }
     }
 
-    inits = @iterators.collect{ |i| i.invert(next_callbacks) }
+    inits = @iterators.collect{ |i| i.build_async(next_callbacks) }
 
     # we could call these in parallel
     proc {

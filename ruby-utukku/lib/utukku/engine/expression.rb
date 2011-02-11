@@ -1,6 +1,13 @@
 class Utukku::Engine::Expression
+  def build_async(context, av, callbacks)
+    self.run(context, av).build_async(callbacks)
+  end
+
+  def build_async(context, av, callbacks)
+    self.run(context, av).build_async(callbacks)
+  end
+
   def async(context, av, callbacks)
-puts "async run of #{self}"
-    self.run(context, av).async(callbacks)
+    self.build_async(context, av, callbacks).call()
   end
 end

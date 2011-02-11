@@ -21,7 +21,7 @@ class Utukku::Client::Flow
   def run
     self.create if @mid.nil?
 
-    coderefs = @iterators.keys.collect { |k|
+    @iterators.keys.collect { |k|
       @iterators[k].async({
         :next => proc { |v|
           @client.request('flow.provide', {
@@ -35,8 +35,6 @@ class Utukku::Client::Flow
         }
       })
     }
-
-    coderefs.each{ |k| k.call() }
   end
 
   def message(klass, data)

@@ -4,13 +4,13 @@ class Utukku::Engine::ReductionIterator
     @function = callbacks
   end
 
-  def async(callbacks)
+  def build_async(callbacks)
     @iterator.async({
       :next => @function[:next],
       :done => proc {
         v = @function[:done].call()
         if v.kind_of?(Utukku::Engine::Iterator)
-          v.async(callbacks).each { |s| s.call() }
+          v.async(callbacks)
         else
           callbacks[:next].call(v)
           callbacks[:done].call()

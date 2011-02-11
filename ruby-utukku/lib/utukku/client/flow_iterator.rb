@@ -8,7 +8,7 @@ class Utukku::Client::FlowIterator < Utukku::Engine::Iterator
     @iterators = iterators
   end
 
-  def async(callbacks)
+  def build_async(callbacks)
     flow = Utukku::Client::Flow.new(
       @client,
       @expression,
