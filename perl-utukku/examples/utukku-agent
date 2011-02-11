@@ -1,0 +1,24 @@
+#! /usr/bin/perl -w
+
+use lib './blib/lib';
+use lib 't/lib';
+use Utukku::Agent;
+use Example::TagLib;
+use POE (Filter::Stream);
+
+my $agent;
+my %flows;
+$agent = Utukku::Agent -> new(
+  url => 'http://localhost:3000/demo',
+  namespaces => ['http://www.example.com/echo/1.0#'],
+  events => {
+    'echo' => sub {
+      my($class, $data, $uuid) = @_;
+print STDERR "Received echo request $uuid\n";
+      $agent -> response($class, $data, $uuid);
+    },
+  }
+);
+
+$agent -> run;
+

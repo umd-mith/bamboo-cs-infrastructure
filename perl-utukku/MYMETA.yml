@@ -1,0 +1,29 @@
+---
+abstract: lib/Utukku.pm
+author: []
+build_requires:
+  Module::Build: ''
+  Test::More: ''
+configure_requires:
+  Module::Build: 0.36
+dynamic_config: 0
+generated_by: 'Module::Build version 0.3607'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Utukku
+requires:
+  Data::UUID: 1.217
+  JSON::XS: 2.3
+  Math::BigRat: 0.26
+  Moose: 1.21
+  MooseX::Singleton: 0
+  MooseX::Types: 0.25
+  POE: 1.294
+  Protocol::WebSocket: 0.0004
+resources:
+  homepage: http://github.com/umd-mith/bamboo-cs-infrastructure
+  license: http://dev.perl.org/licenses/
+  repository: git://github.com/umd-mith/bamboo-cs-infrastructure.git
+version: v0.0.1

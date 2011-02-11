@@ -1,0 +1,30 @@
+require 'rubygems'
+require 'utukku/client'
+require 'utukku/engine'
+require 'utukku/engine/constant_range_iterator'
+
+range = 10
+num_times = 2
+
+Utukku::Client.new('ws://localhost:3000/demo') do |client|
+  ns = 'http://www.example.com/echo/1.0#'
+  handler = Utukku::Engine::TagLib::Registry.instance.handler(ns)
+
+  puts "handler: #{handler}"
+
+  if !handler.nil?
+    it = handler.function_to_iterator('double', [
+      Utukku::Engine::ConstantRangeIterator.new(1, range)
+    ])
+
+    (1..num_times).each do |i|
+        it.async({
+          :next => proc { |v| true or puts "  returned (#{i}) [#{v}]" },
+          :done => proc {     puts "  we're done with (#{i}) doubling" if i % 10 == 0 }
+        }).call()
+    end
+  end
+
+end
+
+puts "We had #{range*num_times} doublings"

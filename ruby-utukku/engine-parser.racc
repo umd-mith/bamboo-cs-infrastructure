@@ -1,0 +1,519 @@
+class Utukku::Engine::Parser
+  #--
+  # based on XSM expression grammer from 
+  #    http://cpansearch.perl.org/src/JSMITH/Gestinanna-0.02/parser.PL
+  #
+  # instead of compiling ruby code, we'll instantiate objects to handle the
+  # run-time performance
+  #++
+
+  start statements
+
+rule
+  statements: statement { result = Utukku::Engine::Parser::StatementList.new; result.add_statement(val[0]) }
+    | statements SEMI statement { result = val[0]; result.add_statement(val[2]) }
+
+  statement: 
+    | expr
+    | let_expr
+    | ns_expr { result = nil }
+
+  expr: or_expr
+    | range_expr
+    | if_expr
+    | for_expr
+    | quant_expr
+    | with_expr
+    | err_expr
+
+  err_expr: expr ERR expr { result = Utukku::Engine::Parser::ErrExpr.new(val[0], val[2]) }
+
+  with_expr: expr WITH expr_set_list { result = Utukku::Engine::Parser::WithExpr.new(val[0], val[2]) }
+
+  expr_set_list: expr_set { result = Utukku::Engine::Parser::StatementList.new; result.add_statement(val[0]) }
+    | expr_set_list COMMA expr_set { result = val[0]; result.add_statement(val[2]) }
+
+  expr_set: path_expr COLON_EQUAL expr { result = Utukku::Engine::Parser::DataSet.new(val[0], val[2]) }
+
+    #| absolute_location_path COLON_EQUAL expr { result = Utukku::Engine::Parser::DataSet.new(val[0], val[2]) }
+
+  num_expr: additive_expr
+    | range_expr
+
+  num_list: num_expr { result = [ val[0] ] }
+    | num_list COMMA num_expr { result = val[0] + [ val[2] ] }
+
+  let_expr: LET DOLLAR_QNAME COLON_EQUAL expr { result = Utukku::Engine::Parser::LetExpr.new(val[1], val[3]) }
+
+  ns_expr: LET XMLNS_COLON_NCNAME COLON_EQUAL LITERAL { 
+    @context.set_ns(val[1].gsub(/^xmlns:/, ''), val[3])
+  } 
+
+  if_expr: IF LP expr RP THEN expr ELSE expr { result = Utukku::Engine::Parser::IfExpr.new(val[2], val[5], val[7]) }
+    | IF LP expr RP THEN expr { result = Utukku::Engine::Parser::IfExpr.new(val[2], val[5], nil) }
+
+  for_expr: FOR for_vars RETURN expr { result = Utukku::Engine::Parser::ForExpr.new(val[1], val[3]) }
+
+  for_vars: for_var { result = [ val[0] ] }
+    | for_vars COMMA for_var { result = val[0] + [ val[2] ] }
+
+  for_var: DOLLAR_QNAME IN expr { result = Utukku::Engine::Parser::ForVar.new(val[0], val[2]) }
+
+  quant_expr: SOME for_vars SATISFIES expr { result = Utukku::Engine::Parser::SomeExpr.new(val[1], val[3]) }
+    | EVERY for_vars SATISFIES expr { result = Utukku::Engine::Parser::EveryExpr.new(val[1], val[3]) }
+
+  or_expr: and_expr
+    | or_expr OR and_expr { result = Utukku::Engine::Parser::OrExpr.new(val[0], val[2]) }
+
+  and_expr: equality_expr
+    | and_expr AND equality_expr { result = Utukku::Engine::Parser::AndExpr.new(val[0], val[2]) }
+    | and_expr EXCEPT equality_expr { result = Utukku::Engine::Parser::ExceptExpr.new(val[0], val[2]) }
+
+  equality_expr: relational_expr
+    | additive_expr EQ additive_expr { result = Utukku::Engine::Parser::EqExpr.new(val[0], val[2]) }
+    | additive_expr NEQ additive_expr { result = Utukku::Engine::Parser::NeqExpr.new(val[0], val[2]) }
+
+  tuple: LB args RB { result = Utukku::Engine::Parser::Tuple.new(val[1]) }
+
+#    | LT args GT { result = Utukku::Engine::Parser::Tuple.new(val[1]) }
+
+  relational_expr: additive_expr
+    | additive_expr LT additive_expr { result = Utukku::Engine::Parser::LtExpr.new(val[0], val[2]) }
+    | additive_expr GT additive_expr { result = Utukku::Engine::Parser::LtExpr.new(val[2], val[0]) }
+    | additive_expr LTE additive_expr { result = Utukku::Engine::Parser::LteExpr.new(val[0], val[2]) }
+    | additive_expr GTE additive_expr { result = Utukku::Engine::Parser::LteExpr.new(val[2], val[0]) }
+
+#    | additive_expr LT additive_expr LT additive_expr { result = Utukku::Engine::Parser::Between.new(val[2], val[0], val[4]) }
+#    | additive_expr LT additive_expr LTE additive_expr { }
+#    | additive_expr LTE additive_expr LT additive_expr { }
+#    | additive_expr LTE additive_expr LTE additive_expr { }
+#    | additive_expr GT additive_expr GT additive_expr { result = Utukku::Engine::Parser::Between.new(val[2], val[4], val[0]) }
+#    | additive_expr GT additive_expr GTE additive_expr { }
+#    | additive_expr GTE additive_expr GT additive_expr { }
+#    | additive_expr GTE additive_expr GTE additive_expr { }
+
+  range_expr: additive_expr DOT_DOT additive_expr { result = Utukku::Engine::Parser::RangeExpr.new(val[0], val[2]) }
+    | additive_expr TO additive_expr { result = Utukku::Engine::Parser::RangeExpr.new(val[0], val[2]) }
+
+  additive_expr: multiplicative_expr
+    | additive_expr PLUS multiplicative_expr { result = Utukku::Engine::Parser::AddExpr.new(val[0], val[2]) }
+    | additive_expr MINUS multiplicative_expr { result = Utukku::Engine::Parser::SubExpr.new(val[0], val[2]) }
+
+  multiplicative_expr: unary_expr
+    | multiplicative_expr STAR unary_expr { result = Utukku::Engine::Parser::MpyExpr.new(val[0], val[2]) }
+    | multiplicative_expr DIV unary_expr { result = Utukku::Engine::Parser::DivExpr.new(val[0], val[2]) }
+    | multiplicative_expr MOD unary_expr { result = Utukku::Engine::Parser::ModExpr.new(val[0], val[2]) }
+
+  unary_expr: union_expr
+    | MINUS unary_expr { result = Utukku::Engine::Parser::NegExpr.new(val[1]) }
+
+  union_expr: path_expr
+    | union_expr_x { result = Utukku::Engine::Parser::UnionExpr.new(val[0]) }
+
+  union_expr_x: path_expr PIPE path_expr { result = [ val[0], val[2] ] }
+    | union_expr_x PIPE path_expr { result = val[0] + [ val[2] ] }
+
+  path_expr: location_path { result = Utukku::Engine::Parser::PathExpr.new(nil, [], val[0]) } #result = Utukku::Engine::Parser::PathExpr.new(nil, [], val[0]) }
+    | primary_expr predicates segment { result = ((val[1].nil? || val[1].empty?) && (val[2].nil? || val[2].empty?)) ? val[0] : Utukku::Engine::Parser::PathExpr.new(val[0], val[1], val[2]) }
+
+  segment:
+    | SLASH relative_location_path { result = val[1] }
+    | SLASH_SLASH relative_location_path { result = [ Utukku::Engine::Parser::AxisDescendentOrSelf.new ] + val[1] }
+
+  location_path: relative_location_path 
+    | absolute_location_path
+
+  # / => local data root
+  # // => local data descendent or self
+
+  absolute_location_path: SLASH { result = Utukku::Engine::Parser::RootContext.new }
+    | SLASH relative_location_path { result = Utukku::Engine::Parser::PathExpr.new(Utukku::Engine::Parser::RootContext.new, [], val[1]) }
+    | SLASH_SLASH relative_location_path { result = [ Utukku::Engine::Parser::RootContext.new, Utukku::Engine::Parser::AxisDescendentOrSelf.new(val[1][0]) ] + val[1][1..val[1].size-1] }
+    | axis_name SLASH relative_location_path { result = [ Utukku::Engine::Parser::RootContext.new(val[0]) ] + val[2] }
+    | axis_name SLASH_SLASH relative_location_path { result = [ Utukku::Engine::Parser::RootContext.new(val[0]), Utukku::Engine::Parser::AxisDescendentOrSelf.new(val[2][0]) ] + val[2][1..val[2].size-1] }
+
+  relative_location_path: step { result = [ val[0] ] }
+    | relative_location_path SLASH step { result = val[0] + [ val[2] ] }
+    | relative_location_path SLASH_SLASH step { result = val[0] + [ Utukku::Engine::Parser::AxisDescendentOrSelf.new(val[2]) ] }
+
+  step: axis predicates { result = val[1].nil? || val[1].empty? ? val[0] : Utukku::Engine::Parser::Predicates.new(val[0], val[1]) }
+    | DOT { result = Utukku::Engine::Parser::CurrentContext.new }
+    | DOT_DOT { result = Utukku::Engine::Parser::AxisParent.new }
+
+    #| AXIS_METHOD COLON_COLON node_test predicates { result = Utukku::Engine::Parser::Predicates.new(Utukku::Engine::Parser::Function.new(@context, val[2], []), val[3]) }
+    #| AXIS_METHOD COLON_COLON FUNCTION_NAME list predicates { result = Utukku::Engine::Parser::Predicates.new(Utukku::Engine::Parser::Function.new(@context, val[2], val[3]), val[4]) }
+    #| axis LC DOLLAR_QNAME RC predicates { result = Utukku::Engine::Parser::Predicates.new(Utukku::Engine::Parser::Step.new(val[0], Utukku::Engine::Parser::QName.new(val[3])), val[4]) }
+
+  axis: node_test { result = Utukku::Engine::Parser::AxisChild.new(val[0]) }
+    | axis_name node_test { result = Utukku::Engine::Parser::Axis.new(val[0], val[1]) }
+    | AT node_test { result = Utukku::Engine::Parser::AxisAttribute.new(val[1]) }
+
+  axis_name: AXIS_NAME COLON_COLON { result = Utukku::Engine::Parser::Axis.new(val[0]) }
+
+  predicates: { result = [ ] }
+    | predicates predicate { result = val[0] + [ val[1] ] }
+
+  predicate: LB expr RB { result = val[1] }
+    | LB num_list RB { result = val[1] }
+
+      #Utukku::Engine::Parser::IndexPredicate.new(val[1]) 
+    
+
+    #| '<' expr '>'
+  primary_expr:
+    DOLLAR_QNAME { result = Utukku::Engine::Parser::Var.new(val[0]) }
+    | LP expr RP { result = val[1] }
+    | list
+    | tuple
+    | LITERAL { result = Utukku::Engine::Parser::Literal.new(val[0], [ Utukku::Engine::NS::FAB, 'string' ]) }
+    | NUMBER { result = Utukku::Engine::Parser::Literal.new(val[0] =~ /\./ ? val[0].to_d.to_r : val[0].to_i.to_r, [ Utukku::Engine::NS::FAB, 'numeric' ]) }
+    | FUNCTION_NAME
+    | LT QNAME SLASH_GT { val[1] }
+    | FUNCTION_NAME list { 
+        result = Utukku::Engine::Parser::Function.new(@context, val[0], val[1]) 
+#          when 'any' : Utukku::Engine::Parser::AnyExpr.new(@context, val[1])
+#          when 'all' : Utukku::Engine::Parser::AllExpr.new(@context, val[1])
+#          when 'one' : Utukku::Engine::Parser::OneExpr.new(@context, val[1])
+#          when 'none': Utukku::Engine::Parser::NoneExpr.new(@context, val[1])
+#          else Utukku::Engine::Parser::Function.new(@context, val[0], val[1]) 
+#        end
+    }
+
+  list: LP opt_args RP { result = Utukku::Engine::Parser::List.new(val[1]) }
+
+
+  opt_args: { result = [ ] }
+    | args 
+
+  args: expr { result = [ val[0] ] }
+    | args COMMA expr { result = val[0] + [ val[2] ] }
+
+  node_test: QNAME
+    | NUMBER { result = val[0].to_s }
+    | LC expr RC { result = val[1] }
+    | STAR
+
+end
+
+---- inner 
+  # == Utukku::Engine::Parser
+  #
+  # <tt>Utukku::Engine::Parser</tt> provides a parser for Utukku::Engine::Parser operating on a DOM-like data model provided by
+  # Utukku::Engine::Memory::Context and Utukku::Engine::Memory::Node.
+  #
+  # The expression language is based on XQuery and XPath.
+  #
+
+  require 'utukku/engine'
+  require 'rational'
+  require 'bigdecimal'
+  require 'bigdecimal/util'
+
+  # Within the context of a Utukku::Engine::Memory::Context object, this will
+  # parse the given string and return an object that can be run to return
+  # an array if Utukku::Engine::Memory::Node objects.
+  #
+  # Example:
+  #
+  #   parser  = Utukku::Engine::Parser.new
+  #   context = Utukku::Engine::Memory::Context.new
+  #   expr    = parser.parse('//foo', context)
+  #   foos    = expr.run(context)
+  #
+  # Results in 'foos' being an array of all of the nodes in the
+  # context that are named 'foo' regardless of their depth in the
+  # node tree.
+  def parse(text, context)
+    @source = text
+    @curpos = 0
+    @context = context.merge
+    @line = 0
+    @col = 0
+
+    @yydebug = true
+
+    @last_token = nil
+
+    do_parse
+  end
+
+  # Used internally by the parser to raise a Utukku::Engine::ParserError
+  # when the parse fails.
+  def on_error(*args)
+    raise Utukku::Engine::ParserError.new("unable to parse '#{args[1]}' near line #{@line + 1}, column #{@col}")
+  end
+
+
+  @@regex = {
+    :simple_tokens => %r{\.\.|::|!=|>=|<=|\/\/|\/>|:=|\.|@|[*]|\(|\)|\[|\]|\{|\}|\/|\||\+|-|=|>|<|&|,|;},
+    :ncname => %r{(?:[a-zA-Z_][-a-zA-Z0-9_.]*)},
+    :event_type => %r{(?:processing-instruction|comment|text|node)},
+    :axis_name => %r{(?:attribute|child|child-or-self|descendant|descendant-or-self|method|self)},
+    :namespace_name => %r{(?:context|global|local|session|universal)},
+    :number => %r{(-?\d+(?:\.\d+)?|\.\d+)},
+    :literal => %r{((?:"(?:[^\\"]*(?:\\.[^\\"]*)*)")|(?:'(?:[^\\']*(?:\\.[^\\']*)*)'))},
+  }
+
+  @@regex[:axis] = %r{(#{@@regex[:ncname]})\s*(?=::)}
+  @@regex[:name_colon_star] = %r{(#{@@regex[:ncname]}:\*)}
+  @@regex[:qname] = %r{((?:#{@@regex[:ncname]}:)?#{@@regex[:ncname]})}
+  @@regex[:xmlns] = %r{((?:xmlns:)#{@@regex[:ncname]})}
+  @@regex[:dollar_qname] = %r{\$#{@@regex[:qname]}}
+  @@regex[:dollar_int] = %r{\$([0-9]+)}
+  @@regex[:function_name] = %r{#{@@regex[:qname]}\??\*?\s*(?=\([^:])}
+
+  @@ops = {
+    '..' => :DOT_DOT,
+    '::' => :COLON_COLON,
+    '!=' => :NEQ,
+    '>=' => :GTE,
+    '<=' => :LTE,
+    '//' => :SLASH_SLASH,
+    '/>' => :SLASH_GT,
+    ':=' => :COLON_EQUAL,
+    '.'  => :DOT,
+    '@'  => :AT,
+    '*'  => :STAR,
+    '('  => :LP,
+    ')'  => :RP,
+    '['  => :LB,
+    ']'  => :RB,
+    '{'  => :LC,
+    '}'  => :RC,
+    '/'  => :SLASH,
+    '|'  => :PIPE,
+    '+'  => :PLUS,
+    '-'  => :MINUS,
+    '='  => :EQ,
+    '>'  => :GT,
+    '<'  => :LT,
+    '&'  => :AMP,
+    ','  => :COMMA,
+    ';'  => :SEMI
+  }
+
+  @@preceding_tokens = { }
+  [%{
+    @ :: ( 
+    and or mod div 
+    * 
+    / // | + - = != < <= > >=
+    == & && ||
+  }.split(/\s*/), '[', ',', '$' ].each { |t| @@preceding_tokens[t] = true }
+
+  @@regex[:general] = Regexp.compile(%{^(?:#{@@regex[:xmlns]}|#{@@regex[:function_name]}|#{@@regex[:axis]}|#{@@regex[:name_colon_star]}|#{@@regex[:qname]}|#{@@regex[:literal]}|#{@@regex[:number]}|#{@@regex[:dollar_qname]}|#{@@regex[:dollar_int]}|(#{@@regex[:simple_tokens]}))})
+
+  def next_token  
+    @token = nil
+    white_space = 0
+    new_line = 0
+    while @curpos < @source.length && @source[@curpos..@curpos] =~ /\s/ do
+      if @source[@curpos..@curpos] =~ /\n/
+        new_line = new_line + 1
+        @line = @line + 1
+        @col = 0
+      else
+        @col = @col + 1
+      end
+      @curpos = @curpos + 1
+      white_space = white_space + 1
+    end
+
+    # skip comments delimited by (:  :)
+    # comments can be nested
+    # these are XPath 2.0 comments
+    #
+    if @curpos < @source.length && @source[@curpos..@curpos+1] == '(:'
+      comment_depth = 1
+      @curpos = @curpos + 2
+      @col = @col + 2
+      while comment_depth > 0 && @curpos < @source.length
+        if @source[@curpos..@curpos+1] == '(:'
+          comment_depth = comment_depth + 1
+          @curpos = @curpos + 1
+          @col = @col + 1
+        end
+        if @source[@curpos..@curpos+1] == ':)'
+          comment_depth = comment_depth - 1
+          @curpos = @curpos + 1
+          @col = @col + 1
+        end
+        @curpos = @curpos + 1
+        @col = @col + 1
+      end
+      white_space = white_space + 1
+    end
+
+    while @curpos < @source.length && @source[@curpos..@curpos] =~ /\s/ do
+      if @source[@curpos..@curpos] =~ /\n/
+        new_line = new_line + 1
+        @line = @line + 1
+        @col = 0
+      else
+        @col = @col + 1
+      end
+      @curpos = @curpos + 1
+      white_space = white_space + 1
+    end
+        
+    if @curpos >= @source.length
+      @last_token = nil
+      return [ false, false ]
+    end
+
+    #if new_line > 0 || white_space > 0
+    #  @token = [ :SP, '' ]
+    #end
+
+    if @token.nil? && @last_token && ! @@preceding_tokens[@last_token[1]]
+      if @source[@curpos..@curpos] == '*'
+        @token = [ :STAR, '*' ]
+      else
+        if @source[@curpos..@source.length-1] =~ /^(#{@@regex[:ncname]})/
+          ncname = $1
+          case ncname
+            when 'for'
+              @token = [ :FOR, 'for' ]
+            when 'return'
+              @token = [ :RETURN, 'return' ]
+            when 'in'
+              @token = [ :IN, 'in' ]
+            when 'let'
+              @token = [ :LET, 'let' ]
+            when 'except'
+              @token = [ :EXCEPT, 'except' ]
+            when 'every'
+              @token = [ :EVERY, 'every' ]
+            when 'some'
+              @token = [ :SOME, 'some' ]
+            when 'satisfies'
+              @token = [ :SATISFIES, 'satisfies' ]
+            when 'if'
+              @token = [ :IF, 'if' ]
+            when 'then'
+              @token = [ :THEN, 'then' ]
+            when 'else'
+              @token = [ :ELSE, 'else' ]
+            when 'to'
+              @token = [ :TO, 'to' ]
+            when 'and'
+              @token = [ :AND, 'and' ]
+            when 'or'
+              @token = [ :OR, 'or' ]
+            when 'mod'
+              @token = [ :MOD, 'mod' ]
+            when 'div'
+              @token = [ :DIV, 'div' ]
+            when 'err'
+              @token = [ :ERR, 'err' ]
+            #when '*doh*':
+            #  # do nothing
+            #  @token = nil
+            else
+              @token = nil
+          end
+        end
+      end
+    end
+ 
+    if @token.nil? && @source[@curpos..@curpos+1] == '..'
+      @token = [ :DOT_DOT, '..' ]
+    end
+
+    if @token.nil?
+      if @curpos >= @source.length
+        @token = [false, false]
+        return @token
+      end
+
+      res = @@regex[:general].match(@source[@curpos..@source.length-1])
+      #@source[@curpos..@source.length-1] =~ @@regex[:general]
+      #res = [ nil, $1, $2, $3, $4, $5, $6, $7, $8 ]
+      if res.nil?
+        raise "Failed to parse '#{@source}' at #{@curpos}': #{@source[@curpos..@source.length-1]}"
+      else
+        if !res[1].nil?
+          @token = [ :XMLNS_COLON_NCNAME, res[1] ]
+        elsif !res[2].nil?
+          if res[2] == 'if'
+            @token = [ :IF, 'if' ]
+          else
+            if @source[@curpos+res[2].length .. @curpos+res[2].length + 1] =~ /^(\??\*?)/
+              @token = [ :FUNCTION_NAME, res[2]+$1 ]
+            else
+              @token = [ :FUNCTION_NAME, res[2] ]
+            end
+          end
+        elsif !res[3].nil?
+          @token = [ res[3] == 'method' ? :AXIS_METHOD : :AXIS_NAME, res[3] ]
+        elsif !res[4].nil?
+          @token = [ :NAME_COLON_STAR, res[4] ]
+        elsif !res[5].nil?
+          qname = res[5]
+          case qname
+            when 'for'
+              @token = [ :FOR, 'for' ]
+            when 'return'
+              @token = [ :RETURN, 'return' ]
+            when 'in'
+              @token = [ :IN, 'in' ]
+            when 'let'
+              @token = [ :LET, 'let' ]
+            when 'except'
+              @token = [ :EXCEPT, 'except' ]
+            when 'every'
+              @token = [ :EVERY, 'every' ]
+            when 'some'
+              @token = [ :SOME, 'some' ]   
+            when 'satisfies'
+              @token = [ :SATISFIES, 'satisfies' ]
+            when 'if'
+              @token = [ :IF, 'if' ]
+            when 'then'
+              @token = [ :THEN, 'then' ]
+            when 'else'
+              @token = [ :ELSE, 'else' ]
+            when 'with'
+              @token = [ :WITH, 'with' ]
+            when 'err'
+              @token = [ :ERR, 'err' ]
+            else
+              @token = [ :QNAME, qname ]
+          end
+        elsif !res[6].nil?
+          s = res[6]
+          @curpos = @curpos + s.length
+          @col = @col + s.length
+          s = s[1..s.length-2]
+          s.gsub!(/\\n/, "\n")
+          s.gsub!(/\\'/, "'")
+          s.gsub!(/\\"/, '"')
+          @line += s.split(/\n/).count
+          @curpos = @curpos - s.length
+          @col = @col - s.length
+          @token = [ :LITERAL, s ]
+        elsif !res[7].nil?
+          @token = [ :NUMBER, res[7] ]
+        elsif !res[8].nil?
+          @curpos = @curpos + 1
+          @col = @col + 1
+          @token = [ :DOLLAR_QNAME, res[8] ]
+        elsif !res[9].nil?
+          @curpos = @curpos + 1
+          @col = @col + 1
+          @token = [ :DOLLAR_QNAME, res[9] ]
+        elsif !res[10].nil?
+          @token = [ @@ops[res[10]] || res[10], res[10] ]
+        else
+          raise "Failed to parse '#{@source}' at #{@curpos}: #{@source[@curpos..@source.length-1]}"
+        end
+      end
+    end
+
+    if !@token[1].nil?
+      @curpos = @curpos + @token[1].length
+      @col = @col + @token[1].length
+    end
+    @last_token = @token
+    return @token
+  end

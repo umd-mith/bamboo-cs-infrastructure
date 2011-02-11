@@ -1,4 +1,4 @@
-= bamboo-cs-infrastructure
+= utukku-cs-infrastructure
 
 == DESCRIPTION:
 
@@ -7,3 +7,6 @@ proposed Bamboo Copora Space infrastructure.  Each set of libraries is
 prefixed by the implementation language.
 
 See the READMEs in each component for more information.
+
+We are using the 'Utukku' name as a place holder since these libraries are
+not officialy part of Bamboo.
