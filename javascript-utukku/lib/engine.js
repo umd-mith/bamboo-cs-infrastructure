@@ -34,7 +34,7 @@ Utukku.namespace('Engine');
         return function() {
           var v = start;
  
-          while(start >= stop) {
+          while(v >= stop) {
             callbacks.next(v);
             v -= 1;
           }
@@ -46,8 +46,8 @@ Utukku.namespace('Engine');
       that.async = function(callbacks) {
         return function() {
           var v = start;
- 
-          while(start <= stop) {
+
+          while(v <= stop) {
             callbacks.next(v);
             v += 1;
           }
@@ -159,13 +159,49 @@ Utukku.namespace('Engine');
       return handlers[ns];
     }
 
-    handlers[ns] = that;
 
     that.function_to_iterator = function(name, args) {
+      var iterators = { }, vars = [ ], expression;
       /* hook to client for remote functions */
+
+      if( !$.isArray(args) ) { 
+        args = [ args ];
+      }
+
+      console.log("function_to_iterator for remote function ", name, args);
+      if( $.inArray(name, config.mappings) != -1 ) {
+        if( args.length == 0 ) {
+          return Engine.NullIterator();
+        }
+        else if( args.length == 1 ) {
+          iterators.arg = args[0];
+        }
+        else {
+          iterators.arg = Engine.UnionIterator(args);
+        }
+        vars = [ 'arg' ]
+      }
+      else {
+        return Engine.NullIterator();
+      }
+      expression = 'x:' + name + '(';
+      if( vars.length > 0 ) {
+        expression = expression + '$';
+        expression = expression + vars.join(", $");
+      }
+      expression = expression + ')';
+      return Utukku.Client.FlowIterator(client, expression, { x: ns }, iterators);
     };
 
+    handlers[ns] = that;
+
+    console.log("Registering handler for ", ns, config);
+
     return that;
+  };
+
+  Engine.has_handler = function(ns) {
+    return ( ns in handlers );
   };
 
 })(jQuery, Utukku.Engine);

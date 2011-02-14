@@ -12,5 +12,23 @@
     </script>
   </head>
   <body>
+    <script type="text/javascript">
+      var wait = function() {
+        if(!Utukku.Engine.has_handler("http://www.example.com/echo/1.0#")) {
+          console.log("Waiting on handler creation");
+          setTimeout(wait, 1000);
+        }
+        else {
+          Utukku.Client.Function({
+            namespace: "http://www.example.com/echo/1.0#",
+            name: "double",
+            args: Utukku.Engine.ConstantRangeIterator(1,10),
+            next: function(v) { console.log(v); },
+            done: function() { console.log("done!"); }
+          });
+        }
+      };
+      wait();
+    </script>
   </body>
 </html>
