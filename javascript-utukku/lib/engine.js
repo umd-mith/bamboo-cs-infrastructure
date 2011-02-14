@@ -1,6 +1,14 @@
 Utukku.namespace('Engine');
 
 (function($, Engine) {
+  /*
+   * iterator = Utukku.Engine.ConstantIterator([ values ... ]);
+   * f = iterator.async({
+   *       next: function(v) { },
+   *       done: function()  { }
+   *     });
+   * f();
+   */
   Engine.ConstantIterator = function(values) {
     var that = { };
 
@@ -26,6 +34,9 @@ Utukku.namespace('Engine');
     return that;
   };
 
+  /*
+   * iterator = Utukku.Engine.ConstantRangeIterator(first, last);
+   */
   Engine.ConstantRangeIterator = function(start, stop) {
     var that = { };
 
@@ -67,6 +78,9 @@ Utukku.namespace('Engine');
     return that;
   };
 
+  /*
+   * iterator = Utukku.Engine.NullIterator();
+   */
   Engine.NullIterator = function() {
     var that = { };
 
@@ -79,8 +93,49 @@ Utukku.namespace('Engine');
     return that;
   };
 
+  /*
+   * iterator = Utukku.Engine.MapIterator(iterator, mapping);
+   */
+  Engine.MapIterator = function(iterator, mapping) {
+    var that = { };
+
+    that.async = function(callbacks) {
+      var next = callbacks['next'] || function(v) { },
+          done = callbacks['done'] || function() { };
+      return iterator.async({
+        next: function(v) {
+          next(mapping(v));
+        },
+        done: done
+      });
+    }
+
+    return that;
+  };
+
   var handlers = { };
 
+  /*
+   * my_lib = Utukku.Engine.TagLib(namespace);
+   *
+   * my_lib.mapping(name, function(v) { ... });
+   *
+   * my_lib.reduction(name, { 
+   *          init: function() { },
+   *          next: function(pad, v) { },
+   *          finish: function(pad) { }
+   *        });
+   *
+   * my_lib.consolidation(name, { 
+   *          init: function() { },
+   *          next: function(pad, v) { },
+   *          finish: function(pad) { }
+   *        });
+   *
+   * my_lib.function(name, function(args) { ... });
+   *
+   * my_lib.function_to_iterator(name, args);
+   */
   Engine.TagLib = function(ns) {
     var that = { }, mappings = { }, reductions = { }, consolidations = { },
         functions = { };
@@ -152,6 +207,12 @@ Utukku.namespace('Engine');
     return that;
   };
 
+  /*
+   * Utukku.Engine.RemoteLib(client, namespace, configuration);
+   *
+   * N.B.: this is used by the client to process the registered namespaces
+   *       returned by the server.
+   */
   Engine.RemoteLib = function(client, ns, config) {
     var that = { };
 
@@ -197,6 +258,11 @@ Utukku.namespace('Engine');
     return that;
   };
 
+  /*
+   * Utukku.Engine.has_handler(namespace)
+   *
+   * Returns true if a handler is registered for the namespace
+   */
   Engine.has_handler = function(ns) {
     return ( ns in handlers );
   };

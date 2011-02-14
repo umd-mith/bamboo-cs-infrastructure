@@ -98,11 +98,32 @@ Utukku.namespace('Client');
   *   args:
   *   next:
   *   done:
+  *   timeOut: 0 == no timeout
+  *
+  *   If no timeOut, then the 'done' callback will be called if there
+  *     is no handler for the namespace
+  *   If timeOut, then the call will be tried again in timeOut milliseconds
+  *     if there is no handler for the namespace
   */
   Client.Function = function(options) {
+    if( !("timeOut" in options) ) {
+      options.timeOut = 1000;
+    }
+    if(!Utukku.Engine.has_handler(ns)) {
+      if( options.timeOut != 0 ) {
+        setTimeout(function() { Client.Function(options) }, options.timeOut);
+        return;
+      }
+      else {
+        options.done();
+        return;
+      }
+    }
+
     if(!("url" in options)) {
       options.url = Client.Connection.url;
     }
+
     Client.Connection({
       url: options.url,
       onSuccess: function(client) {
