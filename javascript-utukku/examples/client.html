@@ -15,16 +15,17 @@
     <script type="text/javascript">
       var wait = function() {
         if(!Utukku.Engine.has_handler("http://www.example.com/echo/1.0#")) {
-          console.log("Waiting on handler creation");
+          document.write("<p>Waiting on handler creation</p>");
           setTimeout(wait, 1000);
         }
         else {
+          document.write("<p>Initiating request to double 1..10</p>");
           Utukku.Client.Function({
             namespace: "http://www.example.com/echo/1.0#",
             name: "double",
             args: Utukku.Engine.ConstantRangeIterator(1,10),
-            next: function(v) { console.log(v); },
-            done: function() { console.log("done!"); }
+            next: function(v) { document.write("<p>" + v + "</p>"); },
+            done: function() { document.write("<p>done!</p>"); }
           });
         }
       };

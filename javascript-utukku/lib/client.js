@@ -28,11 +28,9 @@ Utukku.namespace('Client');
     that.events = { };
 
     onMessage = function(msg) {
-      console.debug(msg.data);
       msg = $.parseJSON(msg.data)
       if( msg.class == 'flow.namespaces.registered' ) {
         $.each(msg.data, function(ns, def) {
-          console.debug(ns, def);
           Utukku.Engine.RemoteLib(that, ns, def);
         });
       }
@@ -44,21 +42,18 @@ Utukku.namespace('Client');
     };
 
     onOpen = function() {
-console.log("Opened socket");
       if("onOpen" in that.options) {
         that.options.onOpen();
       }
     };
 
     onClose = function() {
-console.log("Closed socket");
       if("onClose" in that.options) {
         that.options.onClose();
       }
     };
 
     if( "WebSocket" in window ) {
-console.log("opening websocket");
       var ws = new WebSocket(that.options.url);
       ws.onopen = onOpen;
       ws.onmessage = onMessage;
@@ -81,7 +76,6 @@ console.log("opening websocket");
       }
 
       var c = JSON.stringify({ class:class, data:data, id:id });
-console.log("sending: [", c, "]");
       ws.send(JSON.stringify({ class: class, data: data, id: id}));
       return id;
     };
@@ -126,7 +120,6 @@ console.log("sending: [", c, "]");
 
   Client.FlowIterator = function(client, expression, namespaces, iterators) {
     var that = { };
-    console.log("FlowIterator", client, expression, namespaces, iterators);
     
     that.async = function(callbacks) {
       var flow = Client.Flow(client, expression, namespaces, iterators, callbacks);

@@ -168,7 +168,6 @@ Utukku.namespace('Engine');
         args = [ args ];
       }
 
-      console.log("function_to_iterator for remote function ", name, args);
       if( $.inArray(name, config.mappings) != -1 ) {
         if( args.length == 0 ) {
           return Engine.NullIterator();
@@ -194,8 +193,6 @@ Utukku.namespace('Engine');
     };
 
     handlers[ns] = that;
-
-    console.log("Registering handler for ", ns, config);
 
     return that;
   };
