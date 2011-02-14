@@ -3,55 +3,24 @@ package Utukku::Engine::MapIterator;
 
   extends 'Utukku::Engine::Iterator';
 
-=head1 NAME
-
-Utukku::Engine::MapIterator
-
-=head1 SYNOPSIS
-
- my $it = Utukku::Engine::MapIterator -> new(
-   iterator => iterator to be mapped,
-   mapping  => sub { ... }
- );
-
- my $visitor = $it -> start;
-
- while(!$visitor -> at_end) {
-   my $v = $visitor -> next;
-   ...
- }
-
-=head1 DESCRIPTION
-
-=cut
-
   use MooseX::Types::Moose qw(CodeRef Bool);
   use Utukku::Engine::Types qw(Iterator Context);
 
   has iterator => ( isa => Iterator, is => 'ro' );
   has mapping  => ( isa => CodeRef,  is => 'ro' );
 
-=head2 start
-
- $visitor = $iterator -> start;
-
-This returns a visitor that will step through the iterator, returning one
-value at a time.
-
-=cut
-
-  sub invert {
+  sub build_async {
     my($self, $callbacks) = @_;
 
-    $self -> iterator -> invert({
+    $self -> iterator -> build_async({
       done => $callbacks -> {done},
       next => sub {
         my $v = $self -> mapping -> ($_[0]);
         if( is_Iterator($v) ) {
-          $_ -> () for @{$v -> invert({
+          $v -> async({
             done => sub { },
             next => $callbacks -> {next},
-          })};
+          });
         }
         else {
           $callbacks -> {next} -> ($v);

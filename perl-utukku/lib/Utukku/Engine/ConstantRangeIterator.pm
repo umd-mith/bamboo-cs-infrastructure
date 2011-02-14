@@ -17,7 +17,7 @@ package Utukku::Engine::ConstantRangeIterator;
     return $i;
   }
 
-  sub invert {
+  sub build_async {
     my($self, $callbacks) = @_;
 
     my $visitor = $self -> start;

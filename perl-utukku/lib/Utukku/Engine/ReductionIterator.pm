@@ -3,56 +3,23 @@ package Utukku::Engine::ReductionIterator;
 
   extends 'Utukku::Engine::Iterator';
 
-=head1 NAME
-
-Utukku::Engine::ReductionIterator
-
-=head1 SYNOPSIS
-
- my $it = Utukku::Engine::ReductionIterator -> new(
-   iterator => iterator to be reduced,
-   reduction  => sub { +{
-     next => sub { },
-     done => sub { }
-   } }
- );
-
- my $visitor = $it -> start;
-
- while(!$visitor -> at_end) {
-   my $v = $visitor -> next;
-   ...
- }
-
-=head1 DESCRIPTION
-
-=cut
-
-  use MooseX::Types::Moose qw(CodeRef Bool);
+  use MooseX::Types::Moose qw(CodeRef Bool HashRef);
   use Utukku::Engine::Types qw(Iterator Context);
 
   has iterator  => ( isa => Iterator, is => 'ro' );
-  has reduction => ( isa => CodeRef,  is => 'ro' );
+  has reduction => ( isa => 'HashRef|CodeRef',  is => 'ro', default => sub { +{ init => sub { }, next => sub { }, done => sub { } } } );
 
-=head2 start
-
- $visitor = $iterator -> start;
-
-This returns a visitor that will step through the iterator, returning one
-value at a time.
-
-=cut
-
-  sub invert {
+  sub build_async {
     my($self, $callbacks) = @_;
 
-    my $reducers = $self -> reduction -> ();
+    my $reducers = is_CodeRef($self -> reduction) ? $self -> reduction -> () : $self -> reduction;
+    my $pad = ($reducers -> {init} || sub { } ) -> ();
 
-    $self -> iterator -> invert({
+    $self -> iterator -> build_async({
       done => sub { 
-        my $r = $reducers -> {done} -> ();
+        my $r = $reducers -> {done} -> ($pad);
         if(is_Iterator($r)) {
-          $_ -> () for $r -> invert($callbacks);
+          $r -> async($callbacks);
         }
         else {
           $callbacks -> {next} -> ($r);
@@ -60,7 +27,7 @@ value at a time.
         }
       },
       next => sub {
-        $reducers -> {next} -> ($_[0]);
+        $pad = $reducers -> {next} -> ($pad, $_[0]);
       }
     });
   }
@@ -69,11 +36,12 @@ value at a time.
     my($self) = @_;
 
     my $v = $self -> iterator -> start;
-    my $reducers = $self -> reduction -> ();
+    my $reducers = is_CodeRef($self -> reduction) ? $self -> reduction -> () : $self -> reduction;
+    my $pad = $self -> reduction -> {init} -> ();
     while(!$v -> at_end) {
-      $reducers -> {next} -> ($v -> next);
+      $pad = $reducers -> {next} -> ($pad, $v -> next);
     }
-    $v = $reducers -> {done} -> ();
+    $v = $reducers -> {done} -> ($pad);
     if(is_Iterator($v)) {
       return $v -> start;
     }

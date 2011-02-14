@@ -14,7 +14,7 @@ package Utukku::Engine::RangeIterator;
     return $i;
   }
 
-  sub invert {
+  sub build_async {
     my($self, $callbacks) = @_;
 
     my @sets = ( $self -> begin, $self -> end );
@@ -30,15 +30,14 @@ package Utukku::Engine::RangeIterator;
           incr => $incr
         );
       }
-    ) -> invert({
+    ) -> build_async({
       'done' => $callbacks -> {done},
       'next' => sub {
         my($iterator) = @_;
-        my @to_run = $iterator -> invert({
+        $iterator -> async({
           'next' => $callbacks -> {next},
           'done' => sub { },
         });
-        $_ -> () for @to_run;
       }
     });
   }

@@ -100,8 +100,12 @@ use Data::Dumper;
     if( $msg -> {id} ) {
       # send response to client
       my $client = $self -> id_to_client($msg -> {id});
-      if( $client ) {
+      if( $client && $client -> {client} ) {
         $client -> {client} -> send($msg);
+      }
+      else {
+        print STDERR "Uh oh - problem with the message ", $msg->{id}, "\n";
+print STDERR Data::Dumper -> Dump([$client]);
       }
     }
   }

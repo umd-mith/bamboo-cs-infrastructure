@@ -20,12 +20,11 @@ sub test_iterator_inversion {
   my($iterator, $results, $text) = @_;
 
   my @results = ();
-  my @to_run = $iterator -> invert({
+  $iterator -> async({
     'next' => sub { push @results, $_[0] },
     'done' => sub { is_deeply(\@results, $results, $text) }
   });
 
-  $_ -> () for @to_run;
 }
 
 sub test_expression_inversion {
@@ -36,32 +35,11 @@ sub test_expression_inversion {
   test_iterator_inversion($expression -> run($dummy_context), $results, $text);
 }
 
-can_ok('Utukku::Engine::SetIterator', qw( new ));
-can_ok('Utukku::Engine::ConstantIterator', qw( new ));
-can_ok('Utukku::Engine::RangeIterator', qw( new ));
-can_ok('Utukku::Engine::ConstantRangeIterator', qw( new ));
-can_ok('Utukku::Engine::UnionIterator', qw( new ));
-can_ok('Utukku::Engine::NullIterator', qw( new ));
-can_ok('Utukku::Engine::FilterIterator', qw( new ));
-can_ok('Utukku::Engine::MapIterator', qw( new ));
-
-can_ok('Utukku::Engine::SetIterator', qw( start invert ));
-can_ok('Utukku::Engine::ConstantIterator', qw( start invert ));
-can_ok('Utukku::Engine::ConstantRangeIterator', qw( start invert ));
-can_ok('Utukku::Engine::RangeIterator', qw( start invert ));
-can_ok('Utukku::Engine::UnionIterator', qw( start invert ));
-can_ok('Utukku::Engine::NullIterator', qw( start invert ));
-can_ok('Utukku::Engine::FilterIterator', qw( start invert ));
-can_ok('Utukku::Engine::MapIterator', qw( start invert ));
-
-can_ok('Utukku::Engine::SetIterator::Visitor', qw( next at_end position ));
-can_ok('Utukku::Engine::ConstantIterator::Visitor', qw( next at_end position ));
-can_ok('Utukku::Engine::ConstantRangeIterator::Visitor', qw( next at_end position ));
-can_ok('Utukku::Engine::RangeIterator::Visitor', qw( next at_end position ));
-can_ok('Utukku::Engine::UnionIterator::Visitor', qw( next at_end position ));
-can_ok('Utukku::Engine::NullIterator::Visitor', qw( next at_end position ));
-can_ok('Utukku::Engine::FilterIterator::Visitor', qw( next at_end position ));
-can_ok('Utukku::Engine::MapIterator::Visitor', qw( next at_end position ));
+for my $type (qw(Set Constant Range ConstantRange Union Null Filter Map)) {
+  can_ok("Utukku::Engine::${type}Iterator", qw( new ));
+  can_ok("Utukku::Engine::${type}Iterator", qw( start async ));
+  can_ok("Utukku::Engine::${type}Iterator::Visitor", qw( next at_end position ));
+}
 
 my $iterator = new_ok( 'Utukku::Engine::ConstantIterator', [
   values => [ qw(a b c) ] 

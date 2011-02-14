@@ -3,47 +3,16 @@ package Utukku::Engine::FilterIterator;
 
   extends 'Utukku::Engine::Iterator';
 
-=head1 NAME
-
-Utukku::Engine::FilterIterator
-
-=head1 SYNOPSIS
-
- my $it = Utukku::Engine::FilterIterator -> new(
-   iterator => iterator to be filtered,
-   filter   => sub { ... }
- );
-
- my $visitor = $it -> start;
-
- while(!$visitor -> at_end) {
-   my $v = $visitor -> next;
-   ...
- }
-
-=head1 DESCRIPTION
-
-=cut
-
   use MooseX::Types::Moose qw(CodeRef Bool);
   use Utukku::Engine::Types qw(Iterator Context);
 
   has iterator => ( isa => Iterator, is => 'ro' );
   has filter   => ( isa => CodeRef,  is => 'ro' );
 
-=head2 start
-
- $visitor = $iterator -> start;
-
-This returns a visitor that will step through the iterator, returning one
-value at a time.
-
-=cut
-
-  sub invert {
+  sub build_async {
     my($self, $callbacks) = @_;
 
-    $self -> iterator -> invert({
+    $self -> iterator -> build_async({
       'done' => $callbacks -> {done},
       'next' => sub {
         if( $self -> filter -> ( $_[0] ) ) {

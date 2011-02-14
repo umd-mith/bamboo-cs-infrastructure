@@ -12,7 +12,7 @@ package Utukku::Engine::ConstantIterator;
     return Utukku::Engine::ConstantIterator::Visitor -> new( iterator => $self );
   }
 
-  sub invert {
+  sub build_async {
     my($self, $callbacks) = @_;
 
     sub {

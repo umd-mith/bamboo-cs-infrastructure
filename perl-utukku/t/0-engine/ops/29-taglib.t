@@ -20,7 +20,7 @@ package My::TestLib;
     isa_ok($it, $expected_type);
 
     my @results;
-    $_ -> () for $it -> invert({
+    $it -> async({
       next => sub { push @results, $_[0] },
       done => sub {
         is_deeply(\@results, $expected_vals, $function);
@@ -64,10 +64,10 @@ package My::TestLib;
   ], 'Utukku::Engine::ReductionIterator', [ 100 ] );
     
   reduction sum => sub {
-    my $n = 0;
     +{
-      next => sub { $n += $_[0] },
-      done => sub { $n }
+      init => sub { 0 },
+      next => sub { $_[0] += $_[1] },
+      done => sub { $_[0] }
     }
   };
 

@@ -28,7 +28,7 @@ use Data::Dumper;
     my $parser = Utukku::Engine::Parser -> new;
     my $exp = $parser -> parse($context, $self -> expression);
 
-    my @subs = $exp -> invert($context, 0, {
+    $exp -> async($context, 0, {
       next => sub {
         $self -> agent -> response('flow.produce', {
           items => [ $_[0] ]
@@ -38,7 +38,6 @@ use Data::Dumper;
         $self -> agent -> response('flow.produced', {}, $self -> id);
       }
     });
-    $_ -> () for @subs;
   }
 
   sub provide {

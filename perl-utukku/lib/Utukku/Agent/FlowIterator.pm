@@ -7,7 +7,7 @@ package Utukku::Agent::FlowIterator;
   has finishers => (is => 'ro', isa => 'ArrayRef', default => sub { [ ] });
   has is_done   => (is => 'rw', isa => 'Bool', default => 0);
 
-  sub invert {
+  sub build_async {
     my($self, $callbacks) = @_;
 
     sub {

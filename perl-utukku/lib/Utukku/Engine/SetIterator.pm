@@ -3,48 +3,17 @@ package Utukku::Engine::SetIterator;
 
   extends 'Utukku::Engine::Iterator';
 
-=head1 NAME
-
-Utukku::Engine::Iterator
-
-=head1 SYNOPSIS
-
- my $it = Utukku::Engine::SetIterator -> new(
-   sets => ArrayRef of iterators,
-   combinator => CodeRef of function to visit values
- );
-
- my $visitor = $it -> start;
-
- while(!$visitor -> at_end) {
-   my $v = $visitor -> next;
-   ...
- }
-
-=head1 DESCRIPTION
-
-=cut
-
   use MooseX::Types::Moose qw(ArrayRef CodeRef Bool);
   use Utukku::Engine::Types qw(Context);
 
   has sets => ( isa => ArrayRef, is => 'ro' );
   has combinator => ( isa => CodeRef, is => 'ro' );
 
-=head2 start
-
- $visitor = $iterator -> start;
-
-This returns a visitor that will step through the iterator, returning one
-value at a time.
-
-=cut
-
-  sub invert {
+  sub build_async {
     my($self, $callbacks) = @_;
 
     # TODO: be smarter about starting over with iterators
-    $self -> _invert({
+    $self -> _build_async({
       done => $callbacks -> {done},
       next => sub {
         $callbacks -> {next} -> ($self -> combinator -> (@_));
@@ -52,15 +21,15 @@ value at a time.
     }, @{$self -> sets});
   }
 
-  sub _invert {
+  sub _build_async {
     my($self, $callbacks, $set, @sets) = @_;
 
     if(@sets > 0) {
-      $set -> invert({
+      $set -> build_async({
         done => $callbacks -> {done},
         next => sub {
           my($v) = @_;
-          $_ -> () for $self -> _invert({
+          $_ -> () for $self -> _build_async({
             done => sub { },
             next => sub {
               $callbacks -> {next} -> ($v, @_);
@@ -70,7 +39,7 @@ value at a time.
       });
     }
     else {
-      $set -> invert($callbacks);
+      $set -> build_async($callbacks);
     }
   }
 

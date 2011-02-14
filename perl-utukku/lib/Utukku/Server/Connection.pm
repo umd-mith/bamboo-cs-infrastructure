@@ -14,7 +14,7 @@ package Utukku::Server::Connection;
   sub process_input {
     my($self, $chunk) = @_;
 
-print STDERR "input: [$chunk]\n";
+#print STDERR "input: [$chunk]\n";
     if( !$self -> handshake -> is_done ) {
       $self -> handshake -> parse($chunk);
       if( $self -> handshake -> error ) {

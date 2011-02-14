@@ -24,18 +24,18 @@ package Utukku::Engine::Block;
     return $last;
   }
 
-  sub invert {
+  sub build_async {
     my( $self, $context, $av, $callbacks) = @_;
 
     return $callbacks->{done} if $self -> noop;
 
     my @stmts = @{$self -> statements};
     my $stmt = pop @stmts;
-    my @subs = $stmt -> invert($context, $av, $callbacks);
+    my @subs = $stmt -> build_async($context, $av, $callbacks);
     while( @stmts ) {
       $stmt = pop @stmts;
       my @old_subs = @subs;
-      @subs = $stmt -> invert($context, $av, {
+      @subs = $stmt -> build_async($context, $av, {
         next => sub { },
         done => sub { $_->() for @old_subs }
       });

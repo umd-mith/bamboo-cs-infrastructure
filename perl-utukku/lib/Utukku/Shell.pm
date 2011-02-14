@@ -20,10 +20,10 @@ package Utukku::Shell;
           documentation => 'Suppress use of a pager' );
   has 'r' => (accessor => 'suppress_readline', is => 'rw', isa => 'Bool', default => sub { ! -t STDIN },
           documentation => 'Suppress use of Term::ReadLine' );
-  has 'f' => (accessor => 'config_file', is => 'rw', isa => 'Str', default => "$ENV{'HOME'}/.bamboorc",
-          documentation => 'Use given rc file instead of ~/.bamboorc' );
+  has 'f' => (accessor => 'config_file', is => 'rw', isa => 'Str', default => "$ENV{'HOME'}/.utukkurc",
+          documentation => 'Use given rc file instead of ~/.utukkurc' );
 
-  has '_prompt' => ( accessor => 'prompt', is => 'rw', isa => 'Str', default => 'bamboo>' );
+  has '_prompt' => ( accessor => 'prompt', is => 'rw', isa => 'Str', default => 'utukku>' );
   has '_in'     => ( accessor => 'IN', is => 'rw' );
   has '_out'    => ( accessor => 'OUT', is => 'rw' );
   has '_term'   => ( accessor => 'term', is => 'rw' );
@@ -89,7 +89,7 @@ package Utukku::Shell;
     }
 
     unless( $self -> suppress_narrative ) {
-      $self -> print("\nbamboo shell -- Utukku (v$Utukku::VERSION)\n");
+      $self -> print("\nutukku shell -- Utukku (v$Utukku::VERSION)\n");
       $self -> print( "ReadLine support enabled\n") unless $self -> suppress_readline;
       $self -> print("Pager support enabled\n") unless $self -> suppress_pager;
     }
@@ -166,16 +166,16 @@ package Utukku::Shell;
         $line =~ s/\s*$//;
         $self -> buffer($line);
         if( $self -> buffer eq '' ) {
-          $self -> prompt("bamboo>");
+          $self -> prompt("utukku>");
         }
         else {
-          $self -> prompt("bamboo...>");
+          $self -> prompt("utukku...>");
         }
         return;
       }
       else {
         $self -> buffer('');
-        $self -> prompt("bamboo>");
+        $self -> prompt("utukku>");
         if($@) {
           warn "  $@\n";
           return;
@@ -184,7 +184,10 @@ package Utukku::Shell;
 
       if($it) {
         my $is_first = 1;
-        my @subs = $it -> invert($self -> context, 0, {
+        $self -> print('$in[', $self -> line_no, "] := $line\n");
+
+        $self -> print('$out[', $self -> line_no, '] := [');
+        $it -> async($self -> context, 0, {
           'next' => $self -> silent ? sub { } : sub { 
             if($is_first) {
               $self -> print("$_[0]");
@@ -198,11 +201,6 @@ package Utukku::Shell;
              $self -> print("]\n");
           }
         });
-
-        $self -> print('$in[', $self -> line_no, "] := $line\n");
-
-        $self -> print('$out[', $self -> line_no, '] := [');
-        $_ -> () for @subs;
       } else {
         unless($self -> suppress_narrative) {
           $self -> print("Error interpreting [$line]\n");
