@@ -1,4 +1,4 @@
-= utukku-cs-infrastructure
+= bamboo-cs-infrastructure
 
 == DESCRIPTION:
 
@@ -10,3 +10,25 @@ See the READMEs in each component for more information.
 
 We are using the 'Utukku' name as a place holder since these libraries are
 not officialy part of Bamboo.
+
+== LICENSE
+
+All of the files in this repository should be considered closed for now while
+we work through the initial development.  Please don't redistribute the files
+beyond the Corpora Space/Camp working groups until we have more definite
+licensing in place.
+
+=== ruby-utukku
+
+The files in this library are based on code from Texas A&M University
+released under the BSD license.  As such, they are copyright Texas A&M
+University (2001-2010) and University of Maryland (2011).
+
+=== perl-utukku
+
+The files in this library are copyright University of Maryland (2011).
+
+
+=== javascript-utukku
+
+The files in this library are copyright University of Maryland (2011).
