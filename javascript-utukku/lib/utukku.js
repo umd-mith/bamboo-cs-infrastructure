@@ -1,5 +1,6 @@
 var Utukku = Utukku || {};
 
+
 (function($, Utukku) {
   if(window.console != undefined && window.console.log != undefined) {
     Utukku.debug = function() {

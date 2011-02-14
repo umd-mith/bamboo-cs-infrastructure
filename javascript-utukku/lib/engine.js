@@ -81,7 +81,7 @@ Utukku.namespace('Engine');
 
   var handlers = { };
 
-  Engine.TagLib = function(ns) = {
+  Engine.TagLib = function(ns) {
     var that = { }, mappings = { }, reductions = { }, consolidations = { },
         functions = { };
 

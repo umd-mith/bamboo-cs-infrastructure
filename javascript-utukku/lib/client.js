@@ -3,19 +3,36 @@ Utukku.namespace('Client');
 (function($, Client) {
   var connections = { };
 
+  /* Client.Connection.url will be the default */
+
   Client.Connection = function(options) {
     var that = { }, onMessage, onOpen, onClose, connection;
 
+console.log("Client.Connection", options);
     that.options = options;
+    if( !("url" in that.options) ) {
+      that.options.url = Client.Connection.url;
+    }
+    
+    if( options.url in connections ) {
+      if( "onSuccess" in options ) {
+        options.onSuccess(connections[options.url]);
+      }
+      return connections[options.url];
+    }
 
+    connections[options.url] = that;
 
     that.events = { };
 
     onMessage = function(msg) {
-      if( msg.class == 'flow.registered' ) {
-        foreach ns in msg.data {
-          Utukku.Engine.RemoteLib(that, ns, msg.data[ns]);
-        }
+      msg = $.parseJSON(msg.data)
+      console.debug(msg);
+      if( msg.class == 'flow.namespaces.registered' ) {
+        $.each(msg.data, function(ns, def) {
+          console.debug(ns, def);
+          Utukku.Engine.RemoteLib(that, ns, def);
+        });
       }
       else if( msg.class == 'flow.produce' ) {
       }
@@ -24,31 +41,34 @@ Utukku.namespace('Client');
     };
 
     onOpen = function() {
-      that.options.onOpen();
+console.log("Opened socket");
+      if("onOpen" in that.options) {
+        that.options.onOpen();
+      }
     };
 
     onClose = function() {
-      that.options.onClose();
+console.log("Closed socket");
+      if("onClose" in that.options) {
+        that.options.onClose();
+      }
     };
 
     if( "WebSocket" in window ) {
-      if( options.url in connections ) {
-        connection = connections[options.url];
-      }
-      else {
-        var ws = new WebSocket(that.options.url);
-        ws.onopen = onOpen;
-        ws.onmessage = onMessage;
-        ws.onclose = onClose;
-        connections[options.url] = ws;
-        connection = ws;
-      }
+console.log("opening websocket");
+      var ws = new WebSocket(that.options.url);
+      ws.onopen = onOpen;
+      ws.onmessage = onMessage;
+      ws.onclose = onClose;
+      connection = ws;
     }
     else {
-      that.options.onError();
+      if("onError" in that.options) {
+        that.options.onError();
+      }
     }
-    if( "onSuccess" in options ) {
-      options.onSuccess(that);
+    if( "onSuccess" in that.options ) {
+      that.options.onSuccess(that);
     }
     return that;
   };

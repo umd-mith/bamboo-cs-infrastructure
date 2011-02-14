@@ -1,0 +1,11 @@
+= javacsript-utukku
+
+The libraries in lib/ should be included in the following order:
+  utukku.js
+  engine.js
+  client.js
+
+In production, these can be minified into a single file.
+
+The example in examples/ require Chrome or any browser that has support
+for HTML 5 WebSockets.
