@@ -1,7 +1,7 @@
 package Utukku::Server::Connection;
   use Moose;
 
-  use Protocol::WebSocket::HandShake::Server;
+  use Protocol::WebSocket::Handshake::Server;
   use Protocol::WebSocket::Frame;
   use JSON::XS;
 
