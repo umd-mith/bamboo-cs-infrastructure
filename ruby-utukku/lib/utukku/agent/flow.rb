@@ -52,6 +52,10 @@ class Utukku::Agent::Flow
     end
   end
 
+  def provided?
+    @iterator_objs.values.collect{ |i| !i.at_end? }.size == 0
+  end
+
   def finish
 
   end

@@ -8,7 +8,7 @@ module Utukku
 
     require 'utukku/server/connection'
 
-    attr_accessor :port
+    attr_accessor :port, :accepted_domains
 
     def initialize(&block)
       @clients = [ ]
@@ -16,6 +16,9 @@ module Utukku
       @flows = { }
       @uuid_to_flow = { }
       @uuid = UUID.new
+
+      @port = 3000
+      @accepted_domains = [ "*" ]
 
       if block
         yield self
@@ -26,7 +29,7 @@ module Utukku
 
     def setup
       @server = WebSocketServer.new(
-        :accepted_domains => 'localhost',
+        :accepted_domains => @accepted_domains,
         :port => @port
       )
     end

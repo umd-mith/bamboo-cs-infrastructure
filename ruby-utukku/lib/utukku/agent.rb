@@ -47,6 +47,7 @@ class Agent
     @events['flow.provided'] ||= proc { |klass, data, id|
       if @flows[id]
         @flows[id].provided(data['iterators'])
+        @flows.delete(id) if @flows[id].provided?
       end
     };
 
