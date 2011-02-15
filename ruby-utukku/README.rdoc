@@ -1,0 +1,17 @@
+= ruby-utukku
+
+This is the Ruby version of the Utukku libraries.
+
+== Example
+
+In the examples/ directory are three example scripts that show how the
+various pieces fit together.  Run them in the following order with a
+couple seconds between each.
+
+% cd ruby-utukku
+% ruby -Ilib ./examples/utukku-server
+% ruby -Ilib -Iexamples/lib ./examples/utukku-agent
+% ruby -Ilib ./examples/utukku-client
+
+The client will print out its progress towards 1,000,000 doublings through
+the agent.
