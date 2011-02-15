@@ -1,0 +1,6 @@
+require 'rubygems'
+require 'utukku/server'
+
+Utukku::Server.new do |server|
+  server.port = 3000
+end

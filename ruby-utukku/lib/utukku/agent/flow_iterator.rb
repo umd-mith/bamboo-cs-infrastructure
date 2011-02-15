@@ -6,7 +6,7 @@ class Utukku::Agent::FlowIterator < Utukku::Engine::Iterator
     @is_done = false
   end
 
-  def async(callbacks)
+  def build_async(callbacks)
     proc {
       @cache.each { |v| callbacks[:next].call(v) }
       if @is_done

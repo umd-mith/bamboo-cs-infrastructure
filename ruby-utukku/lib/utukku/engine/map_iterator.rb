@@ -17,7 +17,7 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
   end
 
   def build_async(callbacks)
-    @iterator.async({
+    @iterator.build_async({
       :next => proc { |v|
         ret = @mapping.call(v)
         if ret.kind_of?(Utukku::Engine::Iterator)

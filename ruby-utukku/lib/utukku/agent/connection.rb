@@ -25,6 +25,7 @@ module Utukku
       while data = @client.receive()
         if block
           yield JSON.parse(data)
+          # find finished threads and join them
         else
           @frames.push JSON.parse(data)
         end
@@ -41,7 +42,9 @@ module Utukku
   end
 
   def close(immediate = false)
-    @reader.kill if @reader && immediate
+    if immediate
+      @reader.kill if @reader
+    end
     @reader.join if @reader
   end
 

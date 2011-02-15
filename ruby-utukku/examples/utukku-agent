@@ -5,11 +5,3 @@ require 'example/tag_lib'
 Utukku::Agent.new('ws://localhost:3000/demo') do |agent|
   agent.export_namespace 'http://www.example.com/echo/1.0#'
 end
-
-#agent = Utukku::Agent.new
-#agent.url = 'ws://localhost:3000/demo'
-#agent.export_namespace 'http://www.example.com/echo/1.0#'
-
-#agent.run
-
-#agent.close
