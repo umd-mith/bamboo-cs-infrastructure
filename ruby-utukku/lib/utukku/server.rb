@@ -144,10 +144,7 @@ module Utukku
 
     def narrow_broadcast(client, msg)
       if @flows[client.object_id] && @flows[client.object_id][msg['id']]
-        amsg = { 'class' => msg['class'],
-                 'data'  => msg['data'],
-                 'id'    => @flows[client.object_id][msg['id']][:uuid],
-               }
+        amsg = [ msg['class'], @flows[client.object_id][msg['id']][:uuid], msg['data'] ]
         @flows[client.object_id][msg['id']][:agents].each do |agent|
           agent.send(amsg)
         end
@@ -163,11 +160,7 @@ module Utukku
 
       if ff[:agents].empty?
         client = id_to_client(f[0])
-        client.send({
-          'class' => 'flow.produced',
-          'data' => { },
-          'id' => f[1]
-        }) if !client.nil?
+        client.send([ 'flow.produced', f[1], { } ]) if !client.nil?
         @flows[f[0]].delete(f[1])
         @uuid_to_flow.delete(id)
       end
@@ -177,11 +170,7 @@ module Utukku
       f = @uuid_to_flow[msg['id']]
       return if f.nil?
       client = id_to_client(f[0])
-      client.send({
-        'class' => msg['class'],
-        'data'  => msg['data'],
-        'id'    => f[1]
-      }) if !client.nil?
+      client.send([ msg['class'], f[1], msg['data'] ]) if !client.nil?
     end
 
     def namespaces

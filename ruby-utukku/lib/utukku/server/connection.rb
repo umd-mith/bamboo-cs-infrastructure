@@ -38,23 +38,28 @@ class Utukku::Server::Connection
   def run
     # we need to let clients know what namespaces are available
     @running = true
-    self.send({
-      'class' => 'flow.namespaces.registered',
-      'data' => @server.namespaces
-    })
+    #self.send({
+    #  'class' => 'flow.namespaces.registered',
+    #  'data' => @server.namespaces
+    #})
+    self.send([ 'flow.namespaces.registered', nil, @server.namespaces ])
 
-    begin
+    #begin
       while data = @socket.receive
         msg = JSON.parse(data)
+        msg = { 'class' => msg[0],
+                'id' => msg[1],
+                'data' => msg[2],
+              }
         if @is_agent
           self.agent_handler(msg)
         else
           self.client_handler(msg)
         end
       end
-    rescue => e
-      logger.error "Error reading or processing: #{e}"
-    end
+    #rescue => e
+    #  logger.error "Error reading or processing: #{e}"
+    #end
     @running = false
   end
 
@@ -71,11 +76,7 @@ class Utukku::Server::Connection
         ns = msg['data']['namespaces'][prefix]
         agents = @server.agents_exporting_namespace(ns)
         if agents.empty?
-          send({
-            'class' => 'flow.produced',
-            'data' => { },
-            'id' => msg['id'],
-          })
+          send([ 'flow.produced', msg['id'], { } ])
         else
           @server.register_flow(self, msg['id'], agents)
           @server.narrow_broadcast(self, msg)

@@ -16,10 +16,7 @@ module Utukku
   def connect(&block)
     @client = WebSocket.new(@url)
     if !@namespaces.empty?
-      self.send({
-        'class' => 'flow.namespaces.register',
-        'data' => Utukku::Engine::TagLib::Registry.instance.describe_namespaces( @namespaces )
-      })
+      self.send([ 'flow.namespaces.register', nil, Utukku::Engine::TagLib::Registry.instance.describe_namespaces( @namespaces ) ])
     end
     @reader = Thread.new() do
       while data = @client.receive()

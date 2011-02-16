@@ -29,6 +29,11 @@ Utukku.namespace('Client');
 
     onMessage = function(msg) {
       msg = $.parseJSON(msg.data)
+      msg = {
+        class: msg[0],
+        id: msg[1],
+        data: msg[2]
+      };
       if( msg.class == 'flow.namespaces.registered' ) {
         $.each(msg.data, function(ns, def) {
           Utukku.Engine.RemoteLib(that, ns, def);
@@ -75,8 +80,7 @@ Utukku.namespace('Client');
         request_id += 1;
       }
 
-      var c = JSON.stringify({ class:class, data:data, id:id });
-      ws.send(JSON.stringify({ class: class, data: data, id: id}));
+      ws.send(JSON.stringify([ class, id, data ]));
       return id;
     };
 

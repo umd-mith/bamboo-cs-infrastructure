@@ -38,6 +38,10 @@ class Utukku::Client
 
   def setup
     @connection.connect do |msg|
+      msg = { 'class' => msg[0],
+              'id' => msg[1],
+              'data' => msg[2],
+            }
       if  msg['class'] =~ /^flow\./ 
         self.flow(msg)
       end
@@ -87,11 +91,12 @@ class Utukku::Client
       @queue ||= [ ]
       @queue += [ { 'id' => mid, 'class' => klass, 'data' => data } ]
     else
-      @connection.send({
-        'id' => mid,
-        'class' => klass,
-        'data' => data
-      })
+#      @connection.send({
+#        'id' => mid,
+#        'class' => klass,
+#        'data' => data
+#      })
+      @connection.send([ klass, mid, data ])
     end
     mid
   end

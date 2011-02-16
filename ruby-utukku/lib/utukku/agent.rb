@@ -71,9 +71,9 @@ class Agent
 
   def response(klass, data, id)
     if @connection
-      @connection.send({ 'class' => klass, 'data' => data, 'id' => id })
+      @connection.send([ klass, id, data ])
     else
-      @queue.push({ 'class' => klass, 'data' => data, 'id' => id })
+      @queue.push([ klass, id, data ])
     end
   end
 
@@ -87,8 +87,8 @@ class Agent
   def run
     self.setup unless @setup
     @connection.connect do |msg|
-      if @events[msg['class']]
-        @events[msg['class']].call(msg['class'], msg['data'], msg['id'])
+      if @events[msg[0]]
+        @events[msg[0]].call(msg[0], msg[2], msg[1])
       end
     end
   end
