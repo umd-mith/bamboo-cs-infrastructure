@@ -23,6 +23,18 @@ class Utukku::Server::Connection
     @is_agent
   end
 
+  def socket
+    @socket
+  end
+
+  def logger
+    @server.logger
+  end
+
+  def remote_host(hostname = false)
+    (@socket.tcp_socket.addr)[hostname ? 2 : 3]
+  end
+
   def run
     # we need to let clients know what namespaces are available
     @running = true
@@ -41,7 +53,7 @@ class Utukku::Server::Connection
         end
       end
     rescue => e
-      puts "Error reading or processing: #{e}"
+      logger.error "Error reading or processing: #{e}"
     end
     @running = false
   end
@@ -83,7 +95,7 @@ class Utukku::Server::Connection
       @socket.send(msg.to_json) if @running
     rescue => e
       @running = false
-      puts "Error sending data: #{e}"
+      logger.error "Error sending data: #{e}"
     end
   end
 

@@ -2,6 +2,8 @@
 
 This is the Ruby version of the Utukku libraries.
 
+The server requires the log4r gem to manage logs.
+
 == Example
 
 In the examples/ directory are three example scripts that show how the

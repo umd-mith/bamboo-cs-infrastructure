@@ -2,12 +2,14 @@ require 'web_socket'
 require 'json'
 require 'yaml'
 require 'uuid'
+require 'log4r'
 
 module Utukku
   class Server
 
     require 'utukku/server/connection'
     require 'utukku/server/config'
+    include Log4r
 
     def initialize(&block)
       @clients = [ ]
@@ -19,6 +21,9 @@ module Utukku
       @port = 3000
       @accepted_domains = [ "*" ]
       @namespace_configs = { }
+
+      @logger = Logger.new 'utukku'
+      @logger.outputters = Outputter.stdout
 
       if block
         self.instance_eval &block
@@ -36,8 +41,16 @@ module Utukku
     end
 
     def namespace(ns, &block)
-      @namespace_configs[ns] ||= Utukku::Server::Config::Namespace.new(ns)
+      @namespace_configs[ns] ||= Utukku::Server::Config::Namespace.new(ns, self)
       @namespace_configs[ns].instance_eval &block
+    end
+
+    def logging(&block)
+      @logger.instance_eval &block
+    end
+
+    def logger
+      @logger
     end
 
     def setup
@@ -48,10 +61,10 @@ module Utukku
     end
 
     def run
-      puts "Server is accepting connections on port #{@port}"
+      logger.info "Server is accepting connections on port #{@port}"
 
       @namespace_configs.each_pair do |ns, c|
-        puts "#{ns} is accepting #{c.singular? ? 'one agent' : 'many agents'}"
+        logger.info "#{ns} is accepting #{c.singular? ? 'one agent' : 'many agents'}"
       end
 
       @server.run { |ws|
@@ -72,7 +85,7 @@ module Utukku
     def add_agent(agent)
       @agents.push(agent)
       agent.namespaces.each_pair do |ns, config|
-        @namespace_configs[ns] ||= Utukku::Server::Config::Namespace.new(ns)
+        @namespace_configs[ns] ||= Utukku::Server::Config::Namespace.new(ns, self)
         @namespace_configs[ns].add_agent(agent)
       end
     end
