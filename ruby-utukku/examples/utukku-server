@@ -1,7 +1,11 @@
 require 'rubygems'
 require 'utukku/server'
 
-Utukku::Server.new do |server|
-  server.port = 3000
-  server.accepted_domains = ["*"]
+Utukku::Server.new do 
+  port 3000
+  accepted_domains ["*"]
+
+  namespace 'http://www.example.com/echo/1.0#' do
+    singular
+  end
 end

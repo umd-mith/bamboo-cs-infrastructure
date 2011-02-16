@@ -49,17 +49,25 @@ class Utukku::Server::Connection
   def client_handler(msg)
     case msg['class']
       when 'flow.namespaces.register'
-        @server.remove_client(self)
-        @server.add_agent(self)
         @is_agent = true
         register_namespaces(msg['data'])
+        @server.remove_client(self)
+        @server.add_agent(self)
       when 'flow.create'
         msg['data']['expression'] =~ /^([^:]+):/
         prefix = $1
         ns = msg['data']['namespaces'][prefix]
         agents = @server.agents_exporting_namespace(ns)
-        @server.register_flow(self, msg['id'], agents)
-        @server.narrow_broadcast(self, msg)
+        if agents.empty?
+          send({
+            'class' => 'flow.produced',
+            'data' => { },
+            'id' => msg['id'],
+          })
+        else
+          @server.register_flow(self, msg['id'], agents)
+          @server.narrow_broadcast(self, msg)
+        end
       when 'flow.provide'
         @server.narrow_broadcast(self, msg)
       when 'flow.provided'

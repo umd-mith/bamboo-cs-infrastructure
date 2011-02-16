@@ -7,8 +7,7 @@ module Utukku
   class Server
 
     require 'utukku/server/connection'
-
-    attr_accessor :port, :accepted_domains
+    require 'utukku/server/config'
 
     def initialize(&block)
       @clients = [ ]
@@ -19,12 +18,26 @@ module Utukku
 
       @port = 3000
       @accepted_domains = [ "*" ]
+      @namespace_configs = { }
 
       if block
-        yield self
+        self.instance_eval &block
         self.setup
         self.run
       end
+    end
+
+    def port(p)
+      @port = p
+    end
+
+    def accepted_domains(d)
+      @accepted_domains = d
+    end
+
+    def namespace(ns, &block)
+      @namespace_configs[ns] ||= Utukku::Server::Config::Namespace.new(ns)
+      @namespace_configs[ns].instance_eval &block
     end
 
     def setup
@@ -35,6 +48,12 @@ module Utukku
     end
 
     def run
+      puts "Server is accepting connections on port #{@port}"
+
+      @namespace_configs.each_pair do |ns, c|
+        puts "#{ns} is accepting #{c.singular? ? 'one agent' : 'many agents'}"
+      end
+
       @server.run { |ws|
         ws.handshake()
         client = Utukku::Server::Connection.new(self, ws)
@@ -46,19 +65,50 @@ module Utukku
     end
 
     def remove_client(client)
+      return unless @clients.include?(client)
       @clients = @clients - [ client ]
     end
 
     def add_agent(agent)
       @agents.push(agent)
+      agent.namespaces.each_pair do |ns, config|
+        @namespace_configs[ns] ||= Utukku::Server::Config::Namespace.new(ns)
+        @namespace_configs[ns].add_agent(agent)
+      end
     end
 
     def remove_agent(agent)
+      return unless @agents.include?(agent)
       @agents = @agents - [ agent ]
+      @flows.each_pair do |cid, fs|
+        fs.each_pair do |fid, ff|
+          ff[:agents] = ff[:agents] - [ agent ]
+
+          if ff[:agents].empty?
+            client = id_to_client(cid)
+            client.send({
+              'class' => 'flow.produced',
+              'data' => { },
+              'id' => fid,
+            }) if !client.nil?
+            @uuid_to_flow.delete(ff[:uuid])
+            @flows[cid].delete(fid)
+          end
+
+        end
+      end
+
+      @namespace_configs.each_pair do |ns, nsc|
+        nsc.remove_agent(agent)
+      end
     end
 
     def agents_with_namespace(ns)
-      @agents.select{ |a| a.exports_namespace?(ns) }
+      @namespace_configs[ns] ? @namespace_configs[ns].agents : []
+    end
+
+    def agents_exporting_namespace(ns)
+      agents_with_namespace(ns)
     end
 
     def id_to_client(id)
@@ -119,10 +169,6 @@ module Utukku
         'data'  => msg['data'],
         'id'    => f[1]
       }) if !client.nil?
-    end
-
-    def agents_exporting_namespace(ns)
-      @agents.select{ |a| a.exports_namespace?(ns) }
     end
 
     def namespaces
