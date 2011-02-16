@@ -4,6 +4,7 @@ class Utukku::Server::Connection
     @socket = socket
     @is_agent = false
     @namespaces = { }
+    @running = false
   end
 
   def namespaces
@@ -24,19 +25,25 @@ class Utukku::Server::Connection
 
   def run
     # we need to let clients know what namespaces are available
+    @running = true
     self.send({
       'class' => 'flow.namespaces.registered',
       'data' => @server.namespaces
     })
 
-    while data = @socket.receive
-      msg = JSON.parse(data)
-      if @is_agent
-        self.agent_handler(msg)
-      else
-        self.client_handler(msg)
+    begin
+      while data = @socket.receive
+        msg = JSON.parse(data)
+        if @is_agent
+          self.agent_handler(msg)
+        else
+          self.client_handler(msg)
+        end
       end
+    rescue => e
+      puts "Error reading or processing: #{e}"
     end
+    @running = false
   end
 
   def client_handler(msg)
@@ -64,7 +71,12 @@ class Utukku::Server::Connection
   end
 
   def send(msg)
-    @socket.send(msg.to_json)
+    begin
+      @socket.send(msg.to_json) if @running
+    rescue => e
+      @running = false
+      puts "Error sending data: #{e}"
+    end
   end
 
   def agent_handler(msg)

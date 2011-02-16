@@ -40,8 +40,8 @@ module Utukku
         client = Utukku::Server::Connection.new(self, ws)
         @clients.push(client)
         client.run
-        @clients = @clients - [ client ]
-        @agents = @agents - [ client ]
+        remove_client(client)
+        remove_agent(client)
       }
     end
 
@@ -51,6 +51,10 @@ module Utukku
 
     def add_agent(agent)
       @agents.push(agent)
+    end
+
+    def remove_agent(agent)
+      @agents = @agents - [ agent ]
     end
 
     def agents_with_namespace(ns)
