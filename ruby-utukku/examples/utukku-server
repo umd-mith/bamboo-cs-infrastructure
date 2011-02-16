@@ -7,5 +7,6 @@ Utukku::Server.new do
 
   namespace 'http://www.example.com/echo/1.0#' do
     singular
+    round_robin
   end
 end

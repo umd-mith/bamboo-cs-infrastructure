@@ -2,11 +2,17 @@ class Utukku::Server::Config::Namespace
   def initialize(ns)
     @namespace = ns
     @singular = false
+    @round_robin = false
     @agents = [ ]
+    @agent_pos = 0
   end
 
   def singular
     @singular = true
+  end
+
+  def round_robin
+    @round_robin = true
   end
 
   def singular?
@@ -26,6 +32,15 @@ class Utukku::Server::Config::Namespace
   end
 
   def agents
-    @singular ? [ @agents.first ] : @agents
+    return [ ] if @agents.empty?
+    if @singular
+      if @round_robin
+        @agent_pos += 1
+        @agent_pos %= @agents.size
+      end
+      return [ @agents[@agent_pos] ]
+    else
+      return @agents
+    end
   end
 end
