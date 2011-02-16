@@ -4,8 +4,6 @@ require 'utukku/agent/flow'
 
 module Utukku
 class Agent
-  attr_accessor :url
-
   def initialize(url = nil, &block)
     @url = url
     @flows = { }
@@ -14,7 +12,7 @@ class Agent
     @exported_namespaces = [ ]
 
     if block
-      yield self
+      self.instance_eval &block
       self.run
       self.close
     end
@@ -22,6 +20,10 @@ class Agent
 
   def close
     @connection.close if @connection
+  end
+
+  def url(u)
+    @url = u
   end
 
   def export_namespace(ns)

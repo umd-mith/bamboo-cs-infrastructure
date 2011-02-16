@@ -2,6 +2,7 @@ require 'rubygems'
 require 'utukku/agent'
 require 'example/tag_lib'
 
-Utukku::Agent.new('ws://localhost:3000/demo') do |agent|
-  agent.export_namespace 'http://www.example.com/echo/1.0#'
+Utukku::Agent.new do
+  url 'ws://localhost:3000/demo'
+  export_namespace 'http://www.example.com/echo/1.0#'
 end
