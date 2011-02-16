@@ -42,13 +42,13 @@ class Agent
 
     @events['flow.provide'] ||= proc { |klass, data, id|
       if @flows[id]
-        @flows[id].provide(data['iterators'])
+        @flows[id].provide(data)
       end
     };
 
     @events['flow.provided'] ||= proc { |klass, data, id|
       if @flows[id]
-        @flows[id].provided(data['iterators'])
+        @flows[id].provided(data)
         @flows.delete(id) if @flows[id].provided?
       end
     };

@@ -30,9 +30,7 @@ class Utukku::Agent::Flow
   def start
     @parsed_expr.async(@context, false, {
       :next => proc { |v|
-        @agent.response('flow.produce', {
-          'items' => [ v ]
-        }, @msg_id)
+        @agent.response('flow.produce', [ v ], @msg_id)
       },
       :done => proc {
         @agent.response('flow.produced', {}, @msg_id)

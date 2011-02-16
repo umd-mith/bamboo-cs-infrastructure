@@ -18,6 +18,8 @@ class Utukku::Client
     @flows = { }
     @uuid = UUID.new
 
+    @request_id = 0
+
     @connection = Utukku::Client::Connection.new(@url)
 
     if block
@@ -86,7 +88,10 @@ class Utukku::Client
   end
 
   def request(klass, data, mid = nil)
-    mid = @uuid.generate if mid.nil?
+    if mid.nil?
+      @request_id += 1
+      mid = "#{@request_id}"
+    end
     if @connection.nil?
       @queue ||= [ ]
       @queue += [ { 'id' => mid, 'class' => klass, 'data' => data } ]

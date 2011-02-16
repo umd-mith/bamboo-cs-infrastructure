@@ -171,7 +171,7 @@ Utukku.namespace('Client');
 
     that.message = function(class, data) {
       if( class == 'flow.produce' ) {
-        $.each(data.items, function(idx, v) { callbacks.next(v); });
+        $.each(data, function(idx, v) { callbacks.next(v); });
       }
       else if( class == 'flow.produced' ) {
         callbacks.done();
@@ -190,14 +190,10 @@ Utukku.namespace('Client');
           next: function(v) { 
             var its = { };
             its[key] = v;
-            client.request('flow.provide', {
-              iterators: its
-            }, that.id);
+            client.request('flow.provide', its, that.id);
           },
           done: function() {
-            client.request('flow.provided', {
-              iterators: [ key ]
-            }, that.id);
+            client.request('flow.provided', [ key ], that.id);
           }
         }))();
       });
