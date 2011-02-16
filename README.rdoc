@@ -11,6 +11,10 @@ See the READMEs in each component for more information.
 We are using the 'Utukku' name as a place holder since these libraries are
 not officialy part of Bamboo.
 
+N.B.: The Perl libraries are not being maintained for now.  The Ruby and
+JavaScript libraries are undergoing development in preparation for
+Corpora Camp.
+
 == LICENSE
 
 All of the files in this repository should be considered closed for now while
