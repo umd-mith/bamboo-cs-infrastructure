@@ -67,6 +67,9 @@ class Utukku::Server::Config::Namespace
     if @agents.include?(agent)
       logger.info "Removing an agent from #{agent.remote_host} / #{agent.remote_host(true)} for #{@namespace}"
       @agents = @agents - [ agent ]
+      if @agents.empty?
+        logger.info "All agents removed from #{@namespace}"
+      end
     end
   end
 
