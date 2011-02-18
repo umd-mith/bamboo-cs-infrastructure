@@ -11,6 +11,9 @@ See the READMEs in each component for more information.
 We are using the 'Utukku' name as a place holder since these libraries are
 not officialy part of Bamboo.
 
+For more information on how to use the libraries to build a server, client,
+or agent, see {the Corpora Camp planning document}[https://wiki.projectbamboo.org/display/BTECH/Corpora+Camp+Platform+API].
+
 N.B.: The Perl libraries are not being maintained for now.  The Ruby and
 JavaScript libraries are undergoing development in preparation for
 Corpora Camp.
