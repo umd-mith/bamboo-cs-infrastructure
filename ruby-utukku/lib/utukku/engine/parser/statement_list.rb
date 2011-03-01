@@ -76,7 +76,6 @@ class Utukku::Engine::Parser::StatementList < Utukku::Engine::Expression
 
   def build_async(context, autovivify, callbacks)
     if self.is_noop?
-puts "noop - calling :done"
       callbacks[:done]
     else
       self.build_partial_async(context, autovivify, @statements, callbacks)

@@ -64,7 +64,7 @@ module_eval(<<'...end engine-parser.racc/module_eval...', 'engine-parser.racc', 
     :event_type => %r{(?:processing-instruction|comment|text|node)},
     :axis_name => %r{(?:attribute|child|child-or-self|descendant|descendant-or-self|method|self)},
     :namespace_name => %r{(?:context|global|local|session|universal)},
-    :number => %r{(-?\d+(?:\.\d+)?|\.\d+)},
+    :number => %r{((?:-?[0-9_]+(?:\.[0-9_]+)?|\.[0-9_]+)|(?:-?[0-9_]+/[0-9_]+))},
     :literal => %r{((?:"(?:[^\\"]*(?:\\.[^\\"]*)*)")|(?:'(?:[^\\']*(?:\\.[^\\']*)*)'))},
   }
 
@@ -308,6 +308,10 @@ module_eval(<<'...end engine-parser.racc/module_eval...', 'engine-parser.racc', 
           @col = @col - s.length
           @token = [ :LITERAL, s ]
         elsif !res[7].nil?
+          n = res[7].gsub(/_/,'')
+          if n =~ /(.*)\/(.*)/
+            n = Rational.new($1, $2)
+          end
           @token = [ :NUMBER, res[7] ]
         elsif !res[8].nil?
           @curpos = @curpos + 1

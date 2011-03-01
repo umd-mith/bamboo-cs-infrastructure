@@ -4,6 +4,7 @@ require 'utukku/client'
 require 'optparse'
 require 'terminal-table'
 
+
 module Utukku
   class Shell
     require 'utukku/shell/io-method'
@@ -14,6 +15,11 @@ module Utukku
     rescue
       @@READLINE_AVAILABLE = false
     end
+
+    class Interrupt < StandardError
+    end
+
+    trap("INT") { raise Utukku::Shell::Interrupt }
 
     def initialize(&block)
       @no_pager = false
@@ -79,8 +85,12 @@ module Utukku
       end
 
 
-      self.print "utukku shell -- Utukku (v#{Utukku::VERSION})\n"
-      self.print "ReadLine support enabled\n" if @use_readline
+      self.print "\n"
+      self.print "                     utukku shell -- Utukku (v#{Utukku::VERSION})\n"
+      self.print "\n"
+      self.print "Use \\? to see a list of commands\n"
+      self.print "Use \\quit to quit\n"
+      self.print "\n"
 
       begin
         self.load_file(@config_file)
@@ -88,7 +98,12 @@ module Utukku
         # ignore errors loading config file
       end
 
-      self.run_until_eof
+      begin
+        self.run_until_eof
+      rescue Utukku::Shell::Interrupt
+        self.print("Interrupted\n")
+        retry
+      end
     end
 
     def config_file(f)

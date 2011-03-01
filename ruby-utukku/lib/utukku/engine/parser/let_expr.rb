@@ -10,4 +10,11 @@ class Utukku::Engine::Parser::LetExpr
     context.set_var(@name, result)
     return [ ]
   end
+
+  def build_async(context, autovivify, callbacks)
+    proc {
+      self.run(context, autovivify)
+      callbacks[:done].call()
+    }
+  end
 end

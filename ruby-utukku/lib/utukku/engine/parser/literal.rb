@@ -12,7 +12,7 @@ class Utukku::Engine::Parser::Literal
     return [ context.root.anon_node(@lit, @type) ]
   end
 
-  def invert(context, av, callbacks)
+  def build_async(context, av, callbacks)
     proc {
       callbacks[:next].call(context.root.anon_node(@lit, @type))
       callbacks[:done].call()
@@ -40,7 +40,7 @@ class Utukku::Engine::Parser::Var
     return v.is_a?(Array) ? v : [ v ]
   end
 
-  def invert(context, av, callbacks)
+  def build_async(context, av, callbacks)
     proc {
       v = context.get_var(@var)
       if v.is_a?(Utukku::Engine::Iterator)
