@@ -32,7 +32,8 @@ class Utukku::Server::Connection
   end
 
   def remote_host(hostname = false)
-    (@socket.tcp_socket.addr)[hostname ? 2 : 3]
+    h = @socket.tcp_socket.peeraddr[2]
+    (hostname ? h : IPSocket::getaddress(h))
   end
 
   def run
