@@ -215,9 +215,11 @@ Commands:
 })
         when 'quit'
           if @client
-            @client.interactive = false
-            @client.manage_flow_lock
-            @client.close
+            Thread.new do
+              @client.interactive = false
+              @client.manage_flow_lock
+              @client.close
+            end
           end
           exit(0)
         when 'connect'
