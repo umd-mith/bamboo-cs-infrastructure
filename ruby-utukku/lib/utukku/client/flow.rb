@@ -1,12 +1,20 @@
-class Utukku::Client::Flow
-  attr_accessor :mid
+require 'utukku/engine/constant_iterator'
 
-  def initialize(client, expression, namespaces, iterators, callbacks)
+class Utukku::Client::Flow
+  attr_accessor :mid, :done
+
+  def initialize(client, expression, namespaces, iterators, context, callbacks)
     @client = client
     @expression = expression
     @namespaces = namespaces
     @iterators = iterators
+    @iterators.keys.each do |k|
+      if !@iterators[k].is_a?(Utukku::Engine::Iterator) 
+        @iterators[k] = Utukku::Engine::ConstantIterator.new(@iterators[k])
+      end
+    end
     @callbacks = callbacks
+    @context = context
   end
 
   def create
@@ -24,20 +32,41 @@ class Utukku::Client::Flow
     @iterators.keys.collect { |k|
       @iterators[k].async({
         :next => proc { |v|
-          @client.request('flow.provide', { k => v }, @mid)
+          if v.is_a?(Utukku::Engine::Memory::Node)
+            if v.value.kind_of?(Numeric)
+              if v.value.denominator != 1
+                @client.request('flow.provide', { k => "#{v.value.numerator}/#{v.value.denominator}" }, @mid)
+              else
+                @client.request('flow.provide', { k => v.value.numerator }, @mid)
+              end
+            else
+              @client.request('flow.provide', { k => v.to_s }, @mid)
+            end
+          else
+            @client.request('flow.provide', { k => v }, @mid)
+          end
         },
         :done => proc {
           @client.request('flow.provided', [ k ], @mid)
         }
       })
     }
+    @done = false
   end
 
   def message(klass, data)
     case klass
       when 'flow.produce'
-        data.each { |i| @callbacks[:next].call(i) }
+        data.each { |i| 
+          if i =~ /^(-?\d+)\/(\d+)$/
+            i = @context.root.anon_node( Rational.new($1, $2) )
+          else
+            i = @context.root.anon_node( i )
+          end
+          @callbacks[:next].call(i) 
+        }
       when 'flow.produced'
+        @done = true
         self.terminate
     end
   end

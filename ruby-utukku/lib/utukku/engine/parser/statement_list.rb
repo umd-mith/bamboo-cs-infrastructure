@@ -74,22 +74,25 @@ class Utukku::Engine::Parser::StatementList < Utukku::Engine::Expression
     return result
   end
 
-  def async(context, autovivify, callbacks)
+  def build_async(context, autovivify, callbacks)
     if self.is_noop?
+puts "noop - calling :done"
       callbacks[:done]
     else
-      stmts = @statements
-      stmt = stmts.pop
-      subs = stmt.async(context, autovivify, callbacks)
-      until stmts.empty?
-        stmt = stmts.pop
-        old_subs = subs
-        subs = stmt.async(context, autovivify, {
-          :next => proc { },
-          :done => proc { old_subs.each { |s| s.call() } }
-        })
-      end
-      subs
+      self.build_partial_async(context, autovivify, @statements, callbacks)
+    end
+  end
+
+  def build_partial_async(context, autovivify, stmts, callbacks)
+    if stmts.size == 0
+      callbacks[:done]
+    elsif stmts.size == 1
+      stmts.first.build_async(context, autovivify, callbacks)
+    else
+      stmts.first.build_async(context, autovivify, {
+        :next => proc { },
+        :done => proc { self.build_partial_async(context, autovivify, stmts[1..stmts.size-1], callbacks) }
+      }).call()
     end
   end
 end

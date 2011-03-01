@@ -40,6 +40,9 @@ class Utukku::Agent::Flow
 
   def provide(iterators)
     iterators.each_pair do |i,v|
+      if v =~ /^(-?\d+)\/(\d+)$/
+        v = Rational.new($1, $2)
+      end
       @iterator_objs[i].push(@context.root.anon_node(v))
     end
   end

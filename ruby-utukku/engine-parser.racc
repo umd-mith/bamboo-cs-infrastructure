@@ -147,6 +147,7 @@ rule
   axis: node_test { result = Utukku::Engine::Parser::AxisChild.new(val[0]) }
     | axis_name node_test { result = Utukku::Engine::Parser::Axis.new(val[0], val[1]) }
     | AT node_test { result = Utukku::Engine::Parser::AxisAttribute.new(val[1]) }
+    | HASH node_test { result = Utukku::Engine::Parser::AxisMethod.new(val[1]) }
 
   axis_name: AXIS_NAME COLON_COLON { result = Utukku::Engine::Parser::Axis.new(val[0]) }
 
@@ -226,7 +227,7 @@ end
   def parse(text, context)
     @source = text
     @curpos = 0
-    @context = context.merge
+    @context = context #.merge
     @line = 0
     @col = 0
 
@@ -245,7 +246,7 @@ end
 
 
   @@regex = {
-    :simple_tokens => %r{\.\.|::|!=|>=|<=|\/\/|\/>|:=|\.|@|[*]|\(|\)|\[|\]|\{|\}|\/|\||\+|-|=|>|<|&|,|;},
+    :simple_tokens => %r{\.\.|::|!=|>=|<=|\/\/|\/>|:=|\.|@|[*]|\(|\)|\[|\]|\{|\}|\/|\||\+|-|=|>|<|&|,|;|#},
     :ncname => %r{(?:[a-zA-Z_][-a-zA-Z0-9_.]*)},
     :event_type => %r{(?:processing-instruction|comment|text|node)},
     :axis_name => %r{(?:attribute|child|child-or-self|descendant|descendant-or-self|method|self)},
@@ -289,7 +290,8 @@ end
     '<'  => :LT,
     '&'  => :AMP,
     ','  => :COMMA,
-    ';'  => :SEMI
+    ';'  => :SEMI,
+    '#'  => :HASH,
   }
 
   @@preceding_tokens = { }

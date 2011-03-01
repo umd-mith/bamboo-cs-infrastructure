@@ -10,6 +10,8 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
       else
         @iterator = Utukku::Engine::UnionIterator.new(it)
       end
+    elsif !it.is_a?(Utukku::Engine::Iterator)
+      @iterator = Utukku::Engine::ConstantIterator.new(it)
     else
       @iterator = it
     end

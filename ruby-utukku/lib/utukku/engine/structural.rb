@@ -10,7 +10,6 @@ class Utukku::Engine::Structural < Utukku::Engine::Action
   end
 
   def compile_xml(xml, context = nil)
-puts "Compiling #{self.class.name}"
     if xml.is_a?(String)
       doc = Nokogiri::XML::Document.parse(xml)
       doc = doc.root

@@ -17,7 +17,6 @@ module Utukku::Engine::Core::Actions
     has_actions
 
     def run(context, autovivify = false)
-puts "Setting #{self.path}"
       @context.with(context) do |ctx|
         ctx.set_value(self.path, @select.nil? ? @actions : @select )
       end

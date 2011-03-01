@@ -212,7 +212,7 @@ class Utukku::Engine::TagLib
     ret = Utukku::Engine::NullIterator.new
     case self.function_run_type(nom)
     when :mapping
-      args = args.collect{ |a| a.run(context) }
+      args = args.flatten #collect{ |a| a.run(context) }
       ret = Utukku::Engine::MapIterator.new(
         (args.size > 1 ? Utukku::Engine::UnionIterator.new(args) :
         args.size == 1 ? args.first :
@@ -220,7 +220,7 @@ class Utukku::Engine::TagLib
         proc { |a| send "fctn:#{nom}", context, a }
       )
     when :reduction
-      args = args.collect{ |a| a.run(context) }
+      args = args.flatten #.collect{ |a| a.run(context) }.flatten
       acc = [ ]
       ret = Utukku::Engine::ReductionIterator.new(
         (args.size > 1 ? Utukku::Engine::UnionIterator.new(args) :
@@ -231,7 +231,7 @@ class Utukku::Engine::TagLib
         }
       )
     when :consolidation
-      args = args.collect{ |a| a.run(context) }
+      args = args.flatten #collect{ |a| a.run(context) }
       acc = [ ]
       fctn = nil
       if respond_to?("fctn:#{nom}")
@@ -261,14 +261,14 @@ class Utukku::Engine::TagLib
     #begin
       case self.function_run_type(nom)
       when :mapping
-        ret = args.flatten.collect { |a| send "fctn:#{nom}", context, a }
+        ret = args.to_a.flatten.collect { |a| send "fctn:#{nom}", context, a }
       when :reduction
-        ret = send "fctn:#{nom}", context, args.flatten
+        ret = send "fctn:#{nom}", context, args.to_a.flatten
       when :consolidation
         if respond_to?("fctn:#{nom}")
-          ret = send "fctn:#{nom}", context, args.flatten
+          ret = send "fctn:#{nom}", context, args.to_a.flatten
         elsif nom =~ /^consolidation:(.*)$/
-          ret = send "fctn:#{$1}", context, args.flatten
+          ret = send "fctn:#{$1}", context, args.to_a.flatten
         else
           ret = [ ]
         end

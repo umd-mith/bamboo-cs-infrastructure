@@ -2,6 +2,7 @@ require 'rubygems'
 require 'utukku/client'
 require 'utukku/engine'
 require 'utukku/engine/constant_range_iterator'
+#require 'example/tag_lib'
 
 range = 1000
 num_times = 1000

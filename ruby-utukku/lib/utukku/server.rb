@@ -86,6 +86,7 @@ module Utukku
       @agents.push(agent)
       agent.namespaces.each_pair do |ns, config|
         @namespace_configs[ns] ||= Utukku::Server::Config::Namespace.new(ns, self)
+logger.debug "Adding agent to #{ns}"
         @namespace_configs[ns].add_agent(agent)
       end
     end

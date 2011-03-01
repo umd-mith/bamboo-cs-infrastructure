@@ -12,7 +12,26 @@ class Utukku::Engine::TagLib::Remote
     @mappings = config['mappings'].inject({}) { |s,f| s[f] = true; s }
   end
 
-  def function_to_iterator(nom, args)
+  # do remote function call synchronously -- nothing else can happen in this
+  #   thread while we wait
+  def run_function(context, nom, args)
+    it = function_to_iterator(context, nom, args)
+    acc = [ ]
+    done = false
+    #mutex = Mutex.new
+    it.async({
+      :next => proc { |v| acc.push(v) }, #mutex.try_lock; acc.push(v) },
+      :done => proc { done = true } #mutex.unlock }
+    })
+    #mutex.lock
+    until done
+      sleep 0.1
+#      @client.wake
+    end
+    acc
+  end
+
+  def function_to_iterator(ctx, nom, args)
     return Utukku::Engine::NullIterator.new unless self.client
 
     iterators = { }
@@ -34,6 +53,6 @@ class Utukku::Engine::TagLib::Remote
 
     expression = 'x:' + nom + '(' +
       (vars.empty? ? '' : '$') + vars.join(', $') + ')'
-    Utukku::Client::FlowIterator.new(@client, expression, { 'x' => @ns }, iterators)
+    Utukku::Client::FlowIterator.new(@client, expression, { 'x' => @ns }, iterators, ctx)
   end
 end

@@ -6,7 +6,7 @@ module Example
   namespace 'http://www.example.com/echo/1.0#'
 
   mapping 'double' do |ctx, arg|
-    arg.value * 2
+    (arg.value * 2 rescue arg * 2)
   end
 
   end

@@ -1,4 +1,5 @@
 require 'utukku/engine/iterator'
+require 'utukku/engine/constant_iterator'
 
 class Utukku::Engine::UnionIterator < Utukku::Engine::Iterator
   def initialize(iterators)
@@ -21,7 +22,12 @@ class Utukku::Engine::UnionIterator < Utukku::Engine::Iterator
       }
     }
 
-    inits = @iterators.collect{ |i| i.build_async(next_callbacks) }
+    inits = @iterators.collect{ |i| 
+      if !i.is_a?(Utukku::Engine::Iterator)
+        i = Utukku::Engine::ConstantIterator.new(i)
+      end
+      i.build_async(next_callbacks) 
+    }
 
     # we could call these in parallel
     proc {

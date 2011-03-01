@@ -38,15 +38,10 @@ class Utukku::Server::Connection
   def run
     # we need to let clients know what namespaces are available
     @running = true
-    #self.send({
-    #  'class' => 'flow.namespaces.registered',
-    #  'data' => @server.namespaces
-    #})
     self.send([ 'flow.namespaces.registered', nil, @server.namespaces ])
 
-    begin
+    #begin
       while data = @socket.receive
-
         msg = [ ]
         bits = data.split(/,/,3)
 
@@ -60,9 +55,9 @@ class Utukku::Server::Connection
           self.client_handler(msg)
         end
       end
-    rescue => e
-      logger.error "Error reading or processing: #{e}"
-    end
+    #rescue => e
+    #  logger.error "Error reading or processing: #{e}"
+    #end
     @running = false
   end
 

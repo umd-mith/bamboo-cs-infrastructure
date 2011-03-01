@@ -11,6 +11,7 @@ module Utukku
     @url = url
     @frames = [ ]
     @should_close = false
+    @done = false
   end
 
   def connect(&block)
@@ -25,6 +26,7 @@ module Utukku
         break if @done 
       end
     end
+    @reader.run
   end
 
   def next
@@ -35,8 +37,12 @@ module Utukku
     @client.send(data.to_json)
   end
 
+  def wake
+    @reader.run if @reader.status == 'sleep'
+  end
+
   def close(immediate = false)
-    @reader.kill if @reader && immediate
+    @reader.kill if @reader && (immediate || @done)
     @reader.join if @reader
   end
 

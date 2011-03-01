@@ -1,7 +1,6 @@
 class Utukku::Engine::Action
 
   def compile_xml(xml, context)
-puts "Compiling #{self.class.name}"
     @context = context.merge(xml)
     self.setup(xml)
     self
@@ -81,19 +80,19 @@ puts "Compiling #{self.class.name}"
     self.run_actions(@context.merge(context))
   end
 
-   def run(context, autovivify = false)
-     ret = []
-     @@run_time ||= { }
-     @context.with(context) do |ctx|
-       proc = @@run_time[self.class.name]
-       if !proc.nil?
-         ret = self.instance_eval {
-           proc.call(ctx, autovivify)
-         }
-       end
-     end
-     ret
-   end
+#   def run(context, autovivify = false)
+#     ret = []
+#     @@run_time ||= { }
+#     @context.with(context) do |ctx|
+#       proc = @@run_time[self.class.name]
+#       if !proc.nil?
+#         ret = self.instance_eval {
+#           proc.call(ctx, autovivify)
+#         }
+#       end
+#     end
+#     ret
+#   end
 
 protected
 

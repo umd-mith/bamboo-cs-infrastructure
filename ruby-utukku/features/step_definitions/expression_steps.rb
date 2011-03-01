@@ -46,7 +46,7 @@ When /I run the (expression \(.*\))/ do |exp|
   @expr = exp
   @cp = @data
   #puts YAML::dump(@expr)
-  @result = @expr.run(@context.with_root(@cp))
+  @result = @expr.run(@context.with_root(@cp)).to_a
   #puts YAML::dump(@result)
 end
 
@@ -76,7 +76,7 @@ Then /I should get (\d+) items?/ do |count|
 end
 
 Then /item (\d+) should be (\[.*\])/ do |i,t|
-  test = t.run(@context.with_root(@cp)).first
+  test = t.run(@context.with_root(@cp)).to_a.first
    #puts "Result: #{@result[i.to_i].to_s.class.to_s}"
   @result[i.to_i].to_s.should == test.to_s
 end
@@ -90,8 +90,8 @@ Then /item (\d+) should be true/ do |i|
 end
 
 Then /the (expression \(.*\)) should equal (\[.*\])/ do |x, y|
-  a = x.run(@context)
-  b = y.run(@context)
+  a = x.run(@context).to_a
+  b = y.run(@context).to_a
   #puts YAML::dump(a)
   #puts YAML::dump(b)
   #puts YAML::dump(@context)
@@ -99,5 +99,5 @@ Then /the (expression \(.*\)) should equal (\[.*\])/ do |x, y|
 end
 
 Then /the (expression \(.*\)) should be nil/ do |x|
-  x.run(@context).first.should == nil
+  x.run(@context).to_a.first.should == nil
 end

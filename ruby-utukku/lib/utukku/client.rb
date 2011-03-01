@@ -10,7 +10,7 @@ end
 
 class Utukku::Client
 
-  attr_accessor :url
+  attr_accessor :url, :interactive
 
   def initialize(url = nil, &block)
     @url = url
@@ -19,6 +19,7 @@ class Utukku::Client
     @uuid = UUID.new
 
     @request_id = 0
+    @interactive = false
 
     @connection = Utukku::Client::Connection.new(@url)
 
@@ -56,7 +57,7 @@ class Utukku::Client
   end
 
   def manage_flow_lock
-    @connection.done = @flows.empty?
+    @connection.done = @flows.empty? && !@interactive
   end
 
   def deregister_flow(flow)
@@ -68,7 +69,8 @@ class Utukku::Client
     case msg['class']
       when 'flow.namespaces.registered'
         msg['data'].keys.each { |ns|
-          if Utukku::Engine::TagLib::Registry.instance.handler(ns).nil?
+          if Utukku::Engine::TagLib::Registry.instance.handler(ns).nil? ||
+             Utukku::Engine::TagLib::Registry.instance.handler(ns).kind_of?(Utukku::Engine::TagLib::Remote)
             h = Utukku::Engine::TagLib::Remote.new(ns, msg['data'][ns])
             h.client = self
             Utukku::Engine::TagLib::Registry.instance.handler(ns, h)
@@ -96,11 +98,6 @@ class Utukku::Client
       @queue ||= [ ]
       @queue += [ { 'id' => mid, 'class' => klass, 'data' => data } ]
     else
-#      @connection.send({
-#        'id' => mid,
-#        'class' => klass,
-#        'data' => data
-#      })
       @connection.send([ klass, mid, data ])
     end
     mid
@@ -112,13 +109,18 @@ class Utukku::Client
     end
   end
 
+  def wake
+    @connection.wake
+  end
+
   ## convenience method for calling functions
   def function(ns, nom, args, callbacks)
+    context = Utukku::Engine::Context.new
     handler = Utukku::Engine::TagLib::Registry.instance.handler(ns)
     if handler.nil?
       callbacks[:done].call()
     else
-      iterator = handler.function_to_iterator(nom, args)
+      iterator = handler.function_to_iterator(context, nom, args)
       iterator.async(callbacks)
     end
   end

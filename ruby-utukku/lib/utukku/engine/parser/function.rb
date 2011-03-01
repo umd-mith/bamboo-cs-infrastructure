@@ -35,15 +35,15 @@ class Utukku::Engine::Parser::Function < Utukku::Engine::Expression
 
   def build_async(context, av, callbacks)
     klass = Utukku::Engine::TagLib.namespaces[@ns]
-    return [] if klass.nil?
+    return callbacks[:done] if klass.nil?
     ctx = @ctx.merge(context)
     ret = klass.function_to_iterator(
-      ctx, @name, @args
+      ctx, @name, @args.run(ctx)
     )
     if @name =~ /\?$/
-      ret = Utukku::Engine::MapIterator.new(
-        ret, proc { |v| v.to([Utukku::Engine::NS::FAB, 'boolean']) }
-      )
+      ret = Utukku::Engine::MapIterator.new(ret) { |v|
+        v.to([Utukku::Engine::NS::FAB, 'boolean']) 
+      }.build_async(callbacks)
     end
     ret.build_async(callbacks)
   end

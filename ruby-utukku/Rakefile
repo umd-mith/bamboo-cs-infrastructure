@@ -1,0 +1,66 @@
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "utukku"
+    gem.summary = %Q{Core compute engine and interface library.}
+    gem.description = %Q{The utukku library and compute engine provide a platform for building distributed digital humanities projects.}
+    gem.email = "jgsmith@gmail.com"
+    gem.homepage = "http://github.com/umd-mith/bamboo-cs-infrastructure/ruby-utukku"
+    gem.authors = ["James Smith"]
+    gem.add_dependency(%q<nokogiri>, [">= 1.4.0"])
+#    gem.add_dependency(%q<radius>, [">= 0.6.1"])
+    gem.add_dependency(%q<RedCloth>, [">= 4.2.0"])
+    gem.add_dependency(%q<activesupport>, [">= 2.3.0"])
+    gem.add_dependency(%q<terminal-table>, [">= 1.4.2"])
+    gem.add_dependency(%q<log4r>, [">= 1.1.9"])
+  end
+rescue LoadError
+  puts "Jeweler (or a dependency) not available.  This is only required if you plan to package utukku as a gem."
+end
+
+require 'rake'
+require 'rake/rdoctask'
+require 'rake/testtask'
+
+require 'cucumber'
+require 'cucumber/rake/task'
+
+task :features => 'spec:integration'
+
+namespace :spec do
+
+  desc "Run the Cucumber features"
+  Cucumber::Rake::Task.new(:integration) do |t|
+    t.fork = true
+    t.cucumber_opts = ['--format', (ENV['CUCUMBER_FORMAT'] || 'pretty')]
+    t.profile = "default"
+  end
+
+end
+
+namespace :update do
+  desc "update the manifest"
+  task :manifest do
+    system %q[touch Manifest.txt; rake check_manifest | grep -v "(in " | patch]
+  end
+end
+
+desc 'Generate documentation for the fabulator exhibit extension.'
+Rake::RDocTask.new(:rdoc) do |rdoc|
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title    = 'Fabulator'
+  rdoc.options << '--line-numbers' << '--inline-source'
+  rdoc.rdoc_files.include('README')
+  rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+# For extensions that are in transition
+desc 'Test the fabulator exhibit extension.'
+Rake::TestTask.new(:test) do |t|
+  t.libs << 'lib'
+  t.pattern = 'test/**/*_test.rb'
+  t.verbose = true
+end
+
+# Load any custom rakefiles for extension
+Dir[File.dirname(__FILE__) + '/tasks/*.rake'].sort.each { |f| require f }

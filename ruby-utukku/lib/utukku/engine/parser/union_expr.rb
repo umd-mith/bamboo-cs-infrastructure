@@ -13,4 +13,8 @@ class Utukku::Engine::Parser::UnionExpr
     #Utukku::Engine::UnionIterator.new(@exprs.collect{ |x| x.run(context, autovivify) })
     @exprs.inject([]) { |r,x| r + x.run(context, autovivify) }
   end
+
+  def build_async(context, autovivify, callbacks)
+    Utukku::Engine::UnionIterator.new(@exprs.collect{|x| x.run(context, autovivify) }).build_async(callbacks)
+  end
 end
