@@ -16,18 +16,18 @@ class Utukku::Engine::Parser::IfExpr
     return res
   end
 
-  def async(context, autovivify, callbacks)
+  def build_async(context, autovivify, callbacks)
     then_run = false
-    @test.async(context,false,{
+    @test.build_async(context,false,{
       :next => proc { |b|
-        if !then_run && !!b
+        if !then_run && !b.nil? && !!b.value
           then_run = true
-          @then.async(context, autovivify, callbacks).call()
+          @then_expr.async(context, autovivify, callbacks)
         end
       },
       :done => proc {
         if !then_run && @else_expr
-          @else_expr.async(context, autovivify, callbacks).call()
+          @else_expr.async(context, autovivify, callbacks)
         else
           callbacks[:done].call()
         end

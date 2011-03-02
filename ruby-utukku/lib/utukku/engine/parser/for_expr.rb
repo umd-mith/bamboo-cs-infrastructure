@@ -1,4 +1,4 @@
-class Utukku::Engine::Parser::ForExpr
+class Utukku::Engine::Parser::ForExpr < Utukku::Engine::Expression
   def initialize(v, e)
     if v.size > 1
       @var = v.shift

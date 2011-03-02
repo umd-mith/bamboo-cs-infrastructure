@@ -188,7 +188,7 @@ module Utukku
           })
           until done
             @client.wake
-            sleep 0.01
+            sleep 0.05
           end
         else
           unless @suppress_narrative

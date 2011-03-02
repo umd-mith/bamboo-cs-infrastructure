@@ -1,4 +1,4 @@
-class Utukku::Engine::Parser::Literal
+class Utukku::Engine::Parser::Literal < Utukku::Engine::Expression
   def initialize(e, t = nil)
     @lit = e
     @type = t
@@ -20,7 +20,7 @@ class Utukku::Engine::Parser::Literal
   end
 end
 
-class Utukku::Engine::Parser::Var
+class Utukku::Engine::Parser::Var < Utukku::Engine::Expression
   def initialize(v)
     @var = v
   end

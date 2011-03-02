@@ -25,7 +25,7 @@ class Utukku::Engine::TagLib::Remote
     })
     #mutex.lock
     until done
-      sleep 0.1
+      sleep 0.01
 #      @client.wake
     end
     acc
