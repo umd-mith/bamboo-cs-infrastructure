@@ -1,4 +1,4 @@
-require 'nokogiri'
+#require 'nokogiri'
 require 'active_support/inflector'
 
 class Utukku::Engine::Structural < Utukku::Engine::Action

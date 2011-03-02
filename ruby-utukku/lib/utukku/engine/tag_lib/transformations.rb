@@ -1,4 +1,4 @@
-require 'nokogiri'
+#require 'nokogiri'
 
 class Utukku::Engine::TagLib::Transformations
   def initialize
@@ -41,7 +41,7 @@ class Utukku::Engine::TagLib::Format
 
   def xslt_from_file(fpath)
     @xslt_file = fpath
-    @xslt = Nokogiri::XSLT(File.read(@xslt_file))
+    #@xslt = Nokogiri::XSLT(File.read(@xslt_file))
   end
 
   def get_root_namespaces
