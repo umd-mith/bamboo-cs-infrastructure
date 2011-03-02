@@ -2,7 +2,7 @@ require 'utukku/engine/null_iterator'
 require 'utukku/client/flow_iterator'
 
 class Utukku::Engine::TagLib::Remote
-  attr_accessor :client
+  attr_accessor :client, :functions, :reductions, :mappings, :consolidations
 
   def initialize(ns, config)
     @ns = ns

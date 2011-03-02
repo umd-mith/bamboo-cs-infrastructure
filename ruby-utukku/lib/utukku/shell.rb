@@ -230,6 +230,8 @@ Commands:
           self.reconnect
         when 'namespaces'
           self.namespaces
+        when 'namespace'
+          self.namespace(bits[1])
       end
     end
 
@@ -279,6 +281,41 @@ Commands:
       end
     end
 
+    def namespace(ns)
+      if !@context.get_ns(ns).nil?
+        ns = @context.get_ns(ns)
+      end
+      fctns = Utukku::Engine::TagLib::Registry.instance.describe_namespaces([ns])
+      fctns = fctns[ns]
+      if fctns.nil?
+        self.print("That namespace is not defined.\n")
+        return
+      end
+      names = fctns['mappings'] + fctns['consolidations'] + fctns['reductions'] + fctns['functions']
+      names = names.collect { |s| s.to_s }.uniq.sort
+      table = Terminal::Table.new do |t|
+        t.headings = 'Name', 'Type'
+        names.each do |nom|
+          if fctns['mappings'].include?(nom)
+            t << [ nom, 'mapping' ]
+          elsif fctns['reductions'].include?(nom)
+            if fctns['consolidations'].include?(nom)
+              t << [ nom, 'reduction*' ]
+            else
+              t << [ nom, 'reduction' ]
+            end
+          else
+            t << [ nom, 'function' ]
+          end
+        end
+      end
+      begin
+        self.print(table)
+      rescue
+        self.print("No functions are known.")
+      end
+    end
+
     def namespaces
       spaces = { }
       @context.each_namespace do |p, ns|
@@ -302,6 +339,7 @@ Commands:
       begin
         self.print(table)
       rescue
+        self.print("No namespaces are known.")
       end
     end
   end
