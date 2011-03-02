@@ -12,6 +12,9 @@ begin
     gem.add_dependency(%q<RedCloth>, [">= 4.2.0"])
     gem.add_dependency(%q<activesupport>, [">= 2.3.0"])
     gem.add_dependency(%q<terminal-table>, [">= 1.4.2"])
+    gem.add_dependency(%q<web-socket-ruby>, [">= 0.1.0"])
+    gem.add_dependency(%q<uuid>, [">= 2.3.1"])
+    gem.add_dependency(%q<json>, [">= 1.4.6"])
     gem.add_dependency(%q<log4r>, [">= 1.1.9"])
   end
 rescue LoadError
