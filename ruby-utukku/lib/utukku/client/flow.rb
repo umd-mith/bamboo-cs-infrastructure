@@ -59,7 +59,7 @@ class Utukku::Client::Flow
       when 'flow.produce'
         data.each { |i| 
           if i =~ /^(-?\d+)\/(\d+)$/
-            i = @context.root.anon_node( Rational.new($1, $2) )
+            i = @context.root.anon_node( Rational($1, $2) )
           else
             i = @context.root.anon_node( i )
           end

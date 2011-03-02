@@ -30,7 +30,19 @@ class Utukku::Agent::Flow
   def start
     @parsed_expr.async(@context, false, {
       :next => proc { |v|
-        @agent.response('flow.produce', [ v ], @msg_id)
+        if v.is_a?(Utukku::Engine::Memory::Node)
+          if v.value.is_a?(Numeric)
+            if v.value.denominator != 1
+              @agent.response('flow.produce', [ "#{v.value.numerator}/#{v.value.denominator}" ], @msg_id)
+            else
+              @agent.response('flow.produce', [ v.value.numerator ], @msg_id)
+            end
+          else
+            @agent.response('flow.produce', [ v.to_s ], @msg_id)
+          end
+        else
+          @agent.response('flow.produce', [ v ], @msg_id)
+        end
       },
       :done => proc {
         @agent.response('flow.produced', {}, @msg_id)
@@ -41,7 +53,7 @@ class Utukku::Agent::Flow
   def provide(iterators)
     iterators.each_pair do |i,v|
       if v =~ /^(-?\d+)\/(\d+)$/
-        v = Rational.new($1, $2)
+        v = Rational($1.to_i, $2.to_i)
       end
       @iterator_objs[i].push(@context.root.anon_node(v))
     end
