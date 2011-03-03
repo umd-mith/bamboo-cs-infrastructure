@@ -58,7 +58,10 @@ class Utukku::Client::Flow
     case klass
       when 'flow.produce'
         data.each { |i| 
-          if i =~ /^(-?\d+)\/(\d+)$/
+          if i.is_a?(Hash)
+            # build tree from hash
+            i = @context.root.node_from_hash( i )
+          elsif i =~ /^(-?\d+)\/(\d+)$/
             i = @context.root.anon_node( Rational($1, $2) )
           else
             i = @context.root.anon_node( i )

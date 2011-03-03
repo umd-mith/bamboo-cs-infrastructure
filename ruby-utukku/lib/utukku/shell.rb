@@ -175,17 +175,19 @@ module Utukku
           it.async(@context, false, {
             :next => @silent ? proc { |v| } : proc { |v|
               if v.is_a?(Utukku::Engine::Memory::Node)
-                if v.name.nil? && v.value.nil?
-                  v = v.children.collect{ |vv| vv.value }
-                else
-                  v = v.value
+                ta = v.to_table_array
+                table = Terminal::Table.new do |t|
+                  t.headings = 'Path', 'Value'
+                  ta.select{ |r| r[0] && r[1] }.sort_by {|o| o[0]}.each { |r| t << r }
                 end
-              end
-              if is_first
-                self.print(v)
-                is_first = false
+                self.print(table)
               else
-                self.print(", #{v}")
+                if is_first
+                  self.print(v)
+                  is_first = false
+                else
+                  self.print(", #{v}")
+                end
               end
             },
             :done => @silent ? proc { done = true } : proc {

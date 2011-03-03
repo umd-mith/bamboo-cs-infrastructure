@@ -22,10 +22,20 @@ module UtukkuX
       function 'query' do |ctx, args|
         # build params for elastic search query
 puts "query called!"
+        request = {}
+       # request.update( { :query  => @query } )
+       # request.update( { :sort   => @sort } )   if @sort
+       # request.update( { :facets => @facets } ) if @facets
+       # request.update( { :size => @size } )     if @size
+       # request.update( { :from => @from } )     if @from
+       # request.update( { :fields => @fields } ) if @fields
+
+        
+        
         Utukku::Engine::RestClientIterator.new({
           :method => :get,
           :url => @@elastic_search_url,
-          :params => { }
+          :params => request
         }) do |res|
           results = JSON::decode(res.body)
 puts YAML::dump(results)
@@ -39,6 +49,16 @@ puts YAML::dump(results)
       }
 
       function 'facets' do |ctx, args|
+        return Utukku::Engine::ConstantIterator.new([
+          { 'label' => '_lucene',
+            'type' => 'query',
+          },
+          { 'label' => 'year',
+            'type' => 'date',
+            'min' => 1100,
+            'max' => 2200
+          }
+        ])
         Utukku::Engine::RestClientIterator.new({
         }) do |res|
           results = JSON::decode(res.body)

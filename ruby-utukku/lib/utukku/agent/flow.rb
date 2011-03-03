@@ -37,8 +37,10 @@ class Utukku::Agent::Flow
             else
               @agent.response('flow.produce', [ v.value.numerator ], @msg_id)
             end
-          else
+          elsif !v.value.nil?
             @agent.response('flow.produce', [ v.to_s ], @msg_id)
+          else # children?
+            @agent.response('flow.produce', [ v.to_h ], @msg_id)
           end
         else
           @agent.response('flow.produce', [ v ], @msg_id)

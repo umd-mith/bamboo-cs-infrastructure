@@ -31,6 +31,24 @@ module Utukku::Engine::Memory
       @is_attribute
     end
 
+    def node_from_hash(hash)
+      root = self.anon_node(hash['value'])
+      root.name = hash['name']
+      if hash['children']
+        hash['children'].each do |c|
+          root.add_child( self.node_from_hash(c) )
+        end
+      end
+      root
+    end
+
+    def to_table_array
+      @children.inject([ [ self.path, self.value ] ]) do |acc, c|
+        acc += c.to_table_array
+        acc
+      end
+    end
+
     def axis
       @axis
     end
