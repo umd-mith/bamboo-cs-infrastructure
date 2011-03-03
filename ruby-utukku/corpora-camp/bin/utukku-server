@@ -1,0 +1,46 @@
+require 'rubygems'
+require 'utukku/server'
+
+Utukku::Server.new do 
+  port 4242
+  accepted_domains ["*"]
+
+  logging do
+    outputters = Log4r::Outputter.stderr
+    level = Log4r::INFO
+  end
+
+  namespace 'http://www.example.com/corpora-camp/ns/collections'
+    multiple
+    deny_from_all
+    allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
+  end
+
+  namespace 'http://www.example.com/corpora-camp/ns/woodchipper'
+    singular
+    round_robin
+    deny_from_all
+    allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
+  end
+
+  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/features'
+    singular
+    round_robin
+    deny_from_all
+    allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
+  end
+
+  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/reducer'
+    singular
+    round_robin
+    deny_from_all
+    allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
+  end
+
+  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/url-builder'
+    singular
+    round_robin
+    deny_from_all
+    allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
+  end
+end
