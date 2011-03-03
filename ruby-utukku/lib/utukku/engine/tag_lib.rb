@@ -12,6 +12,7 @@ class Utukku::Engine::TagLib
   require 'utukku/engine/map_iterator'
   require 'utukku/engine/union_iterator'
   require 'utukku/engine/reduction_iterator'
+  require 'utukku/engine/accumulator_iterator'
 
   @@action_descriptions = {}
   @@structural_descriptions = {}
@@ -250,7 +251,10 @@ class Utukku::Engine::TagLib
           )
     else
  ## TODO: fix this for functions
-      ret = Utukku::Engine::NullIterator.new
+      args = args.flatten
+      ret = Utukku::Engine::AccumulatorIterator.new(args) do |args2|
+              self.run_function(context, nom, args2)
+            end
     end
     return ret
   end
@@ -376,7 +380,9 @@ class Utukku::Engine::TagLib
       Utukku::Engine::TagLib::Registry.instance.handler(ns, self.new)
     end
 
-    def namespace(ns)
+    def namespace(ns = nil)
+      return @namespace if ns.nil?
+      @namespace = ns
       Utukku::Engine::TagLib::Registry.instance.handler(ns, self.new)
     end
 
@@ -468,14 +474,36 @@ class Utukku::Engine::TagLib
     end
 
 
-    def function(name, returns = nil, takes = nil, &block)
+    def function(name, options = { }, &block)
       Utukku::Engine::TagLib.functions[self.name] ||= {}
       Utukku::Engine::TagLib.functions[self.name][name.to_sym] = { }
-      self.function_descriptions[name.to_sym] = { :returns => returns, :takes => takes }
+      #self.function_descriptions[name.to_sym] = { :returns => returns, :takes => takes }
       self.function_descriptions[name.to_sym][:description] = Utukku::Engine::TagLib.last_description if Utukku::Engine::TagLib.last_description
       #self.function_args[name] = { :return => returns, :takes => takes }
       Utukku::Engine::TagLib.last_description = nil
-      define_method("fctn:#{name}", &block)
+      if block
+        define_method("fctn:#{name}", &block)
+      else
+        parser = Utukku::Engine::Parser.new
+        context = Utukku::Engine::Context.new
+        if options[:namespaces]
+          options[:namespaces].each_pair do |p, ns|
+            context.set_ns(p.to_s, ns)
+          end
+        end
+        context.set_ns('my', self.namespace)
+        expr = parser.parse(options[:code], context)
+        define_method("fctn:#{name}", proc { |ctx, args|
+          res = []
+          context.with(ctx) do |c|
+            args.size.times do |i|
+              c.set_var((i+1).to_s, args[i])
+            end
+            res = expr.run(c)
+          end
+          res 
+        })
+      end
     end
 
     def reduction(name, opts = {}, &block)
@@ -484,7 +512,10 @@ class Utukku::Engine::TagLib
       self.function_descriptions[name.to_sym] = { :type => :reduction }.merge(opts)
       self.function_descriptions[name.to_sym][:description] = Utukku::Engine::TagLib.last_description if Utukku::Engine::TagLib.last_description
       Utukku::Engine::TagLib.last_description = nil
-      define_method("fctn:#{name}", &block)
+      if block
+        define_method("fctn:#{name}", &block)
+      else
+      end
       cons = self.function_descriptions[name.to_sym][:consolidation]
       if !cons.nil?
         Utukku::Engine::TagLib.last_description = self.function_descriptions[name.to_sym][:description]
@@ -510,24 +541,44 @@ class Utukku::Engine::TagLib
       self.function_descriptions[name] = { :type => :mapping }.merge(opts)
       self.function_descriptions[name][:description] = Utukku::Engine::TagLib.last_description if Utukku::Engine::TagLib.last_description
       Utukku::Engine::TagLib.last_description = nil
-      define_method("fctn:#{name.to_s}", &block)
-    end
-
-    def function_decl(name, expr, ns)
-      parser = Utukku::Engine::Parser.new
-      fctn_body = parser.parse(expr, ns)
-
-      function name do |ctx, args, ns|
-        res = nil
-        ctx.in_context do
-          args.size.times do |i|
-            ctx.set_var((i+1).to_s, args[i])
+      if block
+        define_method("fctn:#{name.to_s}", &block)
+      else
+        parser = Utukku::Engine::Parser.new
+        context = Utukku::Engine::Context.new
+        if opts[:namespaces]
+          opts[:namespaces].each_pair do |p, ns|
+            context.set_ns(p.to_s, ns)
           end
-          res = fctn_body.run(ctx)
         end
-        res
+        context.set_ns('my', self.namespace)
+        expr = parser.parse(opts[:code], context)
+        define_method("fctn:#{name.to_s}", proc { |ctx, arg|
+          res = [ ]
+          context.with(ctx) do |c|
+            c.set_var("1", arg)
+            res = expr.run(c)
+          end
+          res 
+        })
       end
     end
+
+#    def function_decl(name, expr, ns)
+#      parser = Utukku::Engine::Parser.new
+#      fctn_body = parser.parse(expr, ns)
+#
+#      function name do |ctx, args, ns|
+#        res = nil
+#        ctx.in_context do
+#          args.size.times do |i|
+#            ctx.set_var((i+1).to_s, args[i])
+#          end
+#          res = fctn_body.run(ctx)
+#        end
+#        res
+#      end
+#    end
 
     def filter(name, &block)
       define_method("filter:#{name}", &block)

@@ -174,6 +174,13 @@ module Utukku
           done = false
           it.async(@context, false, {
             :next => @silent ? proc { |v| } : proc { |v|
+              if v.is_a?(Utukku::Engine::Memory::Node)
+                if v.name.nil? && v.value.nil?
+                  v = v.children.collect{ |vv| vv.value }
+                else
+                  v = v.value
+                end
+              end
               if is_first
                 self.print(v)
                 is_first = false

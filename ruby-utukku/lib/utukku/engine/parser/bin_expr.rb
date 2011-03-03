@@ -16,8 +16,8 @@ class Utukku::Engine::Parser::BinExpr < Utukku::Engine::Expression
     l = @left.run(context, autovivify)
     r = @right.run(context, autovivify)
 
-    l = [ l ] unless l.is_a?(Array)
-    r = [ r ] unless r.is_a?(Array)
+    l = [ l ] unless l.is_a?(Array) || l.is_a?(Utukku::Engine::Iterator)
+    r = [ r ] unless r.is_a?(Array) || l.is_a?(Utukku::Engine::Iterator)
 
     res = []
 

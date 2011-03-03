@@ -9,5 +9,13 @@ module Example
     (arg.value * 2 rescue arg * 2)
   end
 
+  mapping 'ddouble', {
+    :code => '$1 * 2'
+  }
+
+  function 'mpy', {
+    :code => '$1 * $2'
+  }
+
   end
 end

@@ -92,6 +92,7 @@ class Utukku::Server::Connection
   end
 
   def send(msg)
+    return unless @running
     begin
       if(msg[2].kind_of?(String))
         if(msg[1].nil?)
@@ -100,7 +101,7 @@ class Utukku::Server::Connection
           @socket.send("[\"#{msg[0]}\",\"#{msg[1]}\",#{msg[2]}]")
         end
       else
-        @socket.send(msg.to_json) if @running
+        @socket.send(msg.to_json)
       end
     rescue => e
       @running = false
