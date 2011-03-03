@@ -9,7 +9,6 @@ Given /the statemachine/ do |doc_xml|
     @sm.compile_xml(doc_xml)
   end
   @sm.init_context(@context)
-  puts YAML::dump(@context)
 end
 
 Given /the library/ do |doc_xml|
@@ -22,7 +21,6 @@ Given /the library/ do |doc_xml|
     @library.compile_xml(doc_xml, @context)
   end
 
-puts YAML::dump(@library)
   @library.register_library
 end
 

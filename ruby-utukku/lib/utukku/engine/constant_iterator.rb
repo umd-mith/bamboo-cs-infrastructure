@@ -34,7 +34,7 @@ module Utukku
         end
 
         def at_end?
-          @position > @iterator.values.length
+          @position >= @iterator.values.length
         end
 
         def past_end?

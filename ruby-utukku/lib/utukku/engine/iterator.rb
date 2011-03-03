@@ -13,7 +13,22 @@ module Utukku
         until it.at_end?
           @results.push it.next
         end
-        @result
+        @results
+      end
+
+      def uniq
+        seen = { }
+        Utukku::Engine::SelectIterator.new(self) do |v|
+          key = v
+          if v.is_a?(Utukku::Engine::Memory::Node)
+            key = v.value
+          end
+          if hash[key]
+            false
+          else
+            hash[key] = true
+          end
+        end
       end
 
       def each(&block)

@@ -282,8 +282,12 @@ class Utukku::Engine::TagLib
     #rescue => e
     #  raise "function #{nom} raised #{e}"
     #end
-    ret = [ ret ] unless ret.is_a?(Array)
-    ret = ret.flatten.collect{ |r| 
+    unless ret.is_a?(Utukku::Engine::Iterator)
+      ret = [ ret ] unless ret.is_a?(Array)
+      ret = Utukku::Engine::ConstantIterator.new(ret.flatten)
+    end
+
+    ret = ret.collect{ |r| 
       if r.is_a?(Utukku::Engine::Memory::Node) 
         r 
       elsif r.is_a?(Hash)
@@ -303,7 +307,7 @@ class Utukku::Engine::TagLib
         end
       end
     }
-    ret.flatten
+    ret.to_a
   end
 
   def function_return_type(name)

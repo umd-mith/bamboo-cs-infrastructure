@@ -1,4 +1,10 @@
+# predeclare so we avoid circular references
+class Utukku::Engine::Iterator::Visitor
+end
+
 class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
+
+  attr_accessor :mapping, :iterator
 
   def initialize(it, mapping)
     if it.kind_of?(Array) 
@@ -18,6 +24,10 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
     @mapping = mapping
   end
 
+  def start
+    Utukku::Engine::MapIterator::Visitor.new(self)
+  end
+
   def build_async(callbacks)
     @iterator.build_async({
       :next => proc { |v|
@@ -32,4 +42,47 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
     })
   end
 
+  class Visitor < Utukku::Engine::Iterator::Visitor
+    def initialize(it)
+      super
+      @sub_iterator = nil
+puts "starting #{@iterator.iterator.class.name}"
+      @visitor = @iterator.iterator.start
+    end
+
+    def at_end?
+      @at_end
+    end
+
+    def next
+      if @at_end
+        @value = nil
+        @past_end = true
+      elsif @sub_iterator && !@sub_iterator.at_end?
+        @value = @sub_iterator.next
+        if @sub_iterator.at_end?
+          @sub_iterator = nil
+          if @visitor.at_end?
+            @at_end = true
+          end
+        end
+      else
+        v = @iterator.mapping.call(@visitor.next)
+        if v.is_a?(Utukku::Engine::Iterator)
+          @sub_iterator = v.start
+          @value = @sub_iterator.next
+        else
+          @value = v
+          if @visitor.at_end?
+            @at_end = true
+          end
+        end
+      end
+      @value
+    end
+
+    def value
+      @value
+    end
+  end
 end
