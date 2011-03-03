@@ -10,34 +10,34 @@ Utukku::Server.new do
     level = Log4r::INFO
   end
 
-  namespace 'http://www.example.com/corpora-camp/ns/collections'
+  namespace 'http://www.example.com/corpora-camp/ns/collections' do
     multiple
     deny_from_all
     allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
   end
 
-  namespace 'http://www.example.com/corpora-camp/ns/woodchipper'
+  namespace 'http://www.example.com/corpora-camp/ns/woodchipper' do
     singular
     round_robin
     deny_from_all
     allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
   end
 
-  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/features'
+  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/features' do
     singular
     round_robin
     deny_from_all
     allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
   end
 
-  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/reducer'
+  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/reducer' do
     singular
     round_robin
     deny_from_all
     allow_from [ '0:0:0:0:0:0:0:1%0', '127.0.0.1', 'localhost' ]
   end
 
-  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/url-builder'
+  namespace 'http://www.example.com/corpora-camp/ns/woodchipper/url-builder' do
     singular
     round_robin
     deny_from_all
