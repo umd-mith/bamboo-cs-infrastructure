@@ -241,6 +241,12 @@ Utukku.namespace('Engine');
         }
         vars = [ 'arg' ]
       }
+      else if( $.inArray(name, config.functions) != -1 ) {
+        $.each(args, function(idx, arg) {
+          vars.push("arg_" + idx);
+          iterators["arg_" + idx] = arg;
+        });
+      }
       else {
         return Engine.NullIterator();
       }

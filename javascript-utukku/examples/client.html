@@ -6,7 +6,7 @@
     <script src="../lib/engine.js" type="text/javascript"></script>
     <script src="../lib/client.js" type="text/javascript"></script>
     <script type="text/javascript">
-      Utukku.Client.Connection.url = "ws://localhost:3000/demo";
+      Utukku.Client.Connection.url = "ws://localhost:3000/";
       /* open a connection so we can settle */
       Utukku.Client.Connection({ });
     </script>
@@ -31,6 +31,13 @@
         args: Utukku.Engine.ConstantRangeIterator(1,10),
         next: function(v) { document.write(v + "<br />"); },
         done: function() { document.write("<p>done!</p>"); }
+      });
+      Utukku.Client.Function({
+        namespace: 'http://www.example.com/corpora-camp/ns/collections',
+        name: "facets",
+        args: Utukku.Engine.ConstantRangeIterator(1),
+        next: function(v) { console.log(v); },
+        done: function() { console.log('done'); }
       });
     </script>
   </body>
