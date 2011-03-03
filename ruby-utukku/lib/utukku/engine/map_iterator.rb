@@ -46,7 +46,6 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
     def initialize(it)
       super
       @sub_iterator = nil
-puts "starting #{@iterator.iterator.class.name}"
       @visitor = @iterator.iterator.start
     end
 
