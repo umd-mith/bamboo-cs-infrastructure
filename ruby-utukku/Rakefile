@@ -16,6 +16,7 @@ begin
     gem.add_dependency(%q<uuid>, [">= 2.3.1"])
     gem.add_dependency(%q<json>, [">= 1.4.6"])
     gem.add_dependency(%q<log4r>, [">= 1.1.9"])
+    gem.add_dependency(%q<rest-client>, [">= 1.6.1"])
   end
 rescue LoadError
   puts "Jeweler (or a dependency) not available.  This is only required if you plan to package utukku as a gem."
