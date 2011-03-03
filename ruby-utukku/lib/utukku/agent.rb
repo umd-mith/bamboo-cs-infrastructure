@@ -1,15 +1,18 @@
 require 'utukku/engine'
-require 'utukku/agent/connection'
-require 'utukku/agent/flow'
+require 'utukku/client'
 
-module Utukku
-class Agent
+class Utukku::Agent
+
+  require 'utukku/agent/connection'
+  require 'utukku/agent/flow'
+
   def initialize(url = nil, &block)
     @url = url
     @flows = { }
     @events = { }
     @setup = false
     @exported_namespaces = [ ]
+    @needs_client = false
 
     if block
       self.instance_eval &block
@@ -26,6 +29,10 @@ class Agent
     @url = u
   end
 
+  def needs_client
+    @needs_client = true
+  end
+
   def export_namespace(ns)
     @exported_namespaces.push(ns)
   end
@@ -35,6 +42,12 @@ class Agent
   end
 
   def setup
+    if @needs_client
+      @client = Utukku::Client.new(@url)
+      @client.interactive = true
+      @client.setup
+    end
+
     @events['flow.create'] ||= proc { |klass, data, id|
       @flows[id] = Utukku::Agent::Flow.new(self, data, id)
       @flows[id].start
@@ -58,9 +71,6 @@ class Agent
         @flows[id].finish()
         @flows.delete(id)
       end
-    };
-
-    @events['flow.namespace.registered'] ||= proc { |klass, data, id|
     };
 
     @connection = Utukku::Agent::Connection.new(@url)
@@ -94,7 +104,9 @@ class Agent
   end
 
   def close
+    if @client
+     @client.close
+    end
     @connection.close
   end
-end
 end

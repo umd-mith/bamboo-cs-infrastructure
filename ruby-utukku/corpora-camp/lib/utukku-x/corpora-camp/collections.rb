@@ -14,6 +14,11 @@ module UtukkuX
         @@elastic_search_url = u
       end
 
+      function 'double', {
+        :namespaces => { :x => 'http://www.example.com/echo/1.0#' },
+        :code => 'x:double($1)'
+      }
+
       function 'query' do |ctx, args|
         # build params for elastic search query
 puts "query called!"
