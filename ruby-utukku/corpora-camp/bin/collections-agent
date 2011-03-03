@@ -2,7 +2,7 @@ require 'rubygems'
 require 'utukku/agent'
 require 'utukku-x/corpora-camp/collections'
 
-UtukkuX::CorporaCamp::Collections.elastic_search_url = 'http://localhost:3000/'
+UtukkuX::CorporaCamp::Collections.elastic_search_url = 'http://localhost:9200/corpora/texts/'
 
 Utukku::Agent.new do
   url 'ws://localhost:4242/'

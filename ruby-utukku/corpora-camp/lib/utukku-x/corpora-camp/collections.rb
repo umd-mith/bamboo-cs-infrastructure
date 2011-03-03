@@ -30,12 +30,18 @@ puts "query called!"
        # request.update( { :from => @from } )     if @from
        # request.update( { :fields => @fields } ) if @fields
 
-        
-        
+        request["filtered"] = {
+          "query" => {
+            "query_string" => {
+              "query" => args[0].to_s
+            },
+          },
+        }
+
         Utukku::Engine::RestClientIterator.new({
           :method => :get,
-          :url => @@elastic_search_url,
-          :params => request
+          :url => @@elastic_search_url + "_search",
+          :body => request.to_json
         }) do |res|
           results = JSON::decode(res.body)
 puts YAML::dump(results)
@@ -66,14 +72,6 @@ puts YAML::dump(results)
           # return list of facets
         end
       end
-
-#      consolidation 'facets', {
-#        :namespaces => { :f => Utukku::Engine::NS::FAB },
-#        :code => %Q{
-#          (: Non-Ruby goes here :)
-#          (: 'my' prefix is automatically defined to refer to this library :)
-#        }
-#      }
 
       mapping 'text2chunks' do |ctx, arg|
         Utukku::Engine::RestClientIterator.new({

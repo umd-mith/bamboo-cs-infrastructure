@@ -10,7 +10,8 @@ class Utukku::Engine::RestClientIterator < Utukku::Engine::Iterator
     req = RestClient::Request.new({
       :method => @options[:method].to_s.upcase,
       :url => @options[:url],
-      :params => @options[:params]
+      :params => @options[:params] || {},
+      :body => @options[:body] || '',
     })
 puts YAML::dump(req)
     it = nil
@@ -31,7 +32,8 @@ puts "build_async..."
       req = RestClient::Request.new({
         :method => @options[:method].to_s.uppercase,
         :url => @options[:url],
-        :params => @options[:params]
+        :params => @options[:params] || {},
+        :body => @options[:body] || '',
       })
 puts YAML::dump(req)
       it = nil
