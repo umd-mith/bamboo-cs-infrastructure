@@ -1,11 +1,12 @@
 require 'rubygems'
 require 'utukku/agent'
 require 'utukku-x/corpora-camp/collections'
+require 'utukku-x/corpora-camp/woodchipper_url_builder'
 
 UtukkuX::CorporaCamp::Collections.elastic_search_url = 'http://localhost:9200/corpora/texts/'
 
 Utukku::Agent.new do
   url 'ws://localhost:4242/'
-  needs_client
+  export_namespace 'http://www.example.com/corpora-camp/ns/woodchipper/url-builder'
   export_namespace 'http://www.example.com/corpora-camp/ns/collections'
 end
