@@ -293,9 +293,12 @@ class Utukku::Engine::TagLib
       elsif r.is_a?(Hash)
         rr = context.root.anon_node(nil, nil)
         r.each_pair do |k,v|
-          rrr = context.root.anon_node(v) #, self.function_return_type(nom))
-          rrr.name = k
-          rr.add_child(rrr)
+          v = [ v ] unless v.is_a?(Array)
+          v.each do |vv|
+            rrr = rr.anon_node(vv)
+            rrr.name = k
+            rr.add_child(rrr)
+          end
         end
         rr
       else

@@ -15,11 +15,6 @@ module UtukkuX
         @@elastic_search_url = u
       end
 
-      function 'double', {
-        :namespaces => { :x => 'http://www.example.com/echo/1.0#' },
-        :code => 'x:double($1)'
-      }
-
       function 'query' do |ctx, args|
         # build params for elastic search query
         request = {}
@@ -69,11 +64,17 @@ module UtukkuX
           },
           { 'label' => 'year',
             'type' => 'date',
+            'value' => [ "1550", "1560" ],
+            'count' => [ 20, 23 ],
             'min' => 1100,
             'max' => 2200
           }
         ])
+        request = { }
         Utukku::Engine::RestClientIterator.new({
+          :method => :get,
+          :url => @@elastic_search_url + "_search",
+          :body => request.to_json
         }) do |res|
           results = JSON.parse(res.body)
 puts YAML::dump(results)
@@ -82,7 +83,11 @@ puts YAML::dump(results)
       end
 
       mapping 'text2chunks' do |ctx, arg|
+        request = { }
         Utukku::Engine::RestClientIterator.new({
+          :method => :get,
+          :url => @@elastic_search_url + "_search",
+          :body => request.to_json
         }) do |res|
           results = JSON.parse(res.body)
 puts YAML::dump(results)
@@ -94,7 +99,11 @@ puts YAML::dump(results)
       end
 
       function 'chunk-meta' do |ctx, args|
+        request = { }
         Utukku::Engine::RestClientIterator.new({
+          :method => :get,
+          :url => @@elastic_search_url + "_search",
+          :body => request.to_json
         }) do |res|
           results = JSON.parse(res.body)
 puts YAML::dump(results)

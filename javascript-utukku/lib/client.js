@@ -180,7 +180,15 @@ Utukku.namespace('Client');
             else {
               obj = { }
               $.each(v.children, function(idx,val) {
-                obj[val.name] = val.value;
+                if((val.name in obj)) {
+                  if(!$.isArray(obj[val.name])) {
+                    obj[val.name] = [ obj[val.name] ];
+                  }
+                  obj[val.name].push(val.value);
+                }
+                else {
+                  obj[val.name] = val.value;
+                }
               });
               callbacks.next(obj);
             }
