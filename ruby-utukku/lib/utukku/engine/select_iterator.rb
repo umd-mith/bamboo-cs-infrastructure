@@ -14,12 +14,6 @@ class Utukku::Engine::SelectIterator < Utukku::Engine::Iterator
     hash = { }
     @iterator.build_async({
       :next => proc { |v|
-#        key = v
-#        if v.is_a?(Utukku::Engine::Memory::Node)
-#          key = v.value
-#        end
-#        unless hash[key]
-#          hash[key] = true
         if @selection.call(v)
           callbacks[:next].call(v)
         end
@@ -33,7 +27,7 @@ class Utukku::Engine::SelectIterator < Utukku::Engine::Iterator
       super
       @visitor = @iterator.iterator.start
       @position = 0
-      @at_end = false
+      @at_end = @visitor.at_end?
       self.get_next
     end
 

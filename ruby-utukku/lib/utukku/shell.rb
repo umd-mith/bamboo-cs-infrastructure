@@ -172,8 +172,10 @@ module Utukku
         if !it.nil?
           is_first = true
           done = false
+          count = 0
           it.async(@context, false, {
             :next => @silent ? proc { |v| } : proc { |v|
+              count += 1
               if v.is_a?(Utukku::Engine::Memory::Node)
                 ta = v.to_table_array
                 table = Terminal::Table.new do |t|
@@ -192,7 +194,7 @@ module Utukku
             },
             :done => @silent ? proc { done = true } : proc {
               done = true
-              self.print("\nOK\n")
+              self.print("\n#{count} result#{count != 1 ? 's' : ''}\n")
             }
           })
           until done

@@ -5,7 +5,7 @@ module Utukku
     class ConstantIterator < Iterator
       attr_reader :values
 
-      def initialize(v)
+      def initialize(v = [ ])
         if v.is_a?(Array)
           @values = v
         else
@@ -31,6 +31,7 @@ module Utukku
           @iterator = i
           @position = 0
           @past_end = false
+          @at_end = @iterator.values.empty?
         end
 
         def at_end?

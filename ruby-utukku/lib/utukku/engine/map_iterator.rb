@@ -47,6 +47,7 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
       super
       @sub_iterator = nil
       @visitor = @iterator.iterator.start
+      @at_end = @visitor.at_end?
     end
 
     def at_end?

@@ -42,13 +42,17 @@ module UtukkuX
         }) do |res|
           results = JSON.parse(res.body)
           # return an iterator over the query results (up to 200 results)
-          Utukku::Engine::ConstantIterator.new(results["hits"]["hits"].collect { |hit|
-            h = hit['fields'] || {}
-            ['_id', '_index', '_score', '_type'].each do |k|
-              h[k] = hit[k]
-            end
-            h
-          })
+          if results["hits"]["total"] == 0
+            Utukku::Engine::NullIterator.new
+          else
+            Utukku::Engine::ConstantIterator.new(results["hits"]["hits"].collect { |hit|
+              h = hit['fields'] || {}
+              ['_id', '_index', '_score', '_type'].each do |k|
+                h[k] = hit[k]
+              end
+              h
+            })
+          end
         end
       end
 

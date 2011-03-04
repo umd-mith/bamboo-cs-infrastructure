@@ -10,6 +10,7 @@ module Utukku
       def to_a
         @results = [ ]
         it = self.start
+        return @results if it.at_end?
         until it.at_end?
           @results.push it.next
         end
