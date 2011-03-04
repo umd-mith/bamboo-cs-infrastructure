@@ -51,6 +51,10 @@ module UtukkuX
           }
         end
 
+        if request["query"]["term"]["plain"] && request["query"]["term"].size > 2
+          request["query"]["term"].delete("plain")
+        end
+
         begin_date = 0
         end_date = 0
         if args.size > 1
@@ -78,8 +82,6 @@ module UtukkuX
           "author" => { "script" => "_source.metadata.author" },
           "date" => { "script" => "_source.metadata.date" },
         }
-
-        request["timeout"] = 10
 
 puts YAML::dump(request);
 
