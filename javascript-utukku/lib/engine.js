@@ -10,7 +10,7 @@ Utukku.namespace('Engine');
    * f();
    */
   Engine.ConstantIterator = function(values) {
-    var that = { };
+    var that = { is_iterator: true };
 
     if($.isArray(values)) {
       that.async = function(callbacks) {
@@ -38,7 +38,7 @@ Utukku.namespace('Engine');
    * iterator = Utukku.Engine.ConstantRangeIterator(first, last);
    */
   Engine.ConstantRangeIterator = function(start, stop) {
-    var that = { };
+    var that = { is_iterator: true };
 
     if( start > stop ) {
       that.async = function(callbacks) {
@@ -82,7 +82,7 @@ Utukku.namespace('Engine');
    * iterator = Utukku.Engine.NullIterator();
    */
   Engine.NullIterator = function() {
-    var that = { };
+    var that = { is_iterator: true };
 
     that.async = function(callbacks) {
       return function() {
@@ -97,7 +97,7 @@ Utukku.namespace('Engine');
    * iterator = Utukku.Engine.MapIterator(iterator, mapping);
    */
   Engine.MapIterator = function(iterator, mapping) {
-    var that = { };
+    var that = { is_iterator: true };
 
     that.async = function(callbacks) {
       var next = callbacks['next'] || function(v) { },

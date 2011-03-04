@@ -113,6 +113,18 @@ Utukku.namespace('Client');
     if( !("timeOut" in options) ) {
       options.timeOut = 1000;
     }
+    args = [ ]
+    $.each(options.args, function(idx, arg) {
+      if($.isArray(arg)) {
+        args[idx] = Utukku.Engine.ConstantIterator(arg);
+      }
+      else if($.isPlainObject(arg) && !arg['is_iterator'] || !$.isPlainObject(arg)) {
+        args[idx] = Utukku.Engine.ConstantIterator([arg]);
+      }
+      else {
+        args[idx] = arg;
+      }
+    });
     if(!Utukku.Engine.has_handler(options.namespace)) {
       if( options.timeOut != 0 ) {
         setTimeout(function() { Client.Function(options) }, options.timeOut);
@@ -133,7 +145,7 @@ Utukku.namespace('Client');
       onSuccess: function(client) {
         var handler = Utukku.Engine.TagLib(options.namespace),
             iterator = handler.function_to_iterator(
-                         options.name, options.args
+                         options.name, args
                        );
         (iterator.async({
           next: options.next,
@@ -209,12 +221,20 @@ Utukku.namespace('Client');
       client.deregister_flow(that);
     };
 
+    var encode = function(item) {
+      if( $.isPlainObject(item) ) {
+      }
+      else {
+        return item;
+      }
+    }; 
+
     that.run = function() {
       $.each(iterators, function(key, val) {
         (val.async({
           next: function(v) { 
             var its = { };
-            its[key] = v;
+            its[key] = encode(v);
             client.request('flow.provide', its, that.id);
           },
           done: function() {
