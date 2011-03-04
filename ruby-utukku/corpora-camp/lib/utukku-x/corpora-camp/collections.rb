@@ -26,13 +26,16 @@ module UtukkuX
        # request.update( { :fields => @fields } ) if @fields
 
         request["query"] = {
-          "term" => { "plain" => args[0].to_s }
+          "term" => { 
+            "plain" => args[0].flatten.first.to_s,
+          }
         }
         request["size"] = 200
         request["script_fields"] = {
           "title" => { "script" => "_source.metadata.title" },
           "textid" => { "script" => "_source.metadata.textid" },
           "author" => { "script" => "_source.metadata.author" },
+          "date" => { "script" => "_source.metadata.date" },
         }
 
         Utukku::Engine::RestClientIterator.new({
@@ -47,7 +50,8 @@ module UtukkuX
           else
             Utukku::Engine::ConstantIterator.new(results["hits"]["hits"].collect { |hit|
               h = hit['fields'] || {}
-              ['_id', '_index', '_score', '_type'].each do |k|
+# removed _id and _type
+              ['_index', '_score'].each do |k|
                 h[k] = hit[k]
               end
               h
