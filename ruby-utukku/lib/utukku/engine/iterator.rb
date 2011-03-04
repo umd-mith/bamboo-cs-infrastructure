@@ -39,7 +39,7 @@ module Utukku
       end
 
       def collect(&block)
-        Utukku::Engine::MapIterator.new(self, block)
+        Utukku::Engine::MapIterator.new(self, &block)
       end
 
       def any(&block)

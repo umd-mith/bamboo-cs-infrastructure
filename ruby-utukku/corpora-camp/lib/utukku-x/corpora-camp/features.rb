@@ -1,5 +1,6 @@
 require 'utukku/engine/tag_lib'
 require 'utukku/engine/ns'
+require 'utukku/engine/rest_client_iterator'
 
 module UtukkuX
   module CorporaCamp
@@ -10,7 +11,13 @@ module UtukkuX
       namespace NS
 
       mapping 'features' do |ctx, args|
-        # Ruby goes here - return top 200 results 
+        request = { }
+
+        Utukku::Engine::RestClientIterator.new({
+          :body => request.to_json
+        }) do |res|
+          # Ruby goes here - return top 200 results 
+        end
       end
     end
   end

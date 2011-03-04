@@ -13,11 +13,9 @@ class Utukku::Engine::RestClientIterator < Utukku::Engine::Iterator
       :params => @options[:params] || {},
       :payload => @options[:body] || '',
     })
-puts YAML::dump(req)
     it = nil
-    req.execute { |r| 
-      puts "response: #{YAML::dump(r)}"
-      it = @processor.call(r) 
+    req.execute { |response, request, result| 
+      it = @processor.call(response) 
     }
     if it.is_a?(Utukku::Engine::Iterator)
       it.start
@@ -27,7 +25,6 @@ puts YAML::dump(req)
   end
 
   def build_async(callbacks)
-puts "build_async..."
     proc {
       req = RestClient::Request.new({
         :method => @options[:method].to_s.uppercase,
@@ -35,10 +32,8 @@ puts "build_async..."
         :params => @options[:params] || {},
         :payload => @options[:body] || '',
       })
-puts YAML::dump(req)
       it = nil
-      req.execute { |r| 
-        puts "response: #{YAML::dump(r)}"
+      req.execute { |response, request, result| 
         it = @processor.call(r) 
       }
 

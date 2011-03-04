@@ -1,6 +1,7 @@
 require 'utukku/engine/tag_lib'
 require 'utukku/engine/ns'
 require 'utukku/engine/rest_client_iterator'
+require 'utukku/engine/map_iterator'
 
 module UtukkuX
   module CorporaCamp
@@ -21,7 +22,6 @@ module UtukkuX
 
       function 'query' do |ctx, args|
         # build params for elastic search query
-puts "query called!"
         request = {}
        # request.update( { :query  => @query } )
        # request.update( { :sort   => @sort } )   if @sort
@@ -30,12 +30,14 @@ puts "query called!"
        # request.update( { :from => @from } )     if @from
        # request.update( { :fields => @fields } ) if @fields
 
-        request["filtered"] = {
-          "query" => {
-            "query_string" => {
-              "query" => args[0].to_s
-            },
-          },
+        request["query"] = {
+          "term" => { "plain" => args[0].to_s }
+        }
+        request["size"] = 200
+        request["script_fields"] = {
+          "title" => { "script" => "_source.metadata.title" },
+          "textid" => { "script" => "_source.metadata.textid" },
+          "author" => { "script" => "_source.metadata.author" },
         }
 
         Utukku::Engine::RestClientIterator.new({
@@ -43,9 +45,15 @@ puts "query called!"
           :url => @@elastic_search_url + "_search",
           :body => request.to_json
         }) do |res|
-          results = JSON::decode(res.body)
-puts YAML::dump(results)
+          results = JSON.parse(res.body)
           # return an iterator over the query results (up to 200 results)
+          Utukku::Engine::ConstantIterator.new(results["hits"]["hits"].collect { |hit|
+            h = hit['fields'] || {}
+            ['_id', '_index', '_score', '_type'].each do |k|
+              h[k] = hit[k]
+            end
+            h
+          })
         end
       end
 
@@ -67,7 +75,7 @@ puts YAML::dump(results)
         ])
         Utukku::Engine::RestClientIterator.new({
         }) do |res|
-          results = JSON::decode(res.body)
+          results = JSON.parse(res.body)
 puts YAML::dump(results)
           # return list of facets
         end
@@ -76,7 +84,7 @@ puts YAML::dump(results)
       mapping 'text2chunks' do |ctx, arg|
         Utukku::Engine::RestClientIterator.new({
         }) do |res|
-          results = JSON::decode(res.body)
+          results = JSON.parse(res.body)
 puts YAML::dump(results)
           # return list of chunks
           # { 'text-id' => arg.value,
@@ -88,7 +96,7 @@ puts YAML::dump(results)
       function 'chunk-meta' do |ctx, args|
         Utukku::Engine::RestClientIterator.new({
         }) do |res|
-          results = JSON::decode(res.body)
+          results = JSON.parse(res.body)
 puts YAML::dump(results)
           # return meta-data for chunk
         end

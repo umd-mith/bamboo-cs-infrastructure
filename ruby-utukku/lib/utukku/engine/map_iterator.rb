@@ -6,7 +6,7 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
 
   attr_accessor :mapping, :iterator
 
-  def initialize(it, mapping)
+  def initialize(it, &block)
     if it.kind_of?(Array) 
       it = it.flatten
       if it.empty?
@@ -21,7 +21,7 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
     else
       @iterator = it
     end
-    @mapping = mapping
+    @mapping = block
   end
 
   def start
