@@ -40,6 +40,7 @@ module UtukkuX
             "term" => { }
           }
           query.each_pair do |k,v|
+            k = 'plain' if k == 'keyword'
             request["query"]["term"][k] = v.downcase
           end
         else
@@ -113,6 +114,9 @@ module UtukkuX
           { 'label' => 'author',
             'type' => 'text',
           },
+          { 'label' => 'keyword',
+            'type' => 'text',
+          },
 #          { 'label' => 'year',
 #            'type' => 'date',
 #            'value' => [ "1550", "1560" ],
@@ -128,13 +132,15 @@ module UtukkuX
           :body => request.to_json
         }) do |res|
           results = JSON.parse(res.body)
-puts YAML::dump(results)
+#puts YAML::dump(results)
           # return list of facets
         end
       end
 
       mapping 'text2chunks' do |ctx, arg|
         textid = arg.to_s
+
+        return [ { 'textid' => textid, 'chunkid' => [ 'foo001', 'foo002' ] } ]
 
         request = { }
         Utukku::Engine::RestClientIterator.new({
@@ -143,7 +149,7 @@ puts YAML::dump(results)
           :body => request.to_json
         }) do |res|
           results = JSON.parse(res.body)
-puts YAML::dump(results)
+#puts YAML::dump(results)
           # return list of chunks
           # { 'text-id' => arg.value,
           #   'chunk-id' => [ ... ]
@@ -155,6 +161,8 @@ puts YAML::dump(results)
         textid  = args[0].flatten.first.to_s
         chunkid = args[1].flatten.first.to_s
 
+        return [ { 'textid' => textid, 'chunkid' => chunkid, 'content' => 'content' } ]
+
         request = { }
         Utukku::Engine::RestClientIterator.new({
           :method => :get,
@@ -162,7 +170,7 @@ puts YAML::dump(results)
           :body => request.to_json
         }) do |res|
           results = JSON.parse(res.body)
-puts YAML::dump(results)
+#puts YAML::dump(results)
           # return meta-data for chunk
         end
       end
