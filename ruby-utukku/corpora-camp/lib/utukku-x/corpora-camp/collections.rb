@@ -108,10 +108,10 @@ module UtukkuX
       function 'facets' do |ctx, args|
         return Utukku::Engine::ConstantIterator.new([
           { 'label' => 'title',
-            'type' => 'query',
+            'type' => 'text',
           },
           { 'label' => 'author',
-            'type' => 'query',
+            'type' => 'text',
           },
           { 'label' => 'year',
             'type' => 'date',
