@@ -34,12 +34,21 @@ module UtukkuX
          rescue
            args[0] = a0
          end
-
-        request["query"] = {
-          "term" => { 
-            "plain" => args[0].flatten.first.to_s,
+        query = args[0].flatten.first.value
+        if query.is_a?(Hash)
+          request["query"] = {
+            "term" => { }
           }
-        }
+          query.each_pair do |k,v|
+            request["query"]["term"][k] = v
+          end
+        else
+          request["query"] = {
+            "term" => { 
+              "plain" => query
+            }
+          }
+        end
 
         begin_date = 0
         end_date = 0
@@ -98,7 +107,10 @@ module UtukkuX
 
       function 'facets' do |ctx, args|
         return Utukku::Engine::ConstantIterator.new([
-          { 'label' => '_lucene',
+          { 'label' => 'title',
+            'type' => 'query',
+          },
+          { 'label' => 'author',
             'type' => 'query',
           },
           { 'label' => 'year',
