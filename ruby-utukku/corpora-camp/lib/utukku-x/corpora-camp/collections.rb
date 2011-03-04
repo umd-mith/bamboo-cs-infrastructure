@@ -25,11 +25,42 @@ module UtukkuX
        # request.update( { :from => @from } )     if @from
        # request.update( { :fields => @fields } ) if @fields
 
+         a0 = args[0]
+         begin
+           args[0] = args[0].flatten.first
+           if args[0].value.nil?
+             args[0] = args[0].children
+           end
+         rescue
+           args[0] = a0
+         end
+
         request["query"] = {
           "term" => { 
             "plain" => args[0].flatten.first.to_s,
           }
         }
+
+        begin_date = 0
+        end_date = 0
+        if args.size > 1
+          begin_date = (args[1].flatten.first.to_s.to_i rescue 0)
+        end
+        if args.size > 2
+          end_date = (args[2].flatten.first.to_s.to_i rescue 0)
+        end
+
+        begin_date = 0 if begin_date < 1100 || begin_date > 2200
+        end_date   = 0 if end_date   < 1100 || end_date   > 2200
+
+        if begin_date == end_date
+          if begin_date != 0 
+            # single year constraint
+          end
+        else
+          # year range constraint
+        end
+
         request["size"] = 200
         request["script_fields"] = {
           "title" => { "script" => "_source.metadata.title" },
@@ -62,7 +93,7 @@ module UtukkuX
 
       function 'query_count', {
         :namespaces => { :f => Utukku::Engine::NS::FAB },
-        :code => 'f:count(my:query($1))' # max is 200 if we use above fctn
+        :code => 'f:count(my:query($1, $2, $3))' # max is 200 if we use above fctn
       }
 
       function 'facets' do |ctx, args|
@@ -91,6 +122,8 @@ puts YAML::dump(results)
       end
 
       mapping 'text2chunks' do |ctx, arg|
+        textid = arg.to_s
+
         request = { }
         Utukku::Engine::RestClientIterator.new({
           :method => :get,
@@ -107,6 +140,9 @@ puts YAML::dump(results)
       end
 
       function 'chunk-meta' do |ctx, args|
+        textid  = args[0].flatten.first.to_s
+        chunkid = args[1].flatten.first.to_s
+
         request = { }
         Utukku::Engine::RestClientIterator.new({
           :method => :get,
