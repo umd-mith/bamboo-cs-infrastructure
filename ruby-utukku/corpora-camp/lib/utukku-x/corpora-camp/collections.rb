@@ -40,6 +40,7 @@ module UtukkuX
             "term" => { }
           }
           query.each_pair do |k,v|
+            next if v =~ /^\s*$/
             k = 'plain' if k == 'keyword'
             request["query"]["term"][k] = v.downcase
           end
