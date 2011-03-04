@@ -79,6 +79,10 @@ module UtukkuX
           "date" => { "script" => "_source.metadata.date" },
         }
 
+        request["timeout"] = 10
+
+puts YAML::dump(request);
+
         Utukku::Engine::RestClientIterator.new({
           :method => :get,
           :url => @@elastic_search_url + "_search",
@@ -137,8 +141,8 @@ module UtukkuX
         end
       end
 
-      mapping 'text2chunks' do |ctx, arg|
-        textid = arg.to_s
+      function 'text2chunks' do |ctx, args|
+        textid = args.flatten.collect{ |a| a.to_s}.first
 
         return [ { 'textid' => textid, 'chunkid' => [ 'foo001', 'foo002' ] } ]
 
