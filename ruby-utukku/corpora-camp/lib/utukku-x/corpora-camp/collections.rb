@@ -113,13 +113,13 @@ module UtukkuX
           { 'label' => 'author',
             'type' => 'text',
           },
-          { 'label' => 'year',
-            'type' => 'date',
-            'value' => [ "1550", "1560" ],
-            'count' => [ 20, 23 ],
-            'min' => 1100,
-            'max' => 2200
-          }
+#          { 'label' => 'year',
+#            'type' => 'date',
+#            'value' => [ "1550", "1560" ],
+#            'count' => [ 20, 23 ],
+#            'min' => 1100,
+#            'max' => 2200
+#          }
         ])
         request = { }
         Utukku::Engine::RestClientIterator.new({
