@@ -40,12 +40,12 @@ module UtukkuX
             "term" => { }
           }
           query.each_pair do |k,v|
-            request["query"]["term"][k] = v
+            request["query"]["term"][k] = v.downcase
           end
         else
           request["query"] = {
             "term" => { 
-              "plain" => query
+              "plain" => query.downcase
             }
           }
         end
