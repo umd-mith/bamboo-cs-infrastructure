@@ -145,28 +145,65 @@ puts YAML::dump(request);
       end
 
       function 'text2chunks' do |ctx, args|
-        textid = args.flatten.collect{ |a| a.to_s}.first
+        a = args[0]
+        begin
+          args[0] = args[0].flatten.first
+          if args[0].value.nil?
+            args[0] = args[0].children
+          end
+        rescue
+          args[0] = a
+        end
+        textid = args[0].flatten.first.value
 
-        return [ { 'textid' => textid, 'chunkid' => [ 'foo001', 'foo002' ] } ]
-
-        request = { }
+        request = {
+          'fields' => [ 'chunkids' ],
+          'query' => {
+            'term' => {
+              'textid' => textid.downcase
+            }
+          }
+        }
         Utukku::Engine::RestClientIterator.new({
           :method => :get,
           :url => @@elastic_search_url + "_search",
           :body => request.to_json
         }) do |res|
           results = JSON.parse(res.body)
-#puts YAML::dump(results)
-          # return list of chunks
-          # { 'text-id' => arg.value,
-          #   'chunk-id' => [ ... ]
-          # }
+          if results["hits"]["total"] == 0
+            Utukku::Engine::NullIterator.new
+          else
+            Utukku::Engine::ConstantIterator.new(results["hits"]["hits"].collect { |hit|
+              { 'textid' => hit['_id'],
+                'chunkid' => hit['fields']['chunkids'].split(/\s*,\s*/)
+              }
+            })
+          end
         end
       end
 
       function 'chunk-meta' do |ctx, args|
-        textid  = args[0].flatten.first.to_s
-        chunkid = args[1].flatten.first.to_s
+        a = args[0]
+        begin
+          args[0] = args[0].flatten.first
+          if args[0].value.nil?
+            args[0] = args[0].children
+          end
+        rescue
+          args[0] = a
+        end
+        textid = args[0].flatten.first.value
+
+        a = args[1]
+        begin
+          args[1] = args[1].flatten.first
+          if args[1].value.nil?
+            args[1] = args[1].children
+          end
+        rescue
+          args[1] = a
+        end
+        chunkid = args[1].flatten.first.value
 
         return [ { 'textid' => textid, 'chunkid' => chunkid, 'content' => 'content' } ]
 
