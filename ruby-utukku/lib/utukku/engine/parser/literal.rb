@@ -20,6 +20,30 @@ class Utukku::Engine::Parser::Literal < Utukku::Engine::Expression
   end
 end
 
+class Utukku::Engine::Parser::Bag < Utukku::Engine::Expression
+  def initialize(b)
+    @bag = b
+  end
+
+  def run(context, autovivify = false)
+    root = context.root.anon_node(nil)
+    ctx = context.with_root(root)
+    @bag.each do |setting|
+      ctx.set_value(setting[0], setting[1]);
+    end
+    return [ ctx.root ]
+  end
+
+  def build_async(context, av, callbacks)
+    proc {
+      self.run(context, av).each do |v|
+        callbacks[:next].call(v)
+      end
+      callbacks[:done].call()
+    }
+  end
+end
+
 class Utukku::Engine::Parser::Var < Utukku::Engine::Expression
   def initialize(v)
     @var = v

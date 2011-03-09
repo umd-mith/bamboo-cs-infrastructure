@@ -7,6 +7,10 @@ module Utukku
       def start
       end
 
+      def to_iterator
+        self
+      end
+
       def to_a
         @results = [ ]
         it = self.start
@@ -85,5 +89,11 @@ module Utukku
       end
 
     end
+  end
+end
+
+class Array
+  def to_iterator
+    Utukku::Engine::ConstantIterator.new(self)
   end
 end

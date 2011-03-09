@@ -1,3 +1,5 @@
+require 'utukku/engine/select_iterator'
+
 class Utukku::Engine::Parser::PathExpr
   def initialize(pe, predicates, segment)
     @primary_expr = pe
@@ -34,5 +36,30 @@ class Utukku::Engine::Parser::PathExpr
     end
 
     return final
+  end
+
+  def build_async(context, av, callbacks)
+    if @primary_expr.nil?
+      possible = [ context.root ]
+    else
+      possible = @primary_expr.run(context, av)
+    end
+
+    possible = possible.to_iterator
+
+    Utukku::Engine::MapIterator.new(
+      Utukku::Engine::SelectIterator.new(possible) { |n|
+        !n.nil? &&
+        !(@predicates.run(context.with_root(n), av).to_a - [nil]).empty?
+      }
+    ) { |n|
+      pos = [ n ].to_iterator
+      @segment.each do |s|
+         pos = pos.collect { |p|
+           s.run(context.with_root(p), av)
+         }
+      end
+      pos
+    }.build_async(callbacks)
   end
 end

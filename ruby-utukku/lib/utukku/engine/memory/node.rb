@@ -34,6 +34,7 @@ module Utukku::Engine::Memory
     def node_from_hash(hash)
       root = self.anon_node(hash['value'])
       root.name = hash['name']
+      root.vtype = hash['type']
       if hash['children']
         hash['children'].each do |c|
           root.add_child( self.node_from_hash(c) )

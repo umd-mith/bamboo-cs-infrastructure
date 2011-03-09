@@ -33,17 +33,19 @@ class Utukku::Client::Flow
       @iterators[k].async({
         :next => proc { |v|
           if v.is_a?(Utukku::Engine::Memory::Node)
-            if v.value.kind_of?(Numeric)
+            if !v.vtype.nil? && v.vtype.join("") == Utukku::Engine::NS::FAB + "numeric"
               if v.value.denominator != 1
-                @client.request('flow.provide', { k => "#{v.value.numerator}/#{v.value.denominator}" }, @mid)
+                @client.request('flow.provide', { k => [ "#{v.value.numerator}/#{v.value.denominator}" ] }, @mid)
               else
-                @client.request('flow.provide', { k => v.value.numerator }, @mid)
+                @client.request('flow.provide', { k => [ v.value.numerator ] }, @mid)
               end
+            elsif !v.vtype.nil? && v.vtype.join("") == Utukku::Engine::NS::FAB + "string"
+              @client.request('flow.provide', { k => [ v.value ] })
             else
-              @client.request('flow.provide', { k => v.to_s }, @mid)
+              @client.request('flow.provide', { k => [ v.to_h ] }, @mid)
             end
           else
-            @client.request('flow.provide', { k => v }, @mid)
+            @client.request('flow.provide', { k => [ v ] }, @mid)
           end
         },
         :done => proc {

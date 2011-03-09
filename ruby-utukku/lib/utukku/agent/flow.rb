@@ -31,14 +31,14 @@ class Utukku::Agent::Flow
     @parsed_expr.async(@context, false, {
       :next => proc { |v|
         if v.is_a?(Utukku::Engine::Memory::Node)
-          if v.value.is_a?(Numeric)
+          if !v.vtype.nil? && v.vtype.join("") == Utukku::Engine::NS::FAB + "numeric"
             if v.value.denominator != 1
               @agent.response('flow.produce', [ "#{v.value.numerator}/#{v.value.denominator}" ], @msg_id)
             else
               @agent.response('flow.produce', [ v.value.numerator ], @msg_id)
             end
-          elsif !v.value.nil?
-            @agent.response('flow.produce', [ v.to_s ], @msg_id)
+          elsif !v.vtype.nil? && v.vtype.join("") == Utukku::Engine::NS::FAB + "string"
+            @agent.response('flow.produce', [ v.value ], @msg_id)
           else # children?
             @agent.response('flow.produce', [ v.to_h ], @msg_id)
           end
@@ -54,10 +54,17 @@ class Utukku::Agent::Flow
 
   def provide(iterators)
     iterators.each_pair do |i,v|
-      if v =~ /^(-?\d+)\/(\d+)$/
-        v = Rational($1.to_i, $2.to_i)
+      v = v.to_a
+      v.each do |vv|
+        if vv.is_a?(Hash)
+          vv = @context.root.node_from_hash(vv)
+        elsif vv =~ /^(-?\d+)\/(\d+)$/
+          vv = @context.root.anon_node(Rational($1.to_i, $2.to_i))
+        else
+          vv = @context.root.anon_node(vv)
+        end
+        @iterator_objs[i].push(vv)
       end
-      @iterator_objs[i].push(@context.root.anon_node(v))
     end
   end
 

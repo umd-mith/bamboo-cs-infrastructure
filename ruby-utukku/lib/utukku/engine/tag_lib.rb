@@ -262,7 +262,7 @@ class Utukku::Engine::TagLib
   def run_function(context, nom, args, depth=0)
     ret = []
 
-    begin
+    #begin
       case self.function_run_type(nom)
       when :mapping
         ret = args.to_a.flatten.collect { |a| send "fctn:#{nom}", context, a }
@@ -279,9 +279,9 @@ class Utukku::Engine::TagLib
       else
         ret = send "fctn:#{nom}", context, args
       end
-    rescue => e
-      raise "function #{nom} raised #{e}"
-    end
+    #rescue => e
+    #  raise "function #{nom} raised #{e}"
+    #end
     unless ret.is_a?(Utukku::Engine::Iterator)
       ret = [ ret ] unless ret.is_a?(Array)
       ret = Utukku::Engine::ConstantIterator.new(ret.flatten)

@@ -157,6 +157,9 @@ rule
   predicate: LB expr RB { result = val[1] }
     | LB num_list RB { result = val[1] }
 
+  const_path: QNAME { result = val[0] }
+    | const_path SLASH QNAME { result = val[0] + "/" + val[2] }
+
       #Utukku::Engine::Parser::IndexPredicate.new(val[1]) 
     
 
@@ -165,6 +168,7 @@ rule
     DOLLAR_QNAME { result = Utukku::Engine::Parser::Var.new(val[0]) }
     | LP expr RP { result = val[1] }
     | list
+    | bag
     | tuple
     | LITERAL { result = Utukku::Engine::Parser::Literal.new(val[0], [ Utukku::Engine::NS::FAB, 'string' ]) }
     | NUMBER { result = Utukku::Engine::Parser::Literal.new(val[0] =~ /\./ ? val[0].to_d.to_r : val[0].to_i.to_r, [ Utukku::Engine::NS::FAB, 'numeric' ]) }
@@ -181,6 +185,13 @@ rule
     }
 
   list: LP opt_args RP { result = Utukku::Engine::Parser::List.new(val[1]) }
+
+  bag: LP_LC bag_kv_pairs RC_RP { result = Utukku::Engine::Parser::Bag.new(val[1]) }
+
+  bag_kv_pairs: bag_kv_pair { result = [ val[0] ] }
+    | bag_kv_pairs COMMA bag_kv_pair { result = val[0] + [ val[2] ] }
+
+  bag_kv_pair: const_path COLON expr { result = [ val[0], val[2] ] }
 
 
   opt_args: { result = [ ] }
@@ -246,7 +257,7 @@ end
 
 
   @@regex = {
-    :simple_tokens => %r{\.\.|::|!=|>=|<=|\/\/|\/>|:=|\.|@|[*]|\(|\)|\[|\]|\{|\}|\/|\||\+|-|=|>|<|&|,|;|#},
+    :simple_tokens => %r{\.\.|::|!=|>=|<=|\/\/|\/>|:=|\(\{|\}\)|\.|@|[*]|\(|\)|\[|\]|\{|\}|\/|\||\+|-|=|>|<|&|,|;|#|:},
     :ncname => %r{(?:[a-zA-Z_][-a-zA-Z0-9_.]*)},
     :event_type => %r{(?:processing-instruction|comment|text|node)},
     :axis_name => %r{(?:attribute|child|child-or-self|descendant|descendant-or-self|method|self)},
@@ -272,6 +283,9 @@ end
     '//' => :SLASH_SLASH,
     '/>' => :SLASH_GT,
     ':=' => :COLON_EQUAL,
+    '({' => :LP_LC,
+    '})' => :RC_RP,
+    ':'  => :COLON,
     '.'  => :DOT,
     '@'  => :AT,
     '*'  => :STAR,

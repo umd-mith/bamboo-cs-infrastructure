@@ -235,7 +235,13 @@ module Utukku::Engine::Core
         acc[a.to_s] ||= 0
         acc[a.to_s] = acc[a.to_s] + 1
       end
-      acc
+      root = ctx.root.anon_node(nil)
+      acc.each_pair do |k,v|
+        c = root.anon_node(v)
+        c.name = k
+        root.add_child(c)
+      end
+      root
     end
 
     # TODO: make 'consolidate' a general-purpose function that translates

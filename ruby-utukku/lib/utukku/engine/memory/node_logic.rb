@@ -12,11 +12,12 @@ module Utukku::Engine::Memory
         cs = self.children.collect { |c| c.to_h }
         r[:children] = cs unless cs.empty?
         r[:value] = self.value unless self.value.nil?
-        r[:type] = self.vtype.join('') unless self.vtype.nil?
+        r[:type] = self.vtype unless self.vtype.nil?
         r[:attributes] = { }
         self.attributes.each do |a|
           r[:attributes][a.name] = a.value
         end
+        r.delete(:attributes) if r[:attributes].empty?
         r
       end
 

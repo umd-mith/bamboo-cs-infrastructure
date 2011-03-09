@@ -25,31 +25,27 @@ module UtukkuX
        # request.update( { :from => @from } )     if @from
        # request.update( { :fields => @fields } ) if @fields
 
-         a0 = args[0]
-         begin
-           args[0] = args[0].flatten.first
-           if args[0].value.nil?
-             args[0] = args[0].children
-           end
-         rescue
-           args[0] = a0
-         end
-        query = args[0].flatten.first.value
-        if query.is_a?(Hash)
-          request["query"] = {
-            "term" => { }
-          }
-          query.each_pair do |k,v|
-            next if v =~ /^\s*$/
-            k = 'plain' if k == 'keyword'
-            request["query"]["term"][k] = v.downcase
+        request["query"] = {
+          "term" => { }
+        }
+
+        query = { }
+        args[0].first.children.each do |c|
+          k = c.name
+          v = c.to_s
+          if query[k].nil?
+            query[k] = v
+          elsif query[k].is_a?(Array)
+            query[k].push(v)
+          else
+            query[k] = [ query[k], v ]
           end
-        else
-          request["query"] = {
-            "term" => { 
-              "plain" => query.downcase
-            }
-          }
+        end
+
+        query.each_pair do |k,v|
+          next if v =~ /^\s*$/
+          k = 'plain' if k == 'keyword'
+          request["query"]["term"][k] = v.downcase
         end
 
         if request["query"]["term"]["plain"] && request["query"]["term"].size > 2
@@ -77,12 +73,13 @@ module UtukkuX
         end
 
         request["size"] = 200
-        request["script_fields"] = {
-          "title" => { "script" => "_source.metadata.title" },
-          "textid" => { "script" => "_source.metadata.textid" },
-          "author" => { "script" => "_source.metadata.author" },
-          "date" => { "script" => "_source.metadata.date" },
-        }
+ #       request["script_fields"] = {
+ #         "title" => { "script" => "_source.metadata.title" },
+ #         "textid" => { "script" => "_source.metadata.textid" },
+ #         "author" => { "script" => "_source.metadata.author" },
+ #         "date" => { "script" => "_source.metadata.date" },
+ #       }
+        request["fields"] = [ 'title', 'textid', 'author', 'date' ]
 
 puts YAML::dump(request);
 
@@ -154,7 +151,7 @@ puts YAML::dump(request);
         rescue
           args[0] = a
         end
-        textid = args[0].flatten.first.value
+        textid = args[0].to_a.flatten.first.value
 
         request = {
           'fields' => [ 'chunkids' ],
@@ -205,17 +202,39 @@ puts YAML::dump(request);
         end
         chunkid = args[1].flatten.first.value
 
-        return [ { 'textid' => textid, 'chunkid' => chunkid, 'content' => 'content' } ]
+        request = {
+          'fields' => [ 'plain', 'textid', 'chunkid' ],
+          'query' => {
+            'bool' => {
+              'must' => {
+                'term' => {
+                  'textid' => textid.downcase,
+                  'chunkid' => chunkid.to_s.downcase
+                }
+              }
+            }
+          }
+        }
 
-        request = { }
         Utukku::Engine::RestClientIterator.new({
           :method => :get,
           :url => @@elastic_search_url + "_search",
           :body => request.to_json
         }) do |res|
           results = JSON.parse(res.body)
-#puts YAML::dump(results)
-          # return meta-data for chunk
+puts YAML::dump(results)
+          if results["hits"]["total"] == 0
+            Utukku::Engine::NullIterator.new
+          else
+            Utukku::Engine::ConstantIterator.new(results["hits"]["hits"].collect { |hit|
+              ret = { 
+                'textid' => textid.downcase,
+                'chunkid' => chunkid.to_s.downcase,
+              }
+              ret["plain"] = hit["plain"]
+              ret
+            })
+          end
         end
       end
 
