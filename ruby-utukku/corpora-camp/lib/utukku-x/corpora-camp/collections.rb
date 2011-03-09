@@ -30,18 +30,8 @@ module UtukkuX
         }
 
         query = { }
-        args[0].first.children.each do |c|
-          k = c.name
-          v = c.to_s
-          if query[k].nil?
-            query[k] = v
-          elsif query[k].is_a?(Array)
-            query[k].push(v)
-          else
-            query[k] = [ query[k], v ]
-          end
-        end
-
+        query = args[0].first.to_paths
+         
         query.each_pair do |k,v|
           next if v =~ /^\s*$/
           k = 'plain' if k == 'keyword'
@@ -73,12 +63,7 @@ module UtukkuX
         end
 
         request["size"] = 200
- #       request["script_fields"] = {
- #         "title" => { "script" => "_source.metadata.title" },
- #         "textid" => { "script" => "_source.metadata.textid" },
- #         "author" => { "script" => "_source.metadata.author" },
- #         "date" => { "script" => "_source.metadata.date" },
- #       }
+
         request["fields"] = [ 'title', 'textid', 'author', 'date' ]
 
 puts YAML::dump(request);

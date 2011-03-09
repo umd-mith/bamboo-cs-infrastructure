@@ -241,7 +241,7 @@ module Utukku::Engine::Core
         c.name = k
         root.add_child(c)
       end
-      root
+      root.children.empty? ? [ ] : [ root ]
     end
 
     # TODO: make 'consolidate' a general-purpose function that translates

@@ -177,15 +177,19 @@ module Utukku
             :next => @silent ? proc { |v| } : proc { |v|
               count += 1
               if v.is_a?(Utukku::Engine::Memory::Node)
-                ta = v.to_table_array
-                table = Terminal::Table.new do |t|
-                  t.headings = 'Path', 'Value'
-                  ta.select{ |r| r[0] && r[1] }.sort_by {|o| o[0]}.each { |r|
-                    r[0].gsub!(/^\//, '')
-                    t << r 
-                  }
+                ta = v.to_table_array.select{ |r| r[0] && r[1] }
+                if ta.empty?
+                  self.print("No results\n")
+                else
+                  table = Terminal::Table.new do |t|
+                    t.headings = 'Path', 'Value'
+                    ta.sort_by {|o| o[0]}.each { |r|
+                      r[0].gsub!(/^\//, '')
+                      t << r 
+                    }
+                  end
+                  self.print(table)
                 end
-                self.print(table)
               else
                 if is_first
                   self.print(v)

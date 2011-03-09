@@ -43,11 +43,41 @@ module Utukku::Engine::Memory
       root
     end
 
-    def to_table_array
-      @children.inject([ [ self.path, self.value ] ]) do |acc, c|
-        acc += c.to_table_array
-        acc
+    def to_paths
+      hash = { }
+      @children.each do |c|
+        p = c.to_paths
+        k = c.name
+        v = c.value
+        if hash[k].nil?
+          hash[k] = v
+        elsif hash[k].is_a?(Array)
+          hash[k].push(v)
+        else
+          hash[k] = [ hash[k], v ]
+        end
+        p.each_pair do |pk, pv|
+          pk = k + '/' + pk
+          if hash[pk].nil?
+            hash[pk] = pv
+          elsif hash[pk].is_a?(Array)
+            hash[pk] += pv.to_a
+          else
+            hash[pk] = hash[pk].to_a + pv.to_a
+          end
+        end
       end
+      hash
+    end
+
+    def to_table_array
+      acc = [ [ self.path, self.value ] ]
+      self.to_paths.each_pair do |p, vs|
+        vs.to_a.each do |v|
+          acc.push( [ p, v ] )
+        end
+      end
+      return acc
     end
 
     def axis

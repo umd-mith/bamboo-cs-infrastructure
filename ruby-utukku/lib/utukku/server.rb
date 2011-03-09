@@ -171,14 +171,14 @@ logger.debug "Adding agent to #{ns}"
     end
 
     def namespaces
-      namespaces = { }
+      ns_set = { }
       @agents.each do |agent|
         agent.namespaces.each_pair do |ns, config|
-          namespaces[ns] = config
+          ns_set[ns] = config
         end
       end
 
-      namespaces
+      ns_set
     end
   end
 end
