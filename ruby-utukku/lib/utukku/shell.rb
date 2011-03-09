@@ -180,7 +180,10 @@ module Utukku
                 ta = v.to_table_array
                 table = Terminal::Table.new do |t|
                   t.headings = 'Path', 'Value'
-                  ta.select{ |r| r[0] && r[1] }.sort_by {|o| o[0]}.each { |r| t << r }
+                  ta.select{ |r| r[0] && r[1] }.sort_by {|o| o[0]}.each { |r|
+                    r[0].gsub!(/^\//, '')
+                    t << r 
+                  }
                 end
                 self.print(table)
               else
