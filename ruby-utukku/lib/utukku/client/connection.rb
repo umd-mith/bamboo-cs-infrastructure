@@ -34,7 +34,6 @@ module Utukku
   end
 
   def send(data)
-puts "out: #{data.to_json}"
     @client.send(data.to_json)
   end
 

@@ -73,7 +73,8 @@ module Utukku::Engine::Memory
     def to_table_array
       acc = [ [ self.path, self.value ] ]
       self.to_paths.each_pair do |p, vs|
-        vs.to_a.each do |v|
+        vs = [ vs ] unless vs.is_a?(Array)
+        vs.each do |v|
           acc.push( [ p, v ] )
         end
       end

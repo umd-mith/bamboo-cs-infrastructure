@@ -7,7 +7,7 @@ class Utukku::Engine::UnionIterator < Utukku::Engine::Iterator
   end
 
   def start
-    UnionIterator::Visitor.new(@iterators)
+    Utukku::Engine::UnionIterator::Visitor.new(@iterators)
   end
 
   def build_async(callbacks)

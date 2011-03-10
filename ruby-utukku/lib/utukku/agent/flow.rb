@@ -1,6 +1,7 @@
 require 'utukku/engine/parser'
 require 'utukku/engine/context'
 require 'utukku/agent/flow_iterator'
+require 'utukku/engine/constant_iterator'
 
 class Utukku::Agent::Flow
   def initialize(agent, data, msg_id)
@@ -28,7 +29,7 @@ class Utukku::Agent::Flow
   end
 
   def start
-    @parsed_expr.async(@context, false, {
+    callbacks = {
       :next => proc { |v|
         if v.is_a?(Utukku::Engine::Memory::Node)
           if !v.vtype.nil? && v.vtype.join("") == Utukku::Engine::NS::FAB + "numeric"
@@ -49,13 +50,22 @@ class Utukku::Agent::Flow
       :done => proc {
         @agent.response('flow.produced', {}, @msg_id)
       }
-    })
+    }
+
+    if @iterators.empty?
+      res = @parsed_expr.run(@context)
+      if !res.is_a?(Utukku::Engine::Iterator)
+        res = Utukku::Engine::ConstantIterator.new(res)
+      end
+      res.async(callbacks)
+    else
+      @parsed_expr.async(@context, false, callbacks)
+    end
   end
 
   def provide(iterators)
     iterators.each_pair do |i,v|
       v = v.to_a
-puts "in: #{YAML::dump(v)}"
       v.each do |vv|
         if vv.is_a?(Hash)
           vv = @context.root.node_from_hash(vv)
@@ -64,7 +74,6 @@ puts "in: #{YAML::dump(v)}"
         else
           vv = @context.root.anon_node(vv)
         end
-puts "vv: #{YAML::dump(vv)}"
         @iterator_objs[i].push(vv)
       end
     end
