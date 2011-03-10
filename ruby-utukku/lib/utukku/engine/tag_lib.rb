@@ -218,7 +218,7 @@ class Utukku::Engine::TagLib
         (args.size > 1 ? Utukku::Engine::UnionIterator.new(args) :
         args.size == 1 ? args.first :
         Utukku::Engine::NullIterator.new)) do |a|
-           send "fctn:#{nom}", context, a 
+           send "fctn:#{nom}", context.with_root(a)
         end
     when :reduction
       args = args.flatten #.collect{ |a| a.run(context) }.flatten
@@ -265,7 +265,10 @@ class Utukku::Engine::TagLib
     #begin
       case self.function_run_type(nom)
       when :mapping
-        ret = args.to_a.flatten.collect { |a| send "fctn:#{nom}", context, a }
+        ret = args.to_a.flatten
+        ret = Utukku::Engine::MapIterator.new(args) { |a|
+          send "fctn:#{nom}", context.with_root(a)
+        }.to_a
       when :reduction
         ret = send "fctn:#{nom}", context, args.to_a.flatten
       when :consolidation
@@ -431,8 +434,8 @@ class Utukku::Engine::TagLib
         Utukku::Engine::TagLib.types[ns][nom.to_sym].instance_eval &block
       end
 
-      mapping nom do |ctx, i|
-        ctx.with_root(i).to([ ns, nom.to_s ]).root
+      mapping nom do |ctx|
+        ctx.to([ ns, nom.to_s ]).root
       end
     end
 

@@ -153,20 +153,20 @@ module Utukku::Engine::Core
 
     NUMERIC = [ Utukku::Engine::NS::FAB, 'numeric' ]
 
-    mapping 'abs' do |ctx, arg|
-      arg.value.abs
+    mapping 'abs' do |ctx|
+      ctx.root.value.abs
     end
 
-    mapping 'ceiling' do |ctx, arg|
-      arg.to(NUMERIC).value.to_d.ceil.to_r
+    mapping 'ceiling' do |ctx|
+      ctx.root.to(NUMERIC).value.to_d.ceil.to_r
     end
 
-    mapping 'floor' do |ctx, arg|
-      arg.to(NUMERIC).value.to_d.floor.to_r
+    mapping 'floor' do |ctx|
+      ctx.root.to(NUMERIC).value.to_d.floor.to_r
     end
 
-    mapping 'random' do |ctx, arg|
-      v = arg.to(NUMERIC).value.to_i
+    mapping 'random' do |ctx|
+      v = ctx.root.to(NUMERIC).value.to_i
       if v <= 0
         (0.0).to_d.to_r
       else
@@ -321,20 +321,20 @@ module Utukku::Engine::Core
     #
     # f:string-length(node-list) => node-list
     #
-    mapping 'string-length' do |ctx, arg|
-      (arg.to_s.length rescue 0)
+    mapping 'string-length' do |ctx|
+      (ctx.root.to_s.length rescue 0)
     end
 
-    mapping 'normalize-space' do |ctx, arg|
-      arg.to_s.gsub(/^\s+/, '').gsub(/\s+$/,'').gsub(/\s+/, ' ')
+    mapping 'normalize-space' do |ctx|
+      ctx.root.to_s.gsub(/^\s+/, '').gsub(/\s+$/,'').gsub(/\s+/, ' ')
     end
 
-    mapping 'upper-case' do |ctx, arg|
-      arg.to_s.upcase
+    mapping 'upper-case' do |ctx|
+      ctx.root.to_s.upcase
     end
 
-    mapping 'lower-case' do |ctx, arg|
-      arg.to_s.downcase
+    mapping 'lower-case' do |ctx|
+      ctx.root.to_s.downcase
     end
 
     function 'split' do |ctx, args|
@@ -432,42 +432,42 @@ module Utukku::Engine::Core
       return [ ctx.root.anon_node( false, [ Utukku::Engine::NS::FAB, 'boolean' ] ) ]
     end
 
-    mapping 'not' do |ctx, arg|
-      !arg.value
+    mapping 'not' do |ctx|
+      !ctx.root.value
     end
 
     ###
     ### data node functions
     ###
 
-    mapping 'name' do |ctx, arg|
-      arg.name || ''
+    mapping 'name' do |ctx|
+      ctx.root.name || ''
     end
 
-    mapping 'root' do |ctx, arg|
-      arg.root
+    mapping 'root' do |ctx|
+      ctx.root.root
     end
 
-    mapping 'lang' do |ctx, arg|
+    mapping 'lang' do |ctx|
       # we want to track language for rdf purposes?
     end
 
-    mapping 'path' do |ctx, arg|
-      arg.path
+    mapping 'path' do |ctx|
+      ctx.root.path
     end
 
-    mapping 'dump' do |ctx, arg|
+    mapping 'dump' do |ctx|
       YAML::dump(
-        arg.is_a?(Array) ? arg.collect{ |a| a.to_h } : arg.to_h 
+        ctx.root.is_a?(Array) ? ctx.root.collect{ |a| a.to_h } : ctx.root.to_h 
       ) 
     end
 
-    mapping 'eval' do |ctx, arg|
+    mapping 'eval' do |ctx|
       p = Utukku::Engine::Parser.new
-      if arg.vtype.join('') == Utukku::Engine::NS::FAB+'expression'
-        return arg.value.run(ctx, true)
+      if ctx.root.vtype.join('') == Utukku::Engine::NS::FAB+'expression'
+        return ctx.root.value.run(ctx, true)
       else
-        e = arg.to_s
+        e = ctx.root.to_s
         pe = e.nil? ? nil : p.parse(e,ctx)
         return pe.nil? ? [] : pe.run(ctx, true)
       end
@@ -569,9 +569,9 @@ module Utukku::Engine::Core
     ### URIs
     ###
  
-    mapping 'uri-prefix' do |ctx, arg|
+    mapping 'uri-prefix' do |ctx|
       res = [ ]
-      prefix = arg.to_s
+      prefix = ctx.root.to_s
       # resolve prefix to href
       if ctx.get_ns(prefix)
         return ctx.root.anon_node( ctx.get_ns(prefix), [Utukku::Engine::NS::FAB, 'string'])

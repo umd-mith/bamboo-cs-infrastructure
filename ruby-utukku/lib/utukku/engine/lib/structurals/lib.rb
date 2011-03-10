@@ -91,7 +91,9 @@ class Utukku::Engine::Lib::Structurals::Lib < Utukku::Engine::Structural
             ctx.set_var('0', args)
             res = fctn.run(ctx)
           when :mapping
-            res = args.collect{ |a| fctn.run(ctx.with_root(a)) }.flatten
+            res = Utukku::Engine::MapIterator.new(args) { |a|
+              fctn.run(ctx.with_root(a))
+            }.to_a
           when :reduction
             ctx.set_var('0', args.flatten)
             res = fctn.run(ctx)

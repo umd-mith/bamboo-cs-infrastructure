@@ -9,6 +9,9 @@ class Utukku::Engine::MapIterator < Utukku::Engine::Iterator
   def initialize(it, &block)
     if it.kind_of?(Array) 
       it = it.flatten
+      it = it.collect{ |i|
+        i.is_a?(Utukku::Engine::Iterator) ? i : Utukku::Engine::ConstantIterator.new(i)
+      }
       if it.empty?
         @iterator = Utukku::Engine::NullIterator.new
       elsif it.length == 1
