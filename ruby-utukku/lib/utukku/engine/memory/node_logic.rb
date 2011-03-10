@@ -8,16 +8,16 @@ module Utukku::Engine::Memory
         r = { }
         #  :attributes => { },
 
-        r[:name] = self.name unless self.name.nil?
+        r[:n] = self.name unless self.name.nil?
         cs = self.children.collect { |c| c.to_h }
-        r[:children] = cs unless cs.empty?
-        r[:value] = self.value unless self.value.nil?
-        r[:type] = self.vtype unless self.vtype.nil?
-        r[:attributes] = { }
+        r[:c] = cs unless cs.empty?
+        r[:v] = self.value unless self.value.nil?
+        r[:t] = self.vtype unless self.vtype.nil?
+        r[:a] = { }
         self.attributes.each do |a|
-          r[:attributes][a.name] = a.value
+          r[:a][a.name] = a.value
         end
-        r.delete(:attributes) if r[:attributes].empty?
+        r.delete(:a) if r[:a].empty?
         r
       end
 

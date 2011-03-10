@@ -55,6 +55,7 @@ class Utukku::Agent::Flow
   def provide(iterators)
     iterators.each_pair do |i,v|
       v = v.to_a
+puts "in: #{YAML::dump(v)}"
       v.each do |vv|
         if vv.is_a?(Hash)
           vv = @context.root.node_from_hash(vv)
@@ -63,6 +64,7 @@ class Utukku::Agent::Flow
         else
           vv = @context.root.anon_node(vv)
         end
+puts "vv: #{YAML::dump(vv)}"
         @iterator_objs[i].push(vv)
       end
     end

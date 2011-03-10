@@ -4,6 +4,7 @@ class UtukkuX::CorporaCamp::WoodchipperURLBuilder < Utukku::Engine::TagLib
 
   function 'build-text-url' do |ctx, args|
     a = args[0]
+puts YAML::dump(args)
     begin
       args[0] = args[0].flatten.first
       if args[0].value.nil?
@@ -41,25 +42,25 @@ class UtukkuX::CorporaCamp::WoodchipperURLBuilder < Utukku::Engine::TagLib
   function 'build-chunk-url' do |ctx, args|
     a = args[0]
     begin
-      args[0] = args[0].flatten.first
+      args[0] = args[0].to_a.flatten.first
       if args[0].value.nil?
         args[0] = args[0].children
       end
     rescue
       args[0] = a
     end
-    collection = args[0].flatten.first.value
+    collection = args[0].to_a.flatten.first.value
 
     a = args[1]
     begin
-      args[1] = args[1].flatten.first
+      args[1] = args[1].to_a.flatten.first
       if args[1].value.nil?
         args[1] = args[1].children
       end
     rescue
       args[1] = a
     end
-    ids = args[1].flatten.first.value
+    ids = args[1].to_a.flatten.first.value
 
     case collection
       when 'hathi'

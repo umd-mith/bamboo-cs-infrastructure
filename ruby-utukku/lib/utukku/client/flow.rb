@@ -40,7 +40,7 @@ class Utukku::Client::Flow
                 @client.request('flow.provide', { k => [ v.value.numerator ] }, @mid)
               end
             elsif !v.vtype.nil? && v.vtype.join("") == Utukku::Engine::NS::FAB + "string"
-              @client.request('flow.provide', { k => [ v.value ] })
+              @client.request('flow.provide', { k => [ v.value ] }, @mid)
             else
               @client.request('flow.provide', { k => [ v.to_h ] }, @mid)
             end
