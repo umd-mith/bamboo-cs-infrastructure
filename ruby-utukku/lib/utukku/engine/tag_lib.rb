@@ -35,7 +35,6 @@ class Utukku::Engine::TagLib
   end
   def self.namespaces
     Utukku::Engine::TagLib::Registry.instance.handlers
-    #@@namespaces
   end
   def self.action_descriptions
     @@action_descriptions
@@ -486,7 +485,7 @@ class Utukku::Engine::TagLib
 
     def function(name, options = { }, &block)
       Utukku::Engine::TagLib.functions[self.name] ||= {}
-      Utukku::Engine::TagLib.functions[self.name][name.to_sym] = { }
+      Utukku::Engine::TagLib.functions[self.name][name.to_s] = { }
       #self.function_descriptions[name.to_sym] = { :returns => returns, :takes => takes }
       self.function_descriptions[name.to_sym][:description] = Utukku::Engine::TagLib.last_description if Utukku::Engine::TagLib.last_description
       #self.function_args[name] = { :return => returns, :takes => takes }
@@ -518,7 +517,7 @@ class Utukku::Engine::TagLib
 
     def reduction(name, opts = {}, &block)
       Utukku::Engine::TagLib.reductions[self.name] ||= {}
-      Utukku::Engine::TagLib.reductions[self.name][name.to_sym] = { }
+      Utukku::Engine::TagLib.reductions[self.name][name.to_s] = { }
       self.function_descriptions[name.to_sym] = { :type => :reduction }.merge(opts)
       self.function_descriptions[name.to_sym][:description] = Utukku::Engine::TagLib.last_description if Utukku::Engine::TagLib.last_description
       Utukku::Engine::TagLib.last_description = nil
@@ -537,7 +536,7 @@ class Utukku::Engine::TagLib
 
     def consolidation(name, opts = {}, &block)
       Utukku::Engine::TagLib.consolidations[self.name] ||= {}
-      Utukku::Engine::TagLib.consolidations[self.name][name.to_sym] = { }
+      Utukku::Engine::TagLib.consolidations[self.name][name.to_s] = { }
       self.function_descriptions[name.to_sym] = { :type => :consolidation }.merge(opts)
       self.function_descriptions[name.to_sym][:description] = Utukku::Engine::TagLib.last_description if Utukku::Engine::TagLib.last_description
       Utukku::Engine::TagLib.last_description = nil
@@ -547,7 +546,7 @@ class Utukku::Engine::TagLib
     def mapping(name, opts = {}, &block)
       name = name.to_sym
       Utukku::Engine::TagLib.mappings[self.name] ||= {}
-      Utukku::Engine::TagLib.mappings[self.name][name] = { }
+      Utukku::Engine::TagLib.mappings[self.name][name.to_s] = { }
       self.function_descriptions[name] = { :type => :mapping }.merge(opts)
       self.function_descriptions[name][:description] = Utukku::Engine::TagLib.last_description if Utukku::Engine::TagLib.last_description
       Utukku::Engine::TagLib.last_description = nil
