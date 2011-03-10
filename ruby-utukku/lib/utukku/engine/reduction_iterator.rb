@@ -12,12 +12,8 @@ class Utukku::Engine::ReductionIterator
       :next => @function[:next],
       :done => proc {
         v = @function[:done].call()
-        if v.kind_of?(Utukku::Engine::Iterator)
-          v.async(callbacks)
-        else
-          callbacks[:next].call(v)
-          callbacks[:done].call()
-        end
+        v = Utukku::Engine::ConstantIterator.new(v) unless v.kind_of?(Utukku::Engine::Iterator)
+        v.async(callbacks)
       }
     })
   end
